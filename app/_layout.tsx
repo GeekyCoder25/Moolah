@@ -1,39 +1,73 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import {useFonts} from 'expo-font';
+import {Stack} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import {StatusBar} from 'expo-status-bar';
+import {useEffect} from 'react';
+import {colorScheme} from 'nativewind';
 import 'react-native-reanimated';
+import '../styles/global.css';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {View} from 'react-native';
+import {useGlobalStore} from '@/context/store';
+import {MemoryStorage} from '@/utils/storage';
+import {APP_THEME} from '@/constants';
+import PinModal from './components/PinModal';
+import Loading from './components/loading';
+import Toast from 'react-native-toast-message';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+	const {setDarkMode} = useGlobalStore();
+	const insets = useSafeAreaInsets();
+	const [loaded] = useFonts({
+		SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+		PlusJakartaSansBold: require('../assets/fonts/PlusJakartaSans-Bold.ttf'),
+		PlusJakartaSansExtraBold: require('../assets/fonts/PlusJakartaSans-ExtraBold.ttf'),
+		PlusJakartaSansExtraLight: require('../assets/fonts/PlusJakartaSans-ExtraLight.ttf'),
+		PlusJakartaSansMedium: require('../assets/fonts/PlusJakartaSans-Medium.ttf'),
+		PlusJakartaSansRegular: require('../assets/fonts/PlusJakartaSans-Regular.ttf'),
+		PlusJakartaSansSemiBold: require('../assets/fonts/PlusJakartaSans-SemiBold.ttf'),
+	});
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+	useEffect(() => {
+		if (loaded) {
+			const setTheme = async () => {
+				const storage = new MemoryStorage();
+				const mode = await storage.getItem(APP_THEME);
 
-  if (!loaded) {
-    return null;
-  }
+				setDarkMode(
+					mode ? (mode === 'dark' ? true : false) : colorScheme.get() === 'dark'
+				);
+				SplashScreen.hideAsync();
+			};
+			setTheme();
+		}
+		7;
+	}, [loaded]);
 
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+	if (!loaded) {
+		return null;
+	}
+
+	return (
+		<View className="flex-1">
+			<View style={{height: insets.top, backgroundColor: '#FFF'}}>
+				<StatusBar style="dark" />
+			</View>
+			<Stack screenOptions={{headerShown: false}}>
+				<Stack.Screen name="Signup" />
+				<Stack.Screen name="Signin" />
+				<Stack.Screen name="(tabs)" />
+				<Stack.Screen name="Electricity" />
+				<Stack.Screen name="Tv" />
+				<Stack.Screen name="Exam" />
+				<Stack.Screen name="+not-found" />
+			</Stack>
+			<PinModal />
+			<Loading />
+			<Toast />
+		</View>
+	);
 }
