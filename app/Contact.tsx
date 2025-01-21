@@ -3,7 +3,6 @@ import React from 'react';
 import {Text} from '@/components/text';
 import Back from '@/components/back';
 import {router} from 'expo-router';
-import LockChangeIcon from '@/assets/icons/lock-change';
 import LockSlashIcon from '@/assets/icons/lock-slash';
 import BackIcon from '@/assets/icons/back-icon';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
