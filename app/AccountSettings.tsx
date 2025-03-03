@@ -18,19 +18,19 @@ const AccountSettings = () => {
 	}[] = [
 		{
 			title: 'Change Password',
-			subText: 'Your profile',
+			subText: 'Update your account password',
 			icon: <LockIcon />,
 			route: '/ChangePassword',
 		},
 		{
 			title: 'Change pin',
-			subText: 'Your profile',
+			subText: 'Modify your security PIN',
 			icon: <LockChangeIcon />,
 			route: '/ChangePin',
 		},
 		{
 			title: 'Disable pin',
-			subText: 'Your profile',
+			subText: 'Temporarily disable your PIN security',
 			icon: <LockSlashIcon />,
 			route: '/DisablePin',
 		},

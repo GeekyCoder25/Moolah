@@ -1,3 +1,5 @@
+import {UserAttributes} from '@/app/types';
+
 export interface GlobalState {
 	isLoggedIn: boolean;
 	setIsLoggedIn: (isLoggedIn: boolean) => void;
@@ -7,4 +9,6 @@ export interface GlobalState {
 	setDarkMode: (darkMode: boolean) => void;
 	showPin: boolean;
 	setShowPin: (showPin: boolean) => void;
+	user: UserAttributes | null;
+	setUser: (user: UserAttributes | null) => void;
 }

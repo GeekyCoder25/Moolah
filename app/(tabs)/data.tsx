@@ -2,56 +2,176 @@ import {
 	Keyboard,
 	Modal,
 	Pressable,
+	ScrollView,
 	TextInput,
 	TouchableOpacity,
 	View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Back from '@/components/back';
 import {Text} from '@/components/text';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import {globalStyles} from '@/styles';
 import Button from '../components/button';
+import {AxiosClient} from '@/utils/axios';
+import {useGlobalStore} from '@/context/store';
+import Toast from 'react-native-toast-message';
+import {router} from 'expo-router';
+import PinModal from '../components/PinModal';
+import {networkProvidersIcon} from './airtime';
+
+export interface DataResponse {
+	status: number;
+	message: string;
+	data: {
+		data_type: string[];
+		data: NetworkData[];
+	};
+}
+
+export interface NetworkData {
+	type: string; // e.g. "network"
+	id: number;
+	attributes: NetworkAttributes;
+}
+
+export interface NetworkAttributes {
+	network: string; // e.g. "MTN", "GLO", "9MOBILE", "AIRTEL"
+	network_status: string; // e.g. "On" or "Off"
+	vtuStatus: string; // e.g. "On" or "Off"
+	sharesellStatus: string; // e.g. "On" or "Off"
+	airtimepinStatus: string; // e.g. "On" or "Off"
+	smeStatus: string; // e.g. "On" or "Off"
+	giftingStatus: string; // e.g. "On" or "Off"
+	corporateStatus: string; // e.g. "On" or "Off"
+	datapinStatus: string; // e.g. "On" or "Off"
+	dataplans: DataPlan[];
+}
+
+export interface DataPlan {
+	type: string; // e.g. "data"
+	id: number;
+	attributes: DataPlanAttributes;
+}
+
+export interface DataPlanAttributes {
+	name: string; // e.g. "500 MB"
+	price: string; // e.g. "380"
+	type: string; // e.g. "SME", "Gifting", "Corporate"
+	day: string; // e.g. "30"
+	network: string; // e.g. "MTN"
+}
 
 const Data = () => {
+	const {setLoading} = useGlobalStore();
 	const [formData, setFormData] = useState({
 		network: '',
+		id: 0,
 		plan: '',
+		price: '',
 		phone_number: '',
 		amount: '',
 	});
+	const [showPin, setShowPin] = useState(false);
 	const [showNetworkModal, setShowNetworkModal] = useState(false);
 	const [showPlanModal, setShowPlanModal] = useState(false);
+	const [plans, setPlans] = useState<NetworkData[]>([]);
 
 	const networks = [
 		{
 			label: 'MTN',
-		},
-		{
-			label: 'Airtel',
+			id: 1,
 		},
 		{
 			label: 'Glo',
+			id: 2,
 		},
 		{
 			label: '9mobile',
+			id: 3,
+		},
+		{
+			label: 'Airtel',
+			id: 4,
 		},
 	];
 
-	const plans = [{name: `${formData.network} 2gb for ₦200`}];
+	useEffect(() => {
+		const getDataPlans = async () => {
+			try {
+				const axiosClient = new AxiosClient();
 
-	const handleBuy = async () => {
+				const response = await axiosClient.get<DataResponse>('/data');
+
+				if (response.status === 200) {
+					setPlans(response.data.data.data);
+				}
+			} catch (error) {}
+		};
+		getDataPlans();
+	}, []);
+
+	const handleBuy = async (pin?: string) => {
 		try {
 			if (!formData.network) {
 				throw new Error('Please select a network');
 			} else if (!formData.plan) {
-				throw new Error('Please select a data plan');
+				throw new Error('Please select a plan to buy');
 			} else if (!formData.phone_number) {
 				throw new Error('Please input your phone number');
 			}
+			setLoading(true);
+			const axiosClient = new AxiosClient();
+
+			if (!pin) {
+				return setShowPin(true);
+			}
+			const response = await axiosClient.post<{
+				network_id: number;
+				data_type: string;
+				data_plan: string;
+				data_plan_id: number;
+				phone_number: string;
+				pin: string;
+			}>('/data', {
+				network_id: formData.id,
+				data_type: 'SME',
+				data_plan: formData.plan,
+				data_plan_id: formData.id,
+				phone_number: formData.phone_number,
+				pin,
+			});
+			if (response.status === 200) {
+				Toast.show({
+					type: 'success',
+					text1: 'Success',
+					text2: 'Data recharge successful',
+				});
+				router.back();
+				setFormData({
+					network: '',
+					id: 0,
+					plan: '',
+					price: '',
+					phone_number: '',
+					amount: '',
+				});
+			}
 		} catch (error: any) {
-			alert(error.message);
+			Toast.show({
+				type: 'error',
+				text1: 'Error',
+				text2:
+					error.response?.data?.message ||
+					error.response?.data ||
+					error.message,
+			});
+			console.log(error.response?.data || error.message);
 		} finally {
+			if (pin) {
+				setShowPin(false);
+			}
+			setLoading(false);
 		}
 	};
 
@@ -96,22 +216,25 @@ const Data = () => {
 								/>
 								<View className="flex-1 justify-end items-end">
 									<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-										<Text className="text-3xl" fontWeight={700}>
+										<Text className="text-2xl" fontWeight={700}>
 											Select Network
 										</Text>
-										<View className="my-10">
+										<View className="my-5">
 											{networks.map(network => (
 												<TouchableOpacity
 													key={network.label}
-													className="py-5"
+													className="py-5 flex-row items-center gap-x-5"
 													onPress={() => {
 														setFormData(prev => ({
 															...prev,
 															network: network.label,
+															id: network.id,
 														}));
 														setShowNetworkModal(false);
 													}}
 												>
+													{networkProvidersIcon(network.label.toLowerCase())}
+
 													<Text className="text-2xl">{network.label}</Text>
 												</TouchableOpacity>
 											))}
@@ -127,11 +250,23 @@ const Data = () => {
 								Select Plan
 							</Text>
 							<TouchableOpacity
-								onPress={() => setShowPlanModal(true)}
+								onPress={() => {
+									if (formData.network) {
+										return setShowPlanModal(true);
+									}
+									Toast.show({type: 'info', text1: 'Select a network first'});
+								}}
 								className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 							>
 								<Text className="text-lg">
-									{formData.plan || 'Select Plan'}
+									{formData.plan ? (
+										<>
+											{formData.plan} for ₦
+											{Number(formData.price).toLocaleString()}
+										</>
+									) : (
+										'Select Plan'
+									)}
 								</Text>
 
 								<FontAwesome name="caret-down" size={24} color="#7D7D7D" />
@@ -145,26 +280,42 @@ const Data = () => {
 								/>
 								<View className="flex-1 justify-end items-end">
 									<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-										<Text className="text-3xl" fontWeight={700}>
+										<Text className="text-2xl" fontWeight={700}>
 											Select Data Plan
 										</Text>
-										<View className="my-10">
-											{plans.map(plan => (
-												<TouchableOpacity
-													key={plan.name}
-													className="py-5"
-													onPress={() => {
-														setFormData(prev => ({
-															...prev,
-															plan: plan.name,
-														}));
-														setShowPlanModal(false);
-													}}
-												>
-													<Text className="text-2xl">{plan.name}</Text>
-												</TouchableOpacity>
-											))}
-										</View>
+										<ScrollView className="my-5">
+											{plans
+												.filter(plan => plan.id === formData.id)
+												.map(plan => (
+													<View key={plan.id}>
+														{plan.attributes.dataplans.map(plan => (
+															<TouchableOpacity
+																key={plan.id}
+																onPress={() => {
+																	setFormData(prev => ({
+																		...prev,
+																		plan: plan.attributes.name,
+																		price: plan.attributes.price,
+																	}));
+																	setShowPlanModal(false);
+																}}
+																className="py-3 flex-row gap-x-2"
+															>
+																<Text className="text-xl">
+																	{plan.attributes.name}
+																</Text>
+																<Text className="text-xl">for</Text>
+																<Text className="text-xl">
+																	₦
+																	{Number(
+																		plan.attributes.price
+																	).toLocaleString()}
+																</Text>
+															</TouchableOpacity>
+														))}
+													</View>
+												))}
+										</ScrollView>
 									</View>
 								</View>
 							</Modal>
@@ -204,7 +355,14 @@ const Data = () => {
 					</View> */}
 				</View>
 			</View>
-			<Button title="Buy" onPress={handleBuy} />
+			<Button title="Buy" onPress={() => handleBuy()} />
+			{showPin && (
+				<PinModal
+					showPin={showPin}
+					setShowPin={setShowPin}
+					handleContinue={handleBuy}
+				/>
+			)}
 		</Pressable>
 	);
 };

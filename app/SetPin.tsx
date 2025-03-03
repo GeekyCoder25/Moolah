@@ -3,6 +3,7 @@ import {
 	Pressable,
 	TextInput,
 	TouchableOpacity,
+	TouchableWithoutFeedback,
 	View,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
@@ -96,13 +97,19 @@ const SetPin = () => {
 				throw new Error("Pin doesn't match");
 			}
 			setLoading(true);
-			const response = await axiosClient.put<{pin: string}>('/auth/user/1', {
-				pin,
+			const response = await axiosClient.post<{
+				old_pin: string;
+				new_pin: string;
+				new_pin_confirmation: string;
+			}>('/changepin', {
+				old_pin: '0000',
+				new_pin: pin,
+				new_pin_confirmation: pin,
 			});
 			if (response.status === 200) {
+				console.log(response.data);
 				await storage.setItem(IS_LOGGED_IN, 'true');
-
-				router.replace('/(tabs)');
+				router.replace('/');
 			}
 		} catch (error: any) {
 			setIsError1(true);
@@ -117,15 +124,16 @@ const SetPin = () => {
 				type: 'error',
 				text1: 'Error',
 				text2:
-					error.response?.data?.detail || error.response?.data || error.message,
+					error.response?.data?.message ||
+					error.response?.data ||
+					error.message,
 			});
 			setTimeout(() => {
 				clearOTP();
 				inputRef.current?.focus();
 			}, 1500);
-			console.log(error.response?.data?.detail);
+			console.log(error.response?.data);
 		} finally {
-			router.replace('/(tabs)');
 			setLoading(false);
 		}
 	};
@@ -150,236 +158,240 @@ const SetPin = () => {
 	};
 
 	return (
-		<View className="bg-white flex-1 px-[3%] py-5">
-			<Pressable className="pb-5" onPress={router.back}>
-				<BackIcon />
-			</Pressable>
-			<Logo />
-			<Text className="text-3xl mt-10 mb-2" fontWeight={700}>
-				Set transaction pin
-			</Text>
-			<Text className="text-[#222222] text-lg">
-				To get back into more features
-			</Text>
-
-			<View className="my-10 gap-y-5 flex-1">
-				<View className="flex-row justify-between gap-x-3 mt-5 max-w-[350px]">
-					<TouchableOpacity onPress={() => inputRef.current?.focus()}>
-						<TextInput
-							onChangeText={text => {
-								text && inputRef2.current?.focus();
-								setOtpCode1(text);
-								setIsError1(false);
-							}}
-							onFocus={() => setFocusedBox(1)}
-							inputMode="numeric"
-							ref={inputRef}
-							maxLength={1}
-							// style={isError1 ? styles.otpInputError : styles.otpInput}
-							textAlign="center"
-							value={otpCode1}
-							autoFocus
-							className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
-								isError1 ? 'text-red-500' : ''
-							} ${
-								focusedBox === 1
-									? 'border-secondary'
-									: isError1
-									? 'border-red-500'
-									: 'border-[#C8C8C8]'
-							}`}
-						/>
-					</TouchableOpacity>
-					<TouchableOpacity onPress={() => inputRef2.current?.focus()}>
-						<TextInput
-							onChangeText={text => {
-								text ? inputRef3.current?.focus() : inputRef.current?.focus();
-								setOtpCode2(text);
-								setIsError2(false);
-							}}
-							onFocus={() => setFocusedBox(2)}
-							inputMode="numeric"
-							ref={inputRef2}
-							maxLength={1}
-							textAlign="center"
-							value={otpCode2}
-							className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
-								isError2 ? 'text-red-500' : ''
-							} ${
-								focusedBox === 2
-									? 'border-secondary'
-									: isError2
-									? 'border-red-500'
-									: 'border-[#C8C8C8]'
-							}`}
-						/>
-					</TouchableOpacity>
-					<TouchableOpacity onPress={() => inputRef3.current?.focus()}>
-						<TextInput
-							onChangeText={text => {
-								text ? inputRef4.current?.focus() : inputRef2.current?.focus();
-								setOtpCode3(text);
-								setIsError3(false);
-							}}
-							onFocus={() => setFocusedBox(3)}
-							inputMode="numeric"
-							ref={inputRef3}
-							maxLength={1}
-							textAlign="center"
-							value={otpCode3}
-							className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
-								isError3 ? 'text-red-500' : ''
-							} ${
-								focusedBox === 3
-									? 'border-secondary'
-									: isError3
-									? 'border-red-500'
-									: 'border-[#C8C8C8]'
-							}`}
-						/>
-					</TouchableOpacity>
-					<TouchableOpacity onPress={() => inputRef4.current?.focus()}>
-						<TextInput
-							onChangeText={text => {
-								setOtpCode4(text);
-								setIsError4(false);
-								if (!text) {
-									return inputRef3.current?.focus();
-								}
-								Keyboard.dismiss();
-								setFocusedBox(0);
-							}}
-							onFocus={() => setFocusedBox(4)}
-							inputMode="numeric"
-							ref={inputRef4}
-							maxLength={1}
-							textAlign="center"
-							value={otpCode4}
-							className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
-								isError4 ? 'text-red-500' : ''
-							} ${
-								focusedBox === 4
-									? 'border-secondary'
-									: isError4
-									? 'border-red-500'
-									: 'border-[#C8C8C8]'
-							}`}
-						/>
-					</TouchableOpacity>
-				</View>
-				<Text className="text-2xl my-5" fontWeight={600}>
-					Confirm Pin
+		<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+			<View className="bg-white flex-1 px-[3%] py-5 pb-10">
+				<Pressable className="pb-5" onPress={router.back}>
+					<BackIcon />
+				</Pressable>
+				<Logo />
+				<Text className="text-3xl mt-10 mb-2" fontWeight={700}>
+					Set transaction pin
 				</Text>
-				<View className="flex-row justify-between gap-x-3 mt-5 max-w-[350px]">
-					<TouchableOpacity onPress={() => inputRefConfirm.current?.focus()}>
-						<TextInput
-							onChangeText={text => {
-								text && inputRefConfirm2.current?.focus();
-								setOtpCodeConfirm1(text);
-								setIsErrorConfirm1(false);
-							}}
-							onFocus={() => setFocusedBox(5)}
-							inputMode="numeric"
-							ref={inputRefConfirm}
-							maxLength={1}
-							// style={isError1 ? styles.otpInputError : styles.otpInput}
-							textAlign="center"
-							value={otpCodeConfirm1}
-							className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
-								isErrorConfirm1 ? 'text-red-500' : ''
-							} ${
-								focusedBox === 5
-									? 'border-secondary'
-									: isErrorConfirm1
-									? 'border-red-500'
-									: 'border-[#C8C8C8]'
-							}`}
-						/>
-					</TouchableOpacity>
-					<TouchableOpacity onPress={() => inputRefConfirm2.current?.focus()}>
-						<TextInput
-							onChangeText={text => {
-								text
-									? inputRefConfirm3.current?.focus()
-									: inputRefConfirm.current?.focus();
-								setOtpCodeConfirm2(text);
-								setIsErrorConfirm2(false);
-							}}
-							onFocus={() => setFocusedBox(6)}
-							inputMode="numeric"
-							ref={inputRefConfirm2}
-							maxLength={1}
-							textAlign="center"
-							value={otpCodeConfirm2}
-							className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
-								isErrorConfirm2 ? 'text-red-500' : ''
-							} ${
-								focusedBox === 6
-									? 'border-secondary'
-									: isErrorConfirm2
-									? 'border-red-500'
-									: 'border-[#C8C8C8]'
-							}`}
-						/>
-					</TouchableOpacity>
-					<TouchableOpacity onPress={() => inputRefConfirm3.current?.focus()}>
-						<TextInput
-							onChangeText={text => {
-								text
-									? inputRefConfirm4.current?.focus()
-									: inputRefConfirm2.current?.focus();
-								setOtpCodeConfirm3(text);
-								setIsErrorConfirm3(false);
-							}}
-							onFocus={() => setFocusedBox(7)}
-							inputMode="numeric"
-							ref={inputRefConfirm3}
-							maxLength={1}
-							textAlign="center"
-							value={otpCodeConfirm3}
-							className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
-								isErrorConfirm3 ? 'text-red-500' : ''
-							} ${
-								focusedBox === 7
-									? 'border-secondary'
-									: isErrorConfirm3
-									? 'border-red-500'
-									: 'border-[#C8C8C8]'
-							}`}
-						/>
-					</TouchableOpacity>
-					<TouchableOpacity onPress={() => inputRefConfirm4.current?.focus()}>
-						<TextInput
-							onChangeText={text => {
-								setOtpCodeConfirm4(text);
-								setIsErrorConfirm4(false);
-								if (!text) {
-									return inputRefConfirm3.current?.focus();
-								}
-								Keyboard.dismiss();
-								setFocusedBox(0);
-							}}
-							onFocus={() => setFocusedBox(8)}
-							inputMode="numeric"
-							ref={inputRefConfirm4}
-							maxLength={1}
-							textAlign="center"
-							value={otpCodeConfirm4}
-							className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
-								isErrorConfirm4 ? 'text-red-500' : ''
-							} ${
-								focusedBox === 8
-									? 'border-secondary'
-									: isErrorConfirm4
-									? 'border-red-500'
-									: 'border-[#C8C8C8]'
-							}`}
-						/>
-					</TouchableOpacity>
+				<Text className="text-[#222222] text-lg">
+					To get back into more features
+				</Text>
+
+				<View className="my-10 gap-y-5 flex-1">
+					<View className="flex-row justify-between gap-x-3 mt-5 max-w-[350px]">
+						<TouchableOpacity onPress={() => inputRef.current?.focus()}>
+							<TextInput
+								onChangeText={text => {
+									text && inputRef2.current?.focus();
+									setOtpCode1(text);
+									setIsError1(false);
+								}}
+								onFocus={() => setFocusedBox(1)}
+								inputMode="numeric"
+								ref={inputRef}
+								maxLength={1}
+								// style={isError1 ? styles.otpInputError : styles.otpInput}
+								textAlign="center"
+								value={otpCode1}
+								autoFocus
+								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+									isError1 ? 'text-red-500' : ''
+								} ${
+									focusedBox === 1
+										? 'border-secondary'
+										: isError1
+										? 'border-red-500'
+										: 'border-[#C8C8C8]'
+								}`}
+							/>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => inputRef2.current?.focus()}>
+							<TextInput
+								onChangeText={text => {
+									text ? inputRef3.current?.focus() : inputRef.current?.focus();
+									setOtpCode2(text);
+									setIsError2(false);
+								}}
+								onFocus={() => setFocusedBox(2)}
+								inputMode="numeric"
+								ref={inputRef2}
+								maxLength={1}
+								textAlign="center"
+								value={otpCode2}
+								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+									isError2 ? 'text-red-500' : ''
+								} ${
+									focusedBox === 2
+										? 'border-secondary'
+										: isError2
+										? 'border-red-500'
+										: 'border-[#C8C8C8]'
+								}`}
+							/>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => inputRef3.current?.focus()}>
+							<TextInput
+								onChangeText={text => {
+									text
+										? inputRef4.current?.focus()
+										: inputRef2.current?.focus();
+									setOtpCode3(text);
+									setIsError3(false);
+								}}
+								onFocus={() => setFocusedBox(3)}
+								inputMode="numeric"
+								ref={inputRef3}
+								maxLength={1}
+								textAlign="center"
+								value={otpCode3}
+								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+									isError3 ? 'text-red-500' : ''
+								} ${
+									focusedBox === 3
+										? 'border-secondary'
+										: isError3
+										? 'border-red-500'
+										: 'border-[#C8C8C8]'
+								}`}
+							/>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => inputRef4.current?.focus()}>
+							<TextInput
+								onChangeText={text => {
+									setOtpCode4(text);
+									setIsError4(false);
+									if (!text) {
+										return inputRef3.current?.focus();
+									}
+									Keyboard.dismiss();
+									setFocusedBox(0);
+								}}
+								onFocus={() => setFocusedBox(4)}
+								inputMode="numeric"
+								ref={inputRef4}
+								maxLength={1}
+								textAlign="center"
+								value={otpCode4}
+								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+									isError4 ? 'text-red-500' : ''
+								} ${
+									focusedBox === 4
+										? 'border-secondary'
+										: isError4
+										? 'border-red-500'
+										: 'border-[#C8C8C8]'
+								}`}
+							/>
+						</TouchableOpacity>
+					</View>
+					<Text className="text-2xl my-5" fontWeight={600}>
+						Confirm Pin
+					</Text>
+					<View className="flex-row justify-between gap-x-3 mt-5 max-w-[350px]">
+						<TouchableOpacity onPress={() => inputRefConfirm.current?.focus()}>
+							<TextInput
+								onChangeText={text => {
+									text && inputRefConfirm2.current?.focus();
+									setOtpCodeConfirm1(text);
+									setIsErrorConfirm1(false);
+								}}
+								onFocus={() => setFocusedBox(5)}
+								inputMode="numeric"
+								ref={inputRefConfirm}
+								maxLength={1}
+								// style={isError1 ? styles.otpInputError : styles.otpInput}
+								textAlign="center"
+								value={otpCodeConfirm1}
+								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+									isErrorConfirm1 ? 'text-red-500' : ''
+								} ${
+									focusedBox === 5
+										? 'border-secondary'
+										: isErrorConfirm1
+										? 'border-red-500'
+										: 'border-[#C8C8C8]'
+								}`}
+							/>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => inputRefConfirm2.current?.focus()}>
+							<TextInput
+								onChangeText={text => {
+									text
+										? inputRefConfirm3.current?.focus()
+										: inputRefConfirm.current?.focus();
+									setOtpCodeConfirm2(text);
+									setIsErrorConfirm2(false);
+								}}
+								onFocus={() => setFocusedBox(6)}
+								inputMode="numeric"
+								ref={inputRefConfirm2}
+								maxLength={1}
+								textAlign="center"
+								value={otpCodeConfirm2}
+								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+									isErrorConfirm2 ? 'text-red-500' : ''
+								} ${
+									focusedBox === 6
+										? 'border-secondary'
+										: isErrorConfirm2
+										? 'border-red-500'
+										: 'border-[#C8C8C8]'
+								}`}
+							/>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => inputRefConfirm3.current?.focus()}>
+							<TextInput
+								onChangeText={text => {
+									text
+										? inputRefConfirm4.current?.focus()
+										: inputRefConfirm2.current?.focus();
+									setOtpCodeConfirm3(text);
+									setIsErrorConfirm3(false);
+								}}
+								onFocus={() => setFocusedBox(7)}
+								inputMode="numeric"
+								ref={inputRefConfirm3}
+								maxLength={1}
+								textAlign="center"
+								value={otpCodeConfirm3}
+								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+									isErrorConfirm3 ? 'text-red-500' : ''
+								} ${
+									focusedBox === 7
+										? 'border-secondary'
+										: isErrorConfirm3
+										? 'border-red-500'
+										: 'border-[#C8C8C8]'
+								}`}
+							/>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => inputRefConfirm4.current?.focus()}>
+							<TextInput
+								onChangeText={text => {
+									setOtpCodeConfirm4(text);
+									setIsErrorConfirm4(false);
+									if (!text) {
+										return inputRefConfirm3.current?.focus();
+									}
+									Keyboard.dismiss();
+									setFocusedBox(0);
+								}}
+								onFocus={() => setFocusedBox(8)}
+								inputMode="numeric"
+								ref={inputRefConfirm4}
+								maxLength={1}
+								textAlign="center"
+								value={otpCodeConfirm4}
+								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+									isErrorConfirm4 ? 'text-red-500' : ''
+								} ${
+									focusedBox === 8
+										? 'border-secondary'
+										: isErrorConfirm4
+										? 'border-red-500'
+										: 'border-[#C8C8C8]'
+								}`}
+							/>
+						</TouchableOpacity>
+					</View>
 				</View>
+				<Button title="Continue" onPress={handleSubmit} />
 			</View>
-			<Button title="Continue" onPress={handleSubmit} />
-		</View>
+		</TouchableWithoutFeedback>
 	);
 };
 

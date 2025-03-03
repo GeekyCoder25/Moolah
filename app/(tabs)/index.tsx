@@ -19,15 +19,108 @@ import MonitorIcon from '@/assets/icons/monitor';
 import GraduationCapIcon from '@/assets/icons/graduation';
 import CameraIcon from '@/assets/icons/camera';
 import {router} from 'expo-router';
+import {useGlobalStore} from '@/context/store';
+import NotificationIcon from '@/assets/icons/notification';
+import ProfileIcon from '@/assets/icons/profile';
+import {RefreshControl} from 'react-native';
+import {useEffect, useState} from 'react';
+import {AxiosClient} from '@/utils/axios';
+import {UserResponse} from '../types';
+import {MemoryStorage} from '@/utils/storage';
+import {ACCESS_TOKEN_KEY} from '@/constants';
+
+// Root API response interface
+export interface TransactionsResponse {
+	status: number;
+	message: string;
+	data: Transaction[];
+}
+
+// Each transaction entry
+export interface Transaction {
+	type: string;
+	id: number;
+	attributes: TransactionAttributes;
+}
+
+// Transaction attributes
+export interface TransactionAttributes {
+	transaction_ref: string;
+	servicename: string;
+	servicedesc: string;
+	amount: string;
+	status: number;
+	oldbal: string;
+	newbal: string;
+	profit: number;
+	created_at: string | null;
+	updated_at: string | null;
+}
 
 export default function HomeScreen() {
-	const walletAmount = 200000;
+	const {user, setUser} = useGlobalStore();
+	const [refreshing, setRefreshing] = useState(false);
+	const [transactions, setTransactions] = useState<Transaction[]>([]);
+
+	const handleRefresh = async () => {
+		try {
+			setRefreshing(true);
+
+			const axiosClient = new AxiosClient();
+
+			const response = await axiosClient.get<UserResponse>('/user');
+			if (response.status === 200) {
+				setUser(response.data.data.attributes);
+			}
+		} catch (error) {
+		} finally {
+			setRefreshing(false);
+		}
+	};
+	useEffect(() => {
+		const storage = new MemoryStorage();
+		// storage.setItem(
+		// 	ACCESS_TOKEN_KEY,
+		// 	'7|ad2vOaO30XxYKdWB0cb0SNCUEYr667DmX9iD197C5f7bb8ba'
+		// );
+		const getTransactions = async () => {
+			try {
+				const axiosClient = new AxiosClient();
+
+				const response = await axiosClient.get<TransactionsResponse>(
+					'/transactions'
+				);
+
+				if (response.status === 200) {
+					setTransactions(response.data.data);
+				}
+			} catch (error) {}
+		};
+		getTransactions();
+	}, [refreshing]);
 
 	return (
-		<ScrollView className="flex-1 px-[3%]">
+		<ScrollView
+			className="flex-1 px-[3%]"
+			refreshControl={
+				<RefreshControl
+					refreshing={refreshing}
+					onRefresh={handleRefresh}
+					colors={[GlobalColors.secondary]}
+				/>
+			}
+		>
 			<View className="bg-[#f5f5f5] py-5">
-				<View className="flex-row">
+				<View className="flex-row justify-between items-center">
 					<Logo />
+					<View className="flex-row gap-x-4">
+						<TouchableOpacity onPress={() => router.navigate('/Notification')}>
+							<NotificationIcon />
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => router.navigate('/Profile')}>
+							<ProfileIcon />
+						</TouchableOpacity>
+					</View>
 				</View>
 				<View className="bg-primary mt-7 p-7 gap-y-2 rounded-bl-xl rounded-tr-xl overflow-hidden">
 					<View className="z-10">
@@ -36,7 +129,10 @@ export default function HomeScreen() {
 						</Text>
 
 						<Text className="text-white text-2xl" fontWeight={'bold'}>
-							{walletAmount.toLocaleString()}
+							₦
+							{user?.wallet_balance
+								? user.wallet_balance.toLocaleString()
+								: '0.00'}
 						</Text>
 						<View className="flex-row gap-x-5 mt-5">
 							<TouchableOpacity
@@ -104,8 +200,6 @@ export default function HomeScreen() {
 						<MonitorIcon />
 						<Text className="text-[#7D7D7D]">TV</Text>
 					</Pressable>
-					{/* </View> */}
-					{/* <View className="flex-row justify-between  gap-10 mx-[10%]"> */}
 					<Pressable
 						onPress={() => router.navigate('/Exam')}
 						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
@@ -131,21 +225,64 @@ export default function HomeScreen() {
 					</Pressable>
 				</View>
 			</View>
-			<View className="mt-10">
+			<View className="mt-5">
 				<View className="flex flex-row justify-between items-center">
 					<Text className="text-[#313131] text-2xl" fontWeight={600}>
 						Recent Transaction
 					</Text>
-
-					<Text className="text-secondary text-lg" fontWeight={600}>
-						See all
-					</Text>
+					{transactions.length > 5 && (
+						<Text className="text-secondary text-lg" fontWeight={600}>
+							See all
+						</Text>
+					)}
 				</View>
 
-				<View className="my-20 flex justify-center items-center">
-					<Text className="text-center text-lg">
-						You have no new transactions at the moment
-					</Text>
+				<View className="flex justify-center items-center">
+					{transactions.length ? (
+						<>
+							<View className="flex-row flex-1 w-full my-5">
+								<Text className="flex-1">Type</Text>
+								<Text className="flex-1">Transaction id</Text>
+								<View className="" style={{width: 50}}>
+									<Text className="">Price</Text>
+								</View>
+							</View>
+							{transactions.map(transaction => (
+								<View
+									key={transaction.id}
+									className="flex-row flex-1 w-full mb-7"
+								>
+									<View className="flex-1 flex-row">
+										<WifiIcon color={'#7D7D7D'} />
+										<View className="ml-2">
+											<Text className="font-semibold">
+												{transaction.attributes.servicename}
+											</Text>
+											{transaction.attributes.created_at && (
+												<Text>
+													{new Date(
+														transaction.attributes.created_at
+													).toDateString()}
+												</Text>
+											)}
+										</View>
+									</View>
+									<View className="flex-1">
+										<Text>{transaction.attributes.transaction_ref}</Text>
+									</View>
+									<View className="" style={{width: 50}}>
+										<Text className="font-semibold text-secondary">
+											₦{transaction.attributes.amount}
+										</Text>
+									</View>
+								</View>
+							))}
+						</>
+					) : (
+						<Text className="text-center text-lg my-20">
+							You have no new transactions at the moment
+						</Text>
+					)}
 				</View>
 			</View>
 		</ScrollView>

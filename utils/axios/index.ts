@@ -11,6 +11,7 @@ import {MemoryStorage} from '../storage';
 import {StorageInterface} from '../storage/storage.types';
 import {AxiosClientProps} from './axios.types';
 import {useGlobalStore} from '../../context/store';
+import {router} from 'expo-router';
 
 export class AxiosClient {
 	_axiosClient: AxiosInstance;
@@ -62,6 +63,7 @@ export class AxiosClient {
 			response => response,
 			async (error: AxiosError<Error>) => {
 				if (error.config && error?.response?.status === 401) {
+					router.replace('/Signin');
 					this._onAccessTokenExpire?.();
 				}
 
@@ -70,10 +72,6 @@ export class AxiosClient {
 		);
 
 		this._axiosClient.interceptors.request.use(config => {
-			if (!config.url?.includes('?') && !config.url?.endsWith('/')) {
-				config.url += '/';
-			}
-
 			return config;
 		});
 	}

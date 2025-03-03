@@ -13,36 +13,78 @@ import Button from './components/button';
 import {AxiosClient} from '@/utils/axios';
 import Toast from 'react-native-toast-message';
 import {useGlobalStore} from '@/context/store';
+import {MemoryStorage} from '@/utils/storage';
+import {ACCESS_TOKEN_KEY} from '@/constants';
+
+interface User {
+	createdAt: string;
+	sApiKey: string;
+	sBankName: string;
+	sBankNo: string;
+	sEmail: string;
+	sFname: string;
+	sId: number;
+	sLname: string;
+	sPass: string;
+	sPhone: string;
+	sPin: number;
+	sReferal: string | null;
+	sRegStatus: number;
+	sState: string | null;
+	sType: number;
+	sVerCode: number;
+	updatedAt: string;
+}
+
+interface AuthResponse {
+	data: {
+		token: string;
+		user: User;
+	};
+	message: string;
+	status: number;
+}
 
 const Signup = () => {
 	const {setLoading} = useGlobalStore();
 	const [formData, setFormData] = useState({
 		fname: '',
 		lname: '',
-		email: '',
-		phone: '',
+		sEmail: '',
+		sPhone: '',
 		password: '',
 		password_confirmation: '',
 		referral: '',
+		pin: '0000',
+		state: '',
 	});
+	const [error, setError] = useState(formData);
 
 	const handleSubmit = async () => {
 		try {
 			const axiosClient = new AxiosClient();
+			const storage = new MemoryStorage();
 			setLoading(true);
-			const response = await axiosClient.post('/register', formData);
+			const response = await axiosClient.post<any, AuthResponse>(
+				'/register',
+				formData
+			);
 			if (response.status === 200) {
-				router.navigate('/SetPin');
+				console.log(response.data);
+				storage.setItem(ACCESS_TOKEN_KEY, response.data.data.token);
+				router.navigate(`/VerifyOTP?email=${formData.sEmail}`);
 			}
-		} catch (error: any) {
+		} catch (err: any) {
 			Toast.show({
 				type: 'error',
 				text1: 'Registration Error',
-				text2: error.response?.data || error.message,
+				text2: err.response?.data || err.message,
 			});
-			console.log(error.response?.data || error.message);
+			console.log(
+				err.response?.data.errors || err.response?.data || err.message
+			);
+			setError(err.response.data?.errors);
 		} finally {
-			router.navigate('/SetPin');
 			setLoading(false);
 		}
 	};
@@ -64,73 +106,112 @@ const Signup = () => {
 							First Name
 						</Text>
 						<TextInput
-							className="bg-white border-[1px] border-[#C8C8C8] w-full my-3 rounded-lg px-5 h-14"
-							onChangeText={text =>
-								setFormData(prev => ({...prev, fname: text}))
-							}
+							className="bg-white border-[1px] border-[#C8C8C8] w-full mt-3 mb-2 rounded-lg px-5 h-14"
+							onChangeText={text => {
+								setFormData(prev => ({...prev, fname: text}));
+								setError(prev => ({
+									...prev,
+									fname: '',
+								}));
+							}}
 							value={formData.fname}
 						/>
+						<View className="ml-1">
+							<Text className="text-red-500 text-sm">{error.fname}</Text>
+						</View>
 					</View>
 					<View className="">
 						<Text className="text-xl" fontWeight={600}>
 							Last Name
 						</Text>
 						<TextInput
-							className="bg-white border-[1px] border-[#C8C8C8] w-full my-3 rounded-lg px-5 h-14"
-							onChangeText={text =>
-								setFormData(prev => ({...prev, lname: text}))
-							}
+							className="bg-white border-[1px] border-[#C8C8C8] w-full mt-3 mb-2 rounded-lg px-5 h-14"
+							onChangeText={text => {
+								setFormData(prev => ({...prev, lname: text}));
+								setError(prev => ({
+									...prev,
+									lname: '',
+								}));
+							}}
 							value={formData.lname}
 						/>
+						<View className="ml-1">
+							<Text className="text-red-500 text-sm">{error.lname}</Text>
+						</View>
 					</View>
 					<View className="">
 						<Text className="text-xl" fontWeight={600}>
 							Email address
 						</Text>
 						<TextInput
-							className="bg-white border-[1px] border-[#C8C8C8] w-full my-3 rounded-lg px-5 h-14"
-							onChangeText={text =>
-								setFormData(prev => ({...prev, email: text}))
-							}
-							value={formData.email}
+							className="bg-white border-[1px] border-[#C8C8C8] w-full mt-3 mb-2 rounded-lg px-5 h-14"
+							onChangeText={text => {
+								setFormData(prev => ({...prev, sEmail: text}));
+								setError(prev => ({
+									...prev,
+									sEmail: '',
+								}));
+							}}
+							value={formData.sEmail}
 						/>
+						<View className="ml-1">
+							<Text className="text-red-500 text-sm">{error.sEmail}</Text>
+						</View>
 					</View>
 					<View className="">
 						<Text className="text-xl" fontWeight={600}>
 							Phone Number
 						</Text>
 						<TextInput
-							className="bg-white border-[1px] border-[#C8C8C8] w-full my-3 rounded-lg px-5 h-14"
-							onChangeText={text =>
-								setFormData(prev => ({...prev, phone: text}))
-							}
-							value={formData.phone}
+							className="bg-white border-[1px] border-[#C8C8C8] w-full mt-3 mb-2 rounded-lg px-5 h-14"
+							onChangeText={text => {
+								setFormData(prev => ({...prev, sPhone: text}));
+								setError(prev => ({
+									...prev,
+									sPhone: '',
+								}));
+							}}
+							value={formData.sPhone}
 							inputMode="tel"
 							maxLength={11}
 						/>
+						<View className="ml-1">
+							<Text className="text-red-500 text-sm">{error.sPhone}</Text>
+						</View>
 					</View>
 					<View className="">
 						<Text className="text-xl" fontWeight={600}>
 							Password
 						</Text>
 						<TextInput
-							className="bg-white border-[1px] border-[#C8C8C8] w-full my-3 rounded-lg px-5 h-14"
-							onChangeText={text =>
-								setFormData(prev => ({...prev, password: text}))
-							}
+							className="bg-white border-[1px] border-[#C8C8C8] w-full mt-3 mb-2 rounded-lg px-5 h-14"
+							onChangeText={text => {
+								setFormData(prev => ({...prev, password: text}));
+								setError(prev => ({
+									...prev,
+									password: '',
+								}));
+							}}
 							value={formData.password}
 							secureTextEntry
 						/>
+						<View className="ml-1">
+							<Text className="text-red-500 text-sm">{error.password}</Text>
+						</View>
 					</View>
 					<View className="">
 						<Text className="text-xl" fontWeight={600}>
 							Confirm Password
 						</Text>
 						<TextInput
-							className="bg-white border-[1px] border-[#C8C8C8] w-full my-3 rounded-lg px-5 h-14"
-							onChangeText={text =>
-								setFormData(prev => ({...prev, password_confirmation: text}))
-							}
+							className="bg-white border-[1px] border-[#C8C8C8] w-full mt-3 mb-2 rounded-lg px-5 h-14"
+							onChangeText={text => {
+								setFormData(prev => ({...prev, password_confirmation: text}));
+								setError(prev => ({
+									...prev,
+									password: '',
+								}));
+							}}
 							value={formData.password_confirmation}
 							secureTextEntry
 						/>

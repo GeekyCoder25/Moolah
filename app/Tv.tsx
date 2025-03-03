@@ -6,66 +6,145 @@ import {
 	TouchableOpacity,
 	View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Back from '@/components/back';
 import {Text} from '@/components/text';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import {globalStyles} from '@/styles';
 import Button from './components/button';
 import InfoIcon from '@/assets/icons/info-icon';
+import {useGlobalStore} from '@/context/store';
+import {AxiosClient} from '@/utils/axios';
+import Toast from 'react-native-toast-message';
+import {router} from 'expo-router';
+import PinModal from './components/PinModal';
+
+// Top-level API response
+export interface ApiResponse {
+	status: number;
+	message: string;
+	data: Data;
+}
+
+// Data object containing subscription types and cable TV providers
+export interface Data {
+	subscription_type: string[];
+	cableTv: CableTvProvider[];
+}
+
+// Each cable TV provider
+export interface CableTvProvider {
+	type: string;
+	id: number;
+	attributes: {
+		name: string;
+		providerStatus: string;
+	};
+	relationships: {
+		plan: CableTvPlan[];
+	};
+}
+
+// Each cable TV plan under a provider
+export interface CableTvPlan {
+	type: string;
+	id: number;
+	attributes: {
+		name: string;
+		price: string;
+		day: string;
+	};
+}
 
 const TV = () => {
+	const {setLoading, user} = useGlobalStore();
+	const [showPin, setShowPin] = useState(false);
 	const [formData, setFormData] = useState({
-		provider: '',
+		provider: 0,
+		name: '',
 		type: '',
 		plan: '',
-		meter_number: '',
+		price: '',
+		iuc_no: '',
 	});
 	const [showProviderModal, setShowProviderModal] = useState(false);
 	const [showPlanModal, setShowPlanModal] = useState(false);
 	const [showTypeModal, setShowTypeModal] = useState(false);
+	const [providers, setProviders] = useState<CableTvProvider[]>([]);
+	const [types, setTypes] = useState<string[]>([]);
 
-	const providers = [
-		{
-			label: 'DSTV',
-		},
-		{
-			label: 'GOTV',
-		},
-		{
-			label: 'Startimes',
-		},
-	];
+	useEffect(() => {
+		const getProviders = async () => {
+			try {
+				const axiosClient = new AxiosClient();
 
-	const plans = [
-		{
-			label: 'Weekly',
-		},
-		{
-			label: 'Monthly',
-		},
-	];
-	const types = [
-		{
-			label: '₦2000',
-		},
-		{
-			label: '₦1500',
-		},
-	];
+				const response = await axiosClient.get<ApiResponse>('/cable');
 
-	const handleBuy = async () => {
+				if (response.status === 200) {
+					setProviders(response.data.data.cableTv);
+					setTypes(response.data.data.subscription_type);
+				}
+			} catch (error) {}
+		};
+		getProviders();
+	}, []);
+
+	const handleBuy = async (pin?: string) => {
 		try {
 			if (!formData.provider) {
 				throw new Error('Please select a provider');
-			} else if (!formData.meter_number) {
+			} else if (!formData.iuc_no) {
 				throw new Error('Please input your decoder number ');
 			} else if (!formData.plan) {
 				throw new Error('Please select a subscription plan');
 			}
+			setLoading(true);
+			const axiosClient = new AxiosClient();
+
+			if (!pin) {
+				return setShowPin(true);
+			}
+			const response = await axiosClient.post<{
+				provider_id: number;
+				plan: string;
+				type: string;
+				price: number;
+				customer_no: string;
+				iuc_no: string;
+				pin: string;
+			}>('/cable', {
+				provider_id: formData.provider,
+				plan: formData.plan,
+				price: Number(formData.price),
+				type: formData.type,
+				customer_no: user?.phone_number || '',
+				iuc_no: formData.iuc_no,
+				pin,
+			});
+			if (response.status === 200) {
+				Toast.show({
+					type: 'success',
+					text1: 'Success',
+					text2: 'Exam card purchase successful',
+				});
+				router.back();
+			}
 		} catch (error: any) {
-			alert(error.message);
+			Toast.show({
+				type: 'error',
+				text1: 'Error',
+				text2:
+					error.response?.data?.message?.msg ||
+					error.response?.data?.message ||
+					error.response?.data ||
+					error.message,
+			});
+			console.log(error.response?.data || error.message);
 		} finally {
+			if (pin) {
+				setShowPin(false);
+			}
+			setLoading(false);
 		}
 	};
 
@@ -109,7 +188,7 @@ const TV = () => {
 								className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 							>
 								<Text className="text-lg">
-									{formData.provider || 'Select Provider'}
+									{formData.name || 'Select Provider'}
 								</Text>
 
 								<FontAwesome name="caret-down" size={24} color="#7D7D7D" />
@@ -123,23 +202,28 @@ const TV = () => {
 								/>
 								<View className="flex-1 justify-end items-end">
 									<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-										<Text className="text-3xl" fontWeight={700}>
+										<Text className="text-2xl" fontWeight={700}>
 											Select Provider
 										</Text>
-										<View className="my-10">
+										<View className="my-5">
 											{providers.map(provider => (
 												<TouchableOpacity
-													key={provider.label}
+													key={provider.attributes.name}
 													className="py-5"
 													onPress={() => {
 														setFormData(prev => ({
 															...prev,
-															provider: provider.label,
+															provider: provider.id,
+															name: provider.attributes.name,
+															plan:
+																provider.id === prev.provider ? prev.plan : '',
 														}));
 														setShowProviderModal(false);
 													}}
 												>
-													<Text className="text-2xl">{provider.label}</Text>
+													<Text className="text-2xl">
+														{provider.attributes.name}
+													</Text>
 												</TouchableOpacity>
 											))}
 										</View>
@@ -158,7 +242,14 @@ const TV = () => {
 								className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 							>
 								<Text className="text-lg">
-									{formData.plan || 'Select subscription plan'}
+									{formData.plan ? (
+										<>
+											{formData.plan} - ₦
+											{Number(formData.price).toLocaleString()}
+										</>
+									) : (
+										'Select subscription plan'
+									)}
 								</Text>
 
 								<FontAwesome name="caret-down" size={24} color="#7D7D7D" />
@@ -172,26 +263,32 @@ const TV = () => {
 								/>
 								<View className="flex-1 justify-end items-end">
 									<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-										<Text className="text-3xl" fontWeight={700}>
-											Select Meter Type
+										<Text className="text-2xl" fontWeight={700}>
+											Select subscription plan
 										</Text>
-										<View className="my-10">
-											{plans.map(plan => (
-												<TouchableOpacity
-													key={plan.label}
-													className="py-5"
-													onPress={() => {
-														setFormData(prev => ({
-															...prev,
-															plan: plan.label,
-														}));
-														setShowPlanModal(false);
-													}}
-												>
-													<Text className="text-2xl">{plan.label}</Text>
-												</TouchableOpacity>
-											))}
-										</View>
+										<ScrollView className="my-5">
+											{providers
+												.find(provider => provider.id === formData.provider)
+												?.relationships.plan.map(plan => (
+													<TouchableOpacity
+														key={plan.id}
+														className="py-5"
+														onPress={() => {
+															setFormData(prev => ({
+																...prev,
+																plan: plan.attributes.name,
+																price: plan.attributes.price,
+															}));
+															setShowPlanModal(false);
+														}}
+													>
+														<Text className="text-xl">
+															{plan.attributes.name} - ₦
+															{Number(plan.attributes.price).toLocaleString()}
+														</Text>
+													</TouchableOpacity>
+												))}
+										</ScrollView>
 									</View>
 								</View>
 							</Modal>
@@ -221,23 +318,23 @@ const TV = () => {
 								/>
 								<View className="flex-1 justify-end items-end">
 									<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-										<Text className="text-3xl" fontWeight={700}>
+										<Text className="text-2xl" fontWeight={700}>
 											Select Meter Type
 										</Text>
-										<View className="my-10">
+										<View className="my-5">
 											{types.map(type => (
 												<TouchableOpacity
-													key={type.label}
+													key={type}
 													className="py-5"
 													onPress={() => {
 														setFormData(prev => ({
 															...prev,
-															type: type.label,
+															type,
 														}));
 														setShowTypeModal(false);
 													}}
 												>
-													<Text className="text-2xl">{type.label}</Text>
+													<Text className="text-2xl">{type}</Text>
 												</TouchableOpacity>
 											))}
 										</View>
@@ -255,9 +352,9 @@ const TV = () => {
 						<TextInput
 							className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 							inputMode="numeric"
-							value={formData.meter_number}
+							value={formData.iuc_no}
 							onChangeText={text =>
-								setFormData(prev => ({...prev, meter_number: text}))
+								setFormData(prev => ({...prev, iuc_no: text}))
 							}
 							placeholder="Decoder Number"
 						/>
@@ -265,8 +362,15 @@ const TV = () => {
 				</View>
 			</View>
 			<View className="mt-10">
-				<Button title="Buy" onPress={handleBuy} />
+				<Button title="Buy" onPress={() => handleBuy()} />
 			</View>
+			{showPin && (
+				<PinModal
+					showPin={showPin}
+					setShowPin={setShowPin}
+					handleContinue={handleBuy}
+				/>
+			)}
 		</ScrollView>
 	);
 };

@@ -1,22 +1,80 @@
 import {Text} from '@/components/text';
-import {TextInput, TouchableOpacity, View} from 'react-native';
+import {ScrollView, TextInput, TouchableOpacity, View} from 'react-native';
 import React, {useState} from 'react';
 import Logo from '@/assets/icons/logo';
 import {router} from 'expo-router';
 import Button from './components/button';
+import {useGlobalStore} from '@/context/store';
+import Toast from 'react-native-toast-message';
+import {AxiosClient} from '@/utils/axios';
+import {errorFormat} from '@/utils';
+import {MemoryStorage} from '@/utils/storage';
+import {ACCESS_TOKEN_KEY, IS_LOGGED_IN} from '@/constants';
+import {UserResponse} from './types';
+
+interface SigninRequest {
+	sPhone: string;
+	password: string;
+}
+interface SigninResponse {
+	status: number;
+	message: string;
+	data: {
+		token: string;
+		user: {
+			name: string;
+			email: string;
+		};
+	};
+}
 
 const Signin = () => {
+	const {setLoading, setUser} = useGlobalStore();
 	const [formData, setFormData] = useState({
-		email: '',
-		password: '',
+		sPhone: '09087607874',
+		password: '12345678',
 	});
-
 	const handleSubmit = async () => {
-		router.replace('/(tabs)');
+		try {
+			setLoading(true);
+			const axiosClient = new AxiosClient();
+
+			const response = await axiosClient.post<SigninRequest, SigninResponse>(
+				'/login',
+				formData
+			);
+			if (response.status === 200) {
+				const storage = new MemoryStorage();
+				await storage.setItem(ACCESS_TOKEN_KEY, response.data.data.token);
+				const email = response.data.data.user.email;
+				const userResponse = await axiosClient.get<UserResponse>('/user');
+				if (userResponse.status === 200) {
+					if (userResponse.data.data.email_verified === false) {
+						router.navigate(`/VerifyOTP?email=${email}`);
+						await axiosClient.post('/resend-verify/email', {email});
+					} else {
+						await storage.setItem(IS_LOGGED_IN, 'true');
+						setUser(userResponse.data.data.attributes);
+						router.replace('/(tabs)');
+					}
+				}
+			}
+		} catch (error: any) {
+			console.log(error.response.data);
+			Toast.show({
+				type: 'error',
+				text1: 'Error',
+				text2: errorFormat(
+					error.response?.data?.message || error.response?.data || error.message
+				),
+			});
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	return (
-		<View className="bg-white flex-1 px-[3%] py-5">
+		<ScrollView className="bg-white flex-1 px-[3%] py-5">
 			<Logo />
 			<Text className="text-4xl mt-10 mb-2" fontWeight={700}>
 				Sign in to your account
@@ -28,12 +86,14 @@ const Signin = () => {
 			<View className="my-20 gap-y-5">
 				<View className="">
 					<Text className="text-2xl" fontWeight={700}>
-						Email address / Phone Number
+						Phone Number
 					</Text>
 					<TextInput
 						className="bg-white border-[1px] border-[#C8C8C8] w-full my-3 rounded-lg px-5 h-14"
-						onChangeText={text => setFormData(prev => ({...prev, email: text}))}
-						value={formData.email}
+						onChangeText={text =>
+							setFormData(prev => ({...prev, sPhone: text}))
+						}
+						value={formData.sPhone}
 					/>
 				</View>
 				<View className="">
@@ -67,7 +127,7 @@ const Signin = () => {
 					</TouchableOpacity>
 				</View>
 			</View>
-		</View>
+		</ScrollView>
 	);
 };
 

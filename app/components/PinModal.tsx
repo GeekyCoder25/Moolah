@@ -6,14 +6,21 @@ import {
 	TouchableOpacity,
 	Keyboard,
 } from 'react-native';
-import React, {useRef, useState} from 'react';
+import React, {Dispatch, FC, SetStateAction, useRef, useState} from 'react';
 import {Text} from '@/components/text';
 import {globalStyles} from '@/styles';
 import Button from './button';
-import {useGlobalStore} from '@/context/store';
+import Toast from 'react-native-toast-message';
+import Loading from './loading';
 
-const PinModal = () => {
-	const {showPin, setShowPin} = useGlobalStore();
+interface PinModalProps {
+	showPin: boolean;
+	setShowPin: Dispatch<SetStateAction<boolean>>;
+	handleContinue: (pin: string) => void;
+}
+
+const PinModal: FC<PinModalProps> = props => {
+	const {setShowPin, handleContinue} = props;
 	const [focusedBox, setFocusedBox] = useState(0);
 	const [isError1, setIsError1] = useState(false);
 	const [isError2, setIsError2] = useState(false);
@@ -28,10 +35,13 @@ const PinModal = () => {
 	const inputRef3 = useRef<TextInput>(null);
 	const inputRef4 = useRef<TextInput>(null);
 
-	const handleContinue = () => {};
+	const handleConfirm = () => {
+		const code = otpCode1 + otpCode2 + otpCode3 + otpCode4;
+		handleContinue(code);
+	};
 
 	return (
-		<Modal transparent visible={showPin}>
+		<Modal transparent>
 			<Pressable
 				style={globalStyles.overlay}
 				onPress={() => setShowPin(false)}
@@ -57,7 +67,7 @@ const PinModal = () => {
 									textAlign="center"
 									value={otpCode1}
 									autoFocus
-									className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1 font-bold ${
+									className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1W font-bold ${
 										isError1 ? 'text-red-500' : ''
 									} ${
 										focusedBox === 1
@@ -150,9 +160,13 @@ const PinModal = () => {
 							</TouchableOpacity>
 						</View>
 					</View>
-					<Button title="Confirm" onPress={handleContinue} />
+					<View className="mt-10">
+						<Button title="Confirm" onPress={handleConfirm} />
+					</View>
 				</View>
 			</View>
+			<Loading />
+			<Toast />
 		</Modal>
 	);
 };

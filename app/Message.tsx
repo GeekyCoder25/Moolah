@@ -4,15 +4,51 @@ import {Text} from '@/components/text';
 import Back from '@/components/back';
 import {ScrollView} from 'react-native';
 import Button from './components/button';
+import {AxiosClient} from '@/utils/axios';
+import {useGlobalStore} from '@/context/store';
+import Toast from 'react-native-toast-message';
+import {router} from 'expo-router';
 
 const Message = () => {
+	const {setLoading, user} = useGlobalStore();
 	const [formData, setFormData] = useState({subject: '', message: ''});
 
 	const handleSubmit = async () => {
 		try {
+			const axiosClient = new AxiosClient();
+
+			setLoading(true);
+			const response = await axiosClient.post<{
+				name: string;
+				email: string;
+				subject: string;
+				message: string;
+			}>('/support', {
+				name: `${user?.firstname} ${user?.lastname}`,
+				email: user?.email || '',
+				subject: formData.subject,
+				message: formData.message,
+			});
+			if (response.status === 200) {
+				Toast.show({
+					type: 'success',
+					text1: 'Success',
+					text2: 'Message sent',
+				});
+				router.back();
+			}
 		} catch (error: any) {
-			alert(error.message);
+			Toast.show({
+				type: 'error',
+				text1: 'Error',
+				text2:
+					error.response?.data?.message ||
+					error.response?.data ||
+					error.message,
+			});
+			console.log(error.response?.data || error.message);
 		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -49,7 +85,7 @@ const Message = () => {
 						</Text>
 
 						<TextInput
-							className="w-full border-[1px] border-[#C8C8C8] px-5 h-36 rounded-lg flex-row justify-between items-center"
+							className="w-full border-[1px] border-[#C8C8C8] p-5 h-36 rounded-lg flex-row justify-between items-center"
 							value={formData.message}
 							onChangeText={text =>
 								setFormData(prev => ({...prev, message: text}))

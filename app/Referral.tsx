@@ -4,14 +4,18 @@ import Back from '@/components/back';
 import WalletBgIcon from '@/assets/icons/wallet-bg';
 import {Text} from '@/components/text';
 import Toast from 'react-native-toast-message';
+import {useGlobalStore} from '@/context/store';
+import * as Clipboard from 'expo-clipboard';
 
 const Referral = () => {
+	const {user} = useGlobalStore();
 	const handleCopy = async () => {
 		Toast.show({
 			type: 'success',
 			text1: 'Copied to clipboard',
-			text2: '',
+			text2: user?.referral_link,
 		});
+		Clipboard.setStringAsync(user?.referral_link || '');
 	};
 
 	return (
@@ -34,7 +38,7 @@ const Referral = () => {
 						</Text>
 
 						<Text className="bg-bold text-4xl" fontWeight={600}>
-							500
+							{user?.referral_wallet_balance.toLocaleString()}
 						</Text>
 					</View>
 				</View>
@@ -49,9 +53,13 @@ const Referral = () => {
 					Referral link
 				</Text>
 
-				<TextInput className="border-[1px] border-[#C8C8C8] rounded-md mt-10 px-5" />
+				<View className="border-[1px] border-[#C8C8C8] rounded-md mt-10 px-5 py-5">
+					<Text className="text-[#7D7D7D] font-semibold">
+						{user?.referral_link}
+					</Text>
+				</View>
 
-				<View className="flex-row gap-x-5 mt-10">
+				<View className="flex-row gap-x-5 mt-5">
 					<TouchableOpacity
 						onPress={handleCopy}
 						className="bg-secondary px-5 py-4 w-32 rounded-xl"

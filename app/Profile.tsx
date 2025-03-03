@@ -4,20 +4,55 @@ import {Text} from '@/components/text';
 import Back from '@/components/back';
 import {useGlobalStore} from '@/context/store';
 import Button from './components/button';
+import {AxiosClient} from '@/utils/axios';
+import Toast from 'react-native-toast-message';
+import {UserResponse} from './types';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import {GlobalColors} from '@/styles';
 
 const Profile = () => {
-	const {} = useGlobalStore();
+	const {setLoading, user, setUser} = useGlobalStore();
 	const [formData, setFormData] = useState({
-		first_name: '',
-		email: '',
-		phone_number: '',
-		state: '',
+		fname: user?.firstname || '',
+		lname: user?.lastname || '',
+		email: user?.email || '',
+		phone_number: user?.phone_number || '',
+		state: user?.state || '',
 	});
 
-	const first_name = 'Toyyib';
-	const email = 'toyibe25@gmail.com';
+	if (!user) return null;
+	const {email, firstname, lastname} = user;
 
-	const handleUpdate = () => {};
+	const handleUpdate = async () => {
+		try {
+			setLoading(true);
+			const axiosClient = new AxiosClient();
+
+			const response = await axiosClient.put<any, UserResponse>(
+				'/user/1',
+				formData
+			);
+			if (response.status === 200) {
+				setUser(response.data.data.attributes);
+				Toast.show({
+					type: 'success',
+					text1: 'Success',
+					text2: 'Profile updated successfully',
+				});
+			}
+		} catch (error: any) {
+			Toast.show({
+				type: 'error',
+				text1: 'Error',
+				text2:
+					error.response?.data?.message ||
+					error.response?.data ||
+					error.message,
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	return (
 		<View className="flex-1 px-[5%] py-5">
@@ -25,15 +60,16 @@ const Profile = () => {
 				<Back title="Profile" />
 
 				<View className="justify-center items-center my-10 gap-y-5">
-					<Image
+					{/* <Image
 						source={{
 							uri: 'https://avatars.githubusercontent.com/u/96173120',
 						}}
 						className="w-52 h-52 rounded-full"
-					/>
+					/> */}
+					<FontAwesome name="user" size={100} color={GlobalColors.secondary} />
 					<View className="items-center">
 						<Text className="text-2xl" fontWeight={600}>
-							{first_name}
+							{firstname} {lastname}
 						</Text>
 						<Text className="text-xl">{email}</Text>
 					</View>
@@ -45,7 +81,7 @@ const Profile = () => {
 
 						<View className="my-5">
 							<Text className="text-xl" fontWeight={600}>
-								Name
+								First name
 							</Text>
 							<TextInput
 								className="border-[1px] border-[#C8C8C8] mt-2 p-5 rounded-xl h-14"
@@ -55,11 +91,30 @@ const Profile = () => {
 									setFormData(prev => {
 										return {
 											...prev,
-											first_name: text,
+											fname: text,
 										};
 									})
 								}
-								value={formData.first_name}
+								value={formData.fname}
+							/>
+						</View>
+						<View className="my-5">
+							<Text className="text-xl" fontWeight={600}>
+								Last name
+							</Text>
+							<TextInput
+								className="border-[1px] border-[#C8C8C8] mt-2 p-5 rounded-xl h-14"
+								placeholder="Name"
+								placeholderTextColor={'#7D7D7D'}
+								onChangeText={text =>
+									setFormData(prev => {
+										return {
+											...prev,
+											lname: text,
+										};
+									})
+								}
+								value={formData.lname}
 							/>
 						</View>
 						<View className="my-5">
@@ -79,6 +134,7 @@ const Profile = () => {
 									})
 								}
 								value={formData.email}
+								editable={false}
 							/>
 						</View>
 						<View className="my-5">

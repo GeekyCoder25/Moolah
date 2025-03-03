@@ -12,7 +12,6 @@ import {View} from 'react-native';
 import {useGlobalStore} from '@/context/store';
 import {MemoryStorage} from '@/utils/storage';
 import {APP_THEME} from '@/constants';
-import PinModal from './components/PinModal';
 import Loading from './components/loading';
 import Toast from 'react-native-toast-message';
 
@@ -63,9 +62,9 @@ export default function RootLayout() {
 				<Stack.Screen name="Electricity" />
 				<Stack.Screen name="Tv" />
 				<Stack.Screen name="Exam" />
+				<Stack.Screen name="VerifyOTP" />
 				<Stack.Screen name="+not-found" />
 			</Stack>
-			<PinModal />
 			<Loading />
 			<Toast />
 		</View>

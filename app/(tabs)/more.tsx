@@ -13,6 +13,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import {useGlobalStore} from '@/context/store';
 import {router} from 'expo-router';
 import {ScrollView} from 'react-native';
+import {MemoryStorage} from '@/utils/storage';
+import {ACCESS_TOKEN_KEY, IS_LOGGED_IN} from '@/constants';
 
 type RoutePaths =
 	| '/Profile'
@@ -23,8 +25,8 @@ type RoutePaths =
 	| '/';
 
 const More = () => {
-	const {} = useGlobalStore();
-	const name = 'Toyyib Lawal';
+	const {user} = useGlobalStore();
+	const name = `${user?.firstname} ${user?.lastname}`;
 	const routes: {
 		title: string;
 		subText: string;
@@ -33,25 +35,25 @@ const More = () => {
 	}[] = [
 		{
 			title: name,
-			subText: 'Your profile',
+			subText: 'View and edit your profile details',
 			icon: <FontAwesome name="user" size={24} color="white" />,
 			route: '/Profile',
 		},
 		{
 			title: 'Account setting',
-			subText: 'Your profile',
+			subText: 'Manage your account preferences',
 			icon: <MaterialIcons name="settings" size={24} color="white" />,
 			route: '/AccountSettings',
 		},
 		{
 			title: 'Referral ',
-			subText: 'Your profile',
+			subText: 'Invite friends and earn rewards',
 			icon: <FontAwesome5 name="user-friends" size={24} color="white" />,
 			route: '/Referral',
 		},
 		{
 			title: 'Contact us ',
-			subText: 'Your profile',
+			subText: 'Reach out to our support team',
 			icon: (
 				<MaterialCommunityIcons
 					name="message-question"
@@ -61,20 +63,26 @@ const More = () => {
 			),
 			route: '/Contact',
 		},
-
 		{
 			title: 'Credit cards',
-			subText: 'Your profile',
+			subText: 'View and manage your linked cards',
 			icon: <Ionicons name="card" size={24} color="white" />,
 			route: '/Card',
 		},
 		{
 			title: 'Log out',
-			subText: 'Your profile',
+			subText: 'Sign out of your account',
 			icon: <AntDesign name="logout" size={24} color="white" />,
 			route: '/',
 		},
 	];
+
+	const handleLogout = async () => {
+		const storage = new MemoryStorage();
+		await storage.removeItem(IS_LOGGED_IN);
+		await storage.removeItem(ACCESS_TOKEN_KEY);
+		router.replace('/Signin');
+	};
 
 	return (
 		<ScrollView className="px-[5%] py-5 gap-x-4 flex-1">
@@ -89,7 +97,7 @@ const More = () => {
 						}`}
 						onPress={() =>
 							index === routes.length - 1
-								? router.replace('/Signin')
+								? handleLogout()
 								: router.navigate(route.route)
 						}
 					>
