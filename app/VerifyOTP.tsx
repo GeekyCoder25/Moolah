@@ -31,7 +31,7 @@ const VerifyOTP = () => {
 	const axiosClient = new AxiosClient();
 	const {email}: {email: string} = useLocalSearchParams();
 	const {setLoading} = useGlobalStore();
-	const [timeLeft, setTimeLeft] = useState(10);
+	const [timeLeft, setTimeLeft] = useState(60);
 	const [focusedBox, setFocusedBox] = useState(0);
 	const [isError1, setIsError1] = useState(false);
 	const [isError2, setIsError2] = useState(false);

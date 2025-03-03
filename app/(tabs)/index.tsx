@@ -28,6 +28,8 @@ import {AxiosClient} from '@/utils/axios';
 import {UserResponse} from '../types';
 import {MemoryStorage} from '@/utils/storage';
 import {ACCESS_TOKEN_KEY} from '@/constants';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 // Root API response interface
 export interface TransactionsResponse {
@@ -78,11 +80,6 @@ export default function HomeScreen() {
 		}
 	};
 	useEffect(() => {
-		const storage = new MemoryStorage();
-		// storage.setItem(
-		// 	ACCESS_TOKEN_KEY,
-		// 	'7|ad2vOaO30XxYKdWB0cb0SNCUEYr667DmX9iD197C5f7bb8ba'
-		// );
 		const getTransactions = async () => {
 			try {
 				const axiosClient = new AxiosClient();
@@ -134,7 +131,7 @@ export default function HomeScreen() {
 								? user.wallet_balance.toLocaleString()
 								: '0.00'}
 						</Text>
-						<View className="flex-row gap-x-5 mt-5">
+						<View className="flex-row flex-wrap gap-5 mt-5">
 							<TouchableOpacity
 								onPress={() => router.navigate('/Fund')}
 								className="bg-white py-3 px-5 rounded-md flex-row items-center gap-x-2"
@@ -231,9 +228,11 @@ export default function HomeScreen() {
 						Recent Transaction
 					</Text>
 					{transactions.length > 5 && (
-						<Text className="text-secondary text-lg" fontWeight={600}>
-							See all
-						</Text>
+						<TouchableOpacity onPress={() => router.navigate('/Transactions')}>
+							<Text className="text-secondary text-lg" fontWeight={600}>
+								See all
+							</Text>
+						</TouchableOpacity>
 					)}
 				</View>
 
@@ -247,19 +246,39 @@ export default function HomeScreen() {
 									<Text className="">Price</Text>
 								</View>
 							</View>
-							{transactions.map(transaction => (
+							{transactions.slice(0, 5).map(transaction => (
 								<View
 									key={transaction.id}
 									className="flex-row flex-1 w-full mb-7"
 								>
-									<View className="flex-1 flex-row">
-										<WifiIcon color={'#7D7D7D'} />
+									<View className="flex-1 flex-row items-center">
+										{transaction.attributes.servicename == 'Wallet Topup' ||
+										transaction.attributes.servicename == 'Wallet Credit' ? (
+											<MaterialCommunityIcons
+												name="wallet-plus"
+												size={24}
+												color="#7D7D7D"
+											/>
+										) : transaction.attributes.servicename == 'Airtime' ? (
+											<CallIcon color={'#7D7D7D'} />
+										) : transaction.attributes.servicename == 'Data' ? (
+											<WifiIcon color={'#7D7D7D'} />
+										) : (
+											transaction.attributes.servicename ==
+												'Wallet Transfer' && (
+												<FontAwesome6
+													name="money-bill-transfer"
+													size={24}
+													color="#7D7D7D"
+												/>
+											)
+										)}
 										<View className="ml-2">
 											<Text className="font-semibold">
 												{transaction.attributes.servicename}
 											</Text>
 											{transaction.attributes.created_at && (
-												<Text>
+												<Text className="text-sm text-[#4E4E4E]">
 													{new Date(
 														transaction.attributes.created_at
 													).toDateString()}

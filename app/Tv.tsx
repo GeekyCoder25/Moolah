@@ -205,7 +205,7 @@ const TV = () => {
 										<Text className="text-2xl" fontWeight={700}>
 											Select Provider
 										</Text>
-										<View className="my-5">
+										<ScrollView className="my-5">
 											{providers.map(provider => (
 												<TouchableOpacity
 													key={provider.attributes.name}
@@ -226,7 +226,7 @@ const TV = () => {
 													</Text>
 												</TouchableOpacity>
 											))}
-										</View>
+										</ScrollView>
 									</View>
 								</View>
 							</Modal>

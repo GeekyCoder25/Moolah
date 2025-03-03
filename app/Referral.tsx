@@ -29,7 +29,7 @@ const Referral = () => {
 						</Text>
 
 						<Text className="bg-bold text-4xl" fontWeight={600}>
-							9
+							0
 						</Text>
 					</View>
 					<View className="bg-white rounded-xl gap-y-3 py-5 w-36 justify-center items-center">

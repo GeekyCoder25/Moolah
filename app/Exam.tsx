@@ -18,6 +18,7 @@ import {AxiosClient} from '@/utils/axios';
 import Toast from 'react-native-toast-message';
 import {router} from 'expo-router';
 import PinModal from './components/PinModal';
+import {ScrollView} from 'react-native';
 
 export interface ExamProviderAttributes {
 	name: string;
@@ -154,10 +155,10 @@ const Exam = () => {
 									/>
 									<View className="flex-1 justify-end items-end">
 										<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-											<Text className="text-3xl" fontWeight={700}>
+											<Text className="text-2xl" fontWeight={700}>
 												Select Provider
 											</Text>
-											<View className="my-5">
+											<ScrollView className="my-5">
 												{providers.map(provider => (
 													<TouchableOpacity
 														key={provider.attributes.name}
@@ -176,7 +177,7 @@ const Exam = () => {
 														</Text>
 													</TouchableOpacity>
 												))}
-											</View>
+											</ScrollView>
 										</View>
 									</View>
 								</Modal>
