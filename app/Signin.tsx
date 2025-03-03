@@ -31,8 +31,8 @@ interface SigninResponse {
 const Signin = () => {
 	const {setLoading, setUser} = useGlobalStore();
 	const [formData, setFormData] = useState({
-		sPhone: '09087607874',
-		password: '12345678',
+		sPhone: '',
+		password: '',
 	});
 	const handleSubmit = async () => {
 		try {
