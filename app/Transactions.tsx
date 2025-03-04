@@ -41,20 +41,32 @@ const Transactions = () => {
 	};
 
 	return (
-		<ScrollView
-			className="px-[5%] py-5 gap-x-4 flex-1"
-			refreshControl={
-				<RefreshControl
-					refreshing={refreshing}
-					onRefresh={handleRefresh}
-					colors={[GlobalColors.secondary]}
-				/>
-			}
-		>
-			<Back title="Transactions" />
-			<View className="gap-y-5 my-20">
+		<View className="py-5 gap-x-4 flex-1 bg-white">
+			<View className="px-[5%]">
+				<Back title="Transactions" />
+			</View>
+			<View className="flex-row w-full my-5 px-[5%]">
+				<Text className="flex-1">Type</Text>
+				<Text className="flex-1">Transaction id</Text>
+				<View className="" style={{width: 50}}>
+					<Text className="">Price</Text>
+				</View>
+			</View>
+			<ScrollView
+				refreshControl={
+					<RefreshControl
+						refreshing={refreshing}
+						onRefresh={handleRefresh}
+						colors={[GlobalColors.secondary]}
+					/>
+				}
+				className="px-[5%]"
+			>
 				{transactions.map(transaction => (
-					<View key={transaction.id} className="flex-row flex-1 w-full mb-7">
+					<View
+						key={transaction.id}
+						className="flex-row flex-1 w-full mb-7 gap-x-5"
+					>
 						<View className="flex-1 flex-row items-center">
 							{transaction.attributes.servicename == 'Wallet Topup' ||
 							transaction.attributes.servicename == 'Wallet Credit' ? (
@@ -71,7 +83,7 @@ const Transactions = () => {
 								transaction.attributes.servicename == 'Wallet Transfer' && (
 									<FontAwesome6
 										name="money-bill-transfer"
-										size={24}
+										size={20}
 										color="#7D7D7D"
 									/>
 								)
@@ -97,8 +109,8 @@ const Transactions = () => {
 						</View>
 					</View>
 				))}
-			</View>
-		</ScrollView>
+			</ScrollView>
+		</View>
 	);
 };
 

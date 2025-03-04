@@ -46,7 +46,8 @@ const Electricity = () => {
 	const {setLoading, user} = useGlobalStore();
 	const [showPin, setShowPin] = useState(false);
 	const [formData, setFormData] = useState({
-		provider_id: '',
+		provider_id: 0,
+		name: '',
 		meter_no: '',
 		meter_type: '',
 		amount: '',
@@ -83,23 +84,28 @@ const Electricity = () => {
 			}
 			setLoading(true);
 			const axiosClient = new AxiosClient();
-
+			console.log({
+				provider_id: formData.provider_id.toString(),
+				meter_no: formData.meter_no,
+				meter_type: formData.meter_type,
+				amount: Number(formData.amount),
+				customer_no: user?.phone_number || '',
+				pin,
+			});
 			if (!pin) {
 				return setShowPin(true);
 			}
 			const response = await axiosClient.post<{
 				provider_id: string;
 				meter_type: string;
-				customer_no: string;
 				meter_no: string;
 				amount: number;
 				pin: string;
 			}>('/electricity', {
-				provider_id: formData.provider_id,
+				provider_id: formData.provider_id.toString(),
+				meter_type: 'Prepaid',
 				meter_no: formData.meter_no,
-				meter_type: formData.meter_type,
 				amount: Number(formData.amount),
-				customer_no: user?.phone_number || '',
 				pin,
 			});
 			if (response.status === 200) {
@@ -164,7 +170,7 @@ const Electricity = () => {
 								className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 							>
 								<Text className="text-lg">
-									{formData.provider_id || 'Select Provider'}
+									{formData.name || 'Select Provider'}
 								</Text>
 
 								<FontAwesome name="caret-down" size={24} color="#7D7D7D" />
@@ -189,7 +195,8 @@ const Electricity = () => {
 													onPress={() => {
 														setFormData(prev => ({
 															...prev,
-															provider_id: provider.attributes.provider,
+															provider_id: provider.id,
+															name: provider.attributes.provider,
 														}));
 														setShowProviderModal(false);
 													}}
@@ -262,7 +269,6 @@ const Electricity = () => {
 						<TextInput
 							className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 							inputMode="tel"
-							maxLength={11}
 							value={formData.meter_no}
 							onChangeText={text =>
 								setFormData(prev => ({...prev, meter_no: text}))

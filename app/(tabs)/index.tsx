@@ -249,14 +249,14 @@ export default function HomeScreen() {
 							{transactions.slice(0, 5).map(transaction => (
 								<View
 									key={transaction.id}
-									className="flex-row flex-1 w-full mb-7"
+									className="flex-row flex-1 w-full mb-7 gap-x-5"
 								>
 									<View className="flex-1 flex-row items-center">
 										{transaction.attributes.servicename == 'Wallet Topup' ||
 										transaction.attributes.servicename == 'Wallet Credit' ? (
 											<MaterialCommunityIcons
 												name="wallet-plus"
-												size={24}
+												size={20}
 												color="#7D7D7D"
 											/>
 										) : transaction.attributes.servicename == 'Airtime' ? (
