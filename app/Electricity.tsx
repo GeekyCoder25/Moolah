@@ -84,14 +84,7 @@ const Electricity = () => {
 			}
 			setLoading(true);
 			const axiosClient = new AxiosClient();
-			console.log({
-				provider_id: formData.provider_id.toString(),
-				meter_no: formData.meter_no,
-				meter_type: formData.meter_type,
-				amount: Number(formData.amount),
-				customer_no: user?.phone_number || '',
-				pin,
-			});
+
 			if (!pin) {
 				return setShowPin(true);
 			}
