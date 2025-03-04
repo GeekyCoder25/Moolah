@@ -6,6 +6,7 @@ import React from 'react';
 import {ActivityIndicator, Image, View} from 'react-native';
 import {UserResponse} from './types';
 import {useGlobalStore} from '@/context/store';
+import {GlobalColors} from '@/styles';
 
 const Splash = () => {
 	const {setUser} = useGlobalStore();
@@ -39,12 +40,12 @@ const Splash = () => {
 	});
 
 	return (
-		<View className="flex-1 bg-primary flex justify-center items-center">
+		<View className="flex-1 bg-white flex justify-center items-center">
 			<Image
 				source={require('../assets/images/adaptive-icon.png')}
 				className="w-[200px] h-[200px] mb-10"
 			/>
-			<ActivityIndicator size={'large'} color={'#FFF'} />
+			<ActivityIndicator size={'large'} color={GlobalColors.secondary} />
 		</View>
 	);
 };
