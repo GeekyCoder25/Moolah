@@ -18,12 +18,12 @@ import ElectricityIcon from '@/assets/icons/electricity';
 import MonitorIcon from '@/assets/icons/monitor';
 import GraduationCapIcon from '@/assets/icons/graduation';
 import CameraIcon from '@/assets/icons/camera';
-import {router} from 'expo-router';
+import {router, useFocusEffect} from 'expo-router';
 import {useGlobalStore} from '@/context/store';
 import NotificationIcon from '@/assets/icons/notification';
 import ProfileIcon from '@/assets/icons/profile';
 import {RefreshControl} from 'react-native';
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {AxiosClient} from '@/utils/axios';
 import {UserResponse} from '../types';
 import {MemoryStorage} from '@/utils/storage';
@@ -64,37 +64,48 @@ export default function HomeScreen() {
 	const [refreshing, setRefreshing] = useState(false);
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-	const handleRefresh = async () => {
-		try {
-			setRefreshing(true);
+	const handleRefresh = () => {
+		setRefreshing(true);
 
-			const axiosClient = new AxiosClient();
-
-			const response = await axiosClient.get<UserResponse>('/user');
-			if (response.status === 200) {
-				setUser(response.data.data.attributes);
-			}
-		} catch (error) {
-		} finally {
+		setTimeout(() => {
 			setRefreshing(false);
-		}
+		}, 1500);
 	};
-	useEffect(() => {
-		const getTransactions = async () => {
-			try {
-				const axiosClient = new AxiosClient();
 
-				const response = await axiosClient.get<TransactionsResponse>(
-					'/transactions'
-				);
+	useFocusEffect(
+		useCallback(() => {
+			const getUser = async () => {
+				try {
+					setRefreshing(true);
 
-				if (response.status === 200) {
-					setTransactions(response.data.data);
+					const axiosClient = new AxiosClient();
+
+					const response = await axiosClient.get<UserResponse>('/user');
+					if (response.status === 200) {
+						setUser(response.data.data.attributes);
+					}
+				} catch (error) {
+				} finally {
+					setRefreshing(false);
 				}
-			} catch (error) {}
-		};
-		getTransactions();
-	}, [refreshing]);
+			};
+			const getTransactions = async () => {
+				try {
+					const axiosClient = new AxiosClient();
+
+					const response = await axiosClient.get<TransactionsResponse>(
+						'/transactions'
+					);
+
+					if (response.status === 200) {
+						setTransactions(response.data.data);
+					}
+				} catch (error) {}
+			};
+			getTransactions();
+			getUser();
+		}, [refreshing])
+	);
 
 	return (
 		<ScrollView
