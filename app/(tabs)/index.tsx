@@ -76,18 +76,13 @@ export default function HomeScreen() {
 		useCallback(() => {
 			const getUser = async () => {
 				try {
-					setRefreshing(true);
-
 					const axiosClient = new AxiosClient();
 
 					const response = await axiosClient.get<UserResponse>('/user');
 					if (response.status === 200) {
 						setUser(response.data.data.attributes);
 					}
-				} catch (error) {
-				} finally {
-					setRefreshing(false);
-				}
+				} catch (error) {}
 			};
 			const getTransactions = async () => {
 				try {
@@ -267,7 +262,7 @@ export default function HomeScreen() {
 										transaction.attributes.servicename == 'Wallet Credit' ? (
 											<MaterialCommunityIcons
 												name="wallet-plus"
-												size={20}
+												size={24}
 												color="#7D7D7D"
 											/>
 										) : transaction.attributes.servicename == 'Airtime' ? (
@@ -279,7 +274,7 @@ export default function HomeScreen() {
 												'Wallet Transfer' && (
 												<FontAwesome6
 													name="money-bill-transfer"
-													size={24}
+													size={20}
 													color="#7D7D7D"
 												/>
 											)

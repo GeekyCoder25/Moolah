@@ -229,6 +229,8 @@ const Data = () => {
 															...prev,
 															network: network.label,
 															id: network.id,
+															plan: '',
+															price: '',
 														}));
 														setShowNetworkModal(false);
 													}}
@@ -279,42 +281,56 @@ const Data = () => {
 									onPress={() => setShowPlanModal(false)}
 								/>
 								<View className="flex-1 justify-end items-end">
-									<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-										<Text className="text-2xl" fontWeight={700}>
+									<View className="bg-white w-full h-[70%] pt-8 rounded-t-2xl">
+										<Text className="text-2xl px-[5%]" fontWeight={700}>
 											Select Data Plan
 										</Text>
-										<ScrollView className="my-5">
-											{plans
-												.filter(plan => plan.id === formData.id)
-												.map(plan => (
-													<View key={plan.id}>
-														{plan.attributes.dataplans.map(plan => (
-															<TouchableOpacity
-																key={plan.id}
-																onPress={() => {
-																	setFormData(prev => ({
-																		...prev,
-																		plan: plan.attributes.name,
-																		price: plan.attributes.price,
-																	}));
-																	setShowPlanModal(false);
-																}}
-																className="py-3 flex-row gap-x-2"
-															>
-																<Text className="text-xl">
-																	{plan.attributes.name}
-																</Text>
-																<Text className="text-xl">for</Text>
-																<Text className="text-xl">
-																	₦
-																	{Number(
-																		plan.attributes.price
-																	).toLocaleString()}
-																</Text>
-															</TouchableOpacity>
-														))}
-													</View>
-												))}
+										<ScrollView className="mt-5 px-[5%]">
+											{plans.filter(plan => plan.id === formData.id).length ? (
+												plans
+													.filter(plan => plan.id === formData.id)
+													.map(plan => (
+														<View key={plan.id}>
+															{plan.attributes.dataplans.map(plan => (
+																<TouchableOpacity
+																	key={plan.id}
+																	onPress={() => {
+																		setFormData(prev => ({
+																			...prev,
+																			plan: plan.attributes.name,
+																			price: plan.attributes.price,
+																		}));
+																		setShowPlanModal(false);
+																	}}
+																	className="py-3 flex-row gap-x-2"
+																>
+																	<Text className="text-xl">
+																		{plan.attributes.name}{' '}
+																		{plan.attributes.type}
+																	</Text>
+																	<Text className="text-xl">for</Text>
+																	<Text className="text-xl">
+																		{plan.attributes.day}
+																		{Number(plan.attributes.day) > 1
+																			? 'days'
+																			: 'day'}
+																	</Text>
+																	<Text className="text-xl">-</Text>
+																	<Text className="text-xl">
+																		₦
+																		{Number(
+																			plan.attributes.price
+																		).toLocaleString()}
+																	</Text>
+																</TouchableOpacity>
+															))}
+														</View>
+													))
+											) : (
+												<View className="px-[5%]">
+													<Text>No available data plans</Text>
+												</View>
+											)}
 										</ScrollView>
 									</View>
 								</View>
