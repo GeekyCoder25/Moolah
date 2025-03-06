@@ -61,7 +61,7 @@ const Signin = () => {
 				}
 			}
 		} catch (error: any) {
-			console.log(error.response.data);
+			console.log(error.response?.status, error.response?.data);
 			Toast.show({
 				type: 'error',
 				text1: 'Error',

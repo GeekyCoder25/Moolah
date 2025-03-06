@@ -63,7 +63,11 @@ export class AxiosClient {
 			response => response,
 			async (error: AxiosError<Error>) => {
 				if (error.config && error?.response?.status === 401) {
-					router.replace('/Signin');
+					const tokenExists =
+						(await this._storageClass.getItem(ACCESS_TOKEN_KEY)) != null;
+					if (tokenExists) {
+						router.replace('/Signin');
+					}
 					this._onAccessTokenExpire?.();
 				}
 
