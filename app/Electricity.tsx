@@ -41,9 +41,14 @@ export interface ApiResponse {
 	message: string;
 	data: Data;
 }
+export interface VerifyApiResponse {
+	status: number;
+	message: string;
+	data: {customer_name: string; meter_number: string};
+}
 
 const Electricity = () => {
-	const {setLoading, user} = useGlobalStore();
+	const {setLoading} = useGlobalStore();
 	const [showPin, setShowPin] = useState(false);
 	const [formData, setFormData] = useState({
 		provider_id: 0,
@@ -51,6 +56,7 @@ const Electricity = () => {
 		meter_no: '',
 		meter_type: '',
 		amount: '',
+		account_name: '',
 	});
 	const [showProviderModal, setShowProviderModal] = useState(false);
 	const [showTypeModal, setShowTypeModal] = useState(false);
@@ -73,6 +79,35 @@ const Electricity = () => {
 		getProviders();
 	}, []);
 
+	useEffect(() => {
+		const getProviders = async () => {
+			try {
+				const axiosClient = new AxiosClient();
+
+				const response = await axiosClient.post<
+					{provider_id: string; meter_type: string; meter_no: string},
+					VerifyApiResponse
+				>('/electricity/verify-meter', {
+					provider_id: formData.provider_id.toString(),
+					meter_type: formData.meter_type,
+					meter_no: formData.meter_no,
+				});
+
+				if (response.status === 200) {
+					setFormData(prev => ({
+						...prev,
+						account_name: response.data.data.customer_name,
+					}));
+				}
+			} catch (error: any) {
+				console.log(error.response.data || error.message);
+			}
+		};
+		if (formData.provider_id && formData.meter_no && formData.meter_type) {
+			getProviders();
+		}
+	}, [formData.provider_id, formData.meter_no, formData.meter_type]);
+
 	const handleBuy = async (pin?: string) => {
 		try {
 			if (!formData.provider_id) {
@@ -81,6 +116,8 @@ const Electricity = () => {
 				throw new Error('Please input your phone number');
 			} else if (!formData.amount) {
 				throw new Error('Please input airtime amount');
+			} else if (Number(formData.amount) < 1000) {
+				throw new Error('Minimum unit purchase is ₦1,000');
 			}
 			setLoading(true);
 			const axiosClient = new AxiosClient();
@@ -96,7 +133,7 @@ const Electricity = () => {
 				pin: string;
 			}>('/electricity', {
 				provider_id: formData.provider_id.toString(),
-				meter_type: 'Prepaid',
+				meter_type: formData.meter_type,
 				meter_no: formData.meter_no,
 				amount: Number(formData.amount),
 				pin,
@@ -284,9 +321,22 @@ const Electricity = () => {
 							placeholder="Amount"
 						/>
 					</View>
+					<View className="gap-y-5">
+						<Text className="text-xl" fontWeight={700}>
+							Account Name
+						</Text>
+
+						<Text className="text-secondary h-14" fontWeight={600}>
+							{formData.account_name}
+						</Text>
+					</View>
 				</View>
 			</ScrollView>
-			<Button title="Buy" onPress={() => handleBuy()} />
+			<Button
+				title="Buy"
+				onPress={() => handleBuy()}
+				disabled={!formData.account_name}
+			/>
 			{showPin && (
 				<PinModal
 					showPin={showPin}

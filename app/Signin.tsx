@@ -31,8 +31,8 @@ interface SigninResponse {
 const Signin = () => {
 	const {setLoading, setUser} = useGlobalStore();
 	const [formData, setFormData] = useState({
-		sPhone: '08027504524',
-		password: 'albanny+1',
+		sPhone: '',
+		password: '',
 	});
 
 	const handleSubmit = async () => {
@@ -87,7 +87,7 @@ const Signin = () => {
 			<View className="my-20 gap-y-5">
 				<View className="">
 					<Text className="text-2xl" fontWeight={700}>
-						Phone Number
+						Phone Number / Email
 					</Text>
 					<TextInput
 						className="bg-white border-[1px] border-[#C8C8C8] w-full my-3 rounded-lg px-5 h-14"

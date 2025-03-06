@@ -5,13 +5,19 @@ import {TouchableOpacity, View} from 'react-native';
 interface ButtonProps {
 	title: string;
 	onPress: () => void;
+	disabled?: boolean;
 }
 
 const Button: FC<ButtonProps> = props => {
-	const {title, onPress} = props;
+	const {disabled, title, onPress} = props;
+
 	return (
-		<TouchableOpacity onPress={onPress}>
-			<View className="bg-primary p-6 rounded-xl justify-center">
+		<TouchableOpacity onPress={!disabled ? onPress : () => {}}>
+			<View
+				className={`${
+					disabled ? 'bg-[#313a66]' : 'bg-primary'
+				} p-6 rounded-xl justify-center`}
+			>
 				<Text className="text-white text-center text-xl" fontWeight={700}>
 					{title}
 				</Text>

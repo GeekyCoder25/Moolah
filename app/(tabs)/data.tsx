@@ -199,11 +199,17 @@ const Data = () => {
 							</Text>
 							<TouchableOpacity
 								onPress={() => setShowNetworkModal(true)}
-								className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
+								className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center overflow-hidden"
 							>
-								<Text className="text-lg">
-									{formData.network || 'Select Network'}
-								</Text>
+								{formData.network ? (
+									<View className="flex-row items-center gap-x-5">
+										{networkProvidersIcon(formData.network.toLowerCase())}
+
+										<Text className="text-lg">{formData.network}</Text>
+									</View>
+								) : (
+									<Text className="text-lg">Select Network</Text>
+								)}
 
 								<FontAwesome name="caret-down" size={24} color="#7D7D7D" />
 							</TouchableOpacity>
@@ -285,9 +291,11 @@ const Data = () => {
 										<Text className="text-2xl px-[5%]" fontWeight={700}>
 											Select Data Plan
 										</Text>
-										<ScrollView className="mt-5 px-[5%]">
-											{plans.filter(plan => plan.id === formData.id).length ? (
-												plans
+
+										{plans.find(plan => plan.id === formData.id)?.attributes
+											.dataplans.length ? (
+											<ScrollView className="mt-5 px-[5%]">
+												{plans
 													.filter(plan => plan.id === formData.id)
 													.map(plan => (
 														<View key={plan.id}>
@@ -325,13 +333,13 @@ const Data = () => {
 																</TouchableOpacity>
 															))}
 														</View>
-													))
-											) : (
-												<View className="px-[5%]">
-													<Text>No available data plans</Text>
-												</View>
-											)}
-										</ScrollView>
+													))}
+											</ScrollView>
+										) : (
+											<View className="px-[5%] my-5">
+												<Text>No available data plans</Text>
+											</View>
+										)}
 									</View>
 								</View>
 							</Modal>
