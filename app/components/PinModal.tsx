@@ -41,7 +41,7 @@ const PinModal: FC<PinModalProps> = props => {
 	};
 
 	return (
-		<Modal transparent>
+		<Modal transparent onRequestClose={() => setShowPin(false)}>
 			<Pressable style={globalStyles.overlay} />
 			<View className="flex-1 justify-center items-center px-[5%]">
 				<View className="bg-white pt-5 pb-8 px-[5%] rounded-xl w-full">
