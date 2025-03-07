@@ -32,7 +32,7 @@ const Splash = () => {
 					router.replace('/Signin');
 				}
 			} catch (error: any) {
-				console.error('Error checking login status:', error);
+				router.replace('/Signin');
 			}
 		};
 

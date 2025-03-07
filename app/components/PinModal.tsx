@@ -12,7 +12,7 @@ import {globalStyles} from '@/styles';
 import Button from './button';
 import Toast from 'react-native-toast-message';
 import Loading from './loading';
-
+import AntDesign from '@expo/vector-icons/AntDesign';
 interface PinModalProps {
 	showPin: boolean;
 	setShowPin: Dispatch<SetStateAction<boolean>>;
@@ -42,12 +42,15 @@ const PinModal: FC<PinModalProps> = props => {
 
 	return (
 		<Modal transparent>
-			<Pressable
-				style={globalStyles.overlay}
-				onPress={() => setShowPin(false)}
-			/>
+			<Pressable style={globalStyles.overlay} />
 			<View className="flex-1 justify-center items-center px-[5%]">
-				<View className="bg-white py-8 px-[5%] rounded-xl w-full">
+				<View className="bg-white pt-5 pb-8 px-[5%] rounded-xl w-full">
+					<TouchableOpacity
+						onPress={() => setShowPin(false)}
+						className="ml-auto"
+					>
+						<AntDesign name="close" size={24} color="black" />
+					</TouchableOpacity>
 					<Text className="text-xl text-center" fontWeight={600}>
 						Enter Transaction Pin
 					</Text>
