@@ -72,7 +72,7 @@ const Transactions = () => {
 							</View>
 						</View>
 						<ScrollView className="px-[5%]">
-							{transactions.reverse().map(transaction => (
+							{transactions.map(transaction => (
 								<View
 									key={transaction.id}
 									className="flex-row flex-1 w-full mb-7 gap-x-5 border-b-{1px]"

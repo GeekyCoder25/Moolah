@@ -253,63 +253,56 @@ export default function HomeScreen() {
 									<Text className="">Price</Text>
 								</View>
 							</View>
-							{transactions
-								.reverse()
-								.slice(0, 5)
-								.map(transaction => (
-									<View
-										key={transaction.id}
-										className="flex-row flex-1 w-full mb-7 gap-x-5"
-									>
-										<View className="flex-1 flex-row items-center">
-											<View className="w-10">
-												{transaction.attributes.servicename == 'Wallet Topup' ||
+							{transactions.slice(0, 5).map(transaction => (
+								<View
+									key={transaction.id}
+									className="flex-row flex-1 w-full mb-7 gap-x-5"
+								>
+									<View className="flex-1 flex-row items-center">
+										<View className="w-10">
+											{transaction.attributes.servicename == 'Wallet Topup' ||
+											transaction.attributes.servicename == 'Wallet Credit' ? (
+												<MaterialCommunityIcons
+													name="wallet-plus"
+													size={24}
+													color="#7D7D7D"
+												/>
+											) : transaction.attributes.servicename == 'Airtime' ? (
+												<CallIcon color={'#7D7D7D'} />
+											) : transaction.attributes.servicename == 'Data' ? (
+												<WifiIcon color={'#7D7D7D'} />
+											) : (
 												transaction.attributes.servicename ==
-													'Wallet Credit' ? (
-													<MaterialCommunityIcons
-														name="wallet-plus"
-														size={24}
+													'Wallet Transfer' && (
+													<FontAwesome6
+														name="money-bill-transfer"
+														size={20}
 														color="#7D7D7D"
 													/>
-												) : transaction.attributes.servicename == 'Airtime' ? (
-													<CallIcon color={'#7D7D7D'} />
-												) : transaction.attributes.servicename == 'Data' ? (
-													<WifiIcon color={'#7D7D7D'} />
-												) : (
-													transaction.attributes.servicename ==
-														'Wallet Transfer' && (
-														<FontAwesome6
-															name="money-bill-transfer"
-															size={20}
-															color="#7D7D7D"
-														/>
-													)
-												)}
-											</View>
-											<View className="ml-2">
-												<Text className="font-semibold">
-													{transaction.attributes.servicename}
-												</Text>
-												{transaction.attributes.date && (
-													<Text className="text-sm text-[#4E4E4E]">
-														{new Date(
-															transaction.attributes.date
-														).toDateString()}
-													</Text>
-												)}
-											</View>
+												)
+											)}
 										</View>
-										<View className="flex-1">
-											<Text>{transaction.attributes.transaction_ref}</Text>
-										</View>
-										<View className="" style={{width: 50}}>
-											<Text className="font-semibold text-secondary">
-												₦
-												{Number(transaction.attributes.amount).toLocaleString()}
+										<View className="ml-2">
+											<Text className="font-semibold">
+												{transaction.attributes.servicename}
 											</Text>
+											{transaction.attributes.date && (
+												<Text className="text-sm text-[#4E4E4E]">
+													{new Date(transaction.attributes.date).toDateString()}
+												</Text>
+											)}
 										</View>
 									</View>
-								))}
+									<View className="flex-1">
+										<Text>{transaction.attributes.transaction_ref}</Text>
+									</View>
+									<View className="" style={{width: 50}}>
+										<Text className="font-semibold text-secondary">
+											₦{Number(transaction.attributes.amount).toLocaleString()}
+										</Text>
+									</View>
+								</View>
+							))}
 						</>
 					) : (
 						<Text className="text-center text-lg my-20">

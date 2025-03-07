@@ -109,7 +109,7 @@ const TV = () => {
 			const response = await axiosClient.post<
 				{provider_id: string; iuc_no: string},
 				VerifyApiResponse
-			>('/cable/verify-meter', {
+			>('/cable/verify', {
 				provider_id: formData.provider.toString(),
 				iuc_no: formData.iuc_no,
 			});
