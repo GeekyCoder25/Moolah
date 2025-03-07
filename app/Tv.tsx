@@ -59,7 +59,13 @@ export interface CableTvPlan {
 export interface VerifyApiResponse {
 	status: number;
 	message: string;
-	data: {customer_name: string; meter_number: string};
+	data: {
+		status: string;
+		Status: string;
+		msg: string;
+		name: string;
+		Customer_Name: string;
+	};
 }
 
 const TV = () => {
@@ -107,18 +113,22 @@ const TV = () => {
 			const axiosClient = new AxiosClient();
 
 			const response = await axiosClient.post<
-				{provider_id: string; iuc_no: string},
+				{provider_id: number; iuc_no: string},
 				VerifyApiResponse
 			>('/cable/verify', {
-				provider_id: formData.provider.toString(),
+				provider_id: formData.provider,
 				iuc_no: formData.iuc_no,
 			});
 
 			if (response.status === 200) {
-				setFormData(prev => ({
-					...prev,
-					account_name: response.data.data.customer_name,
-				}));
+				if (response.data.data.status === 'success') {
+					setFormData(prev => ({
+						...prev,
+						account_name: response.data.data.name,
+					}));
+				} else {
+					throw new Error(response.data.data.msg);
+				}
 			}
 		} catch (error: any) {
 			Toast.show({
@@ -419,6 +429,17 @@ const TV = () => {
 								placeholder="Decoder Number"
 							/>
 						</View>
+						{formData.account_name && (
+							<View className="gap-y-5">
+								<Text className="text-xl" fontWeight={700}>
+									Account Name
+								</Text>
+
+								<Text className="text-secondary h-14" fontWeight={600}>
+									{formData.account_name}
+								</Text>
+							</View>
+						)}
 					</View>
 				</View>
 				<View className="mt-10">
