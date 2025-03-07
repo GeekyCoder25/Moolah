@@ -272,6 +272,7 @@ const TV = () => {
 																	provider.id === prev.provider
 																		? prev.plan
 																		: '',
+																account_name: '',
 															}));
 															setShowProviderModal(false);
 														}}
@@ -409,7 +410,11 @@ const TV = () => {
 								inputMode="numeric"
 								value={formData.iuc_no}
 								onChangeText={text =>
-									setFormData(prev => ({...prev, iuc_no: text}))
+									setFormData(prev => ({
+										...prev,
+										iuc_no: text,
+										account_name: '',
+									}))
 								}
 								placeholder="Decoder Number"
 							/>

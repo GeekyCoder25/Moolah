@@ -355,11 +355,13 @@ const Electricity = () => {
 						)}
 					</View>
 				</View>
-				{formData.account_name ? (
-					<Button title="Buy" onPress={() => handleBuy()} />
-				) : (
-					<Button title="Verify" onPress={handleVerify} />
-				)}
+				<View className="mt-10">
+					{formData.account_name ? (
+						<Button title="Buy" onPress={() => handleBuy()} />
+					) : (
+						<Button title="Verify" onPress={handleVerify} />
+					)}
+				</View>
 				{showPin && (
 					<PinModal
 						showPin={showPin}
