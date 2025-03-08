@@ -7,6 +7,7 @@ import {ActivityIndicator, Image, View} from 'react-native';
 import {UserResponse} from './types';
 import {useGlobalStore} from '@/context/store';
 import {GlobalColors} from '@/styles';
+import Toast from 'react-native-toast-message';
 
 const Splash = () => {
 	const {setUser} = useGlobalStore();
@@ -32,7 +33,15 @@ const Splash = () => {
 					router.replace('/Signin');
 				}
 			} catch (error: any) {
-				router.replace('/Signin');
+				if (error.response?.status === 401) {
+					router.replace('/Signin');
+				} else {
+					Toast.show({
+						type: 'error',
+						text1: 'Error',
+						text2: error.response?.data || error.message,
+					});
+				}
 			}
 		};
 
