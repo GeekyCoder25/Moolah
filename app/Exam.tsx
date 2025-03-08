@@ -45,7 +45,7 @@ const Exam = () => {
 		provider: 0,
 		name: '',
 		quantity: '',
-		amount: '',
+		amount: 0,
 	});
 	const [showProviderModal, setShowProviderModal] = useState(false);
 	const [providers, setProviders] = useState<ExamProvider[]>([]);
@@ -168,6 +168,7 @@ const Exam = () => {
 																...prev,
 																provider: provider.id,
 																name: provider.attributes.name,
+																amount: provider.attributes.price,
 															}));
 															setShowProviderModal(false);
 														}}
@@ -208,11 +209,11 @@ const Exam = () => {
 							<TextInput
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 								inputMode="numeric"
-								value={formData.amount}
-								onChangeText={text =>
-									setFormData(prev => ({...prev, amount: text}))
+								value={
+									formData.amount ? `₦${formData.amount.toLocaleString()}` : ''
 								}
 								placeholder="Amount"
+								editable={false}
 							/>
 						</View>
 					</View>

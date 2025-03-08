@@ -75,7 +75,8 @@ const TV = () => {
 		provider: 0,
 		name: '',
 		type: '',
-		plan: '',
+		plan_id: 0,
+		plan_name: '',
 		price: '',
 		iuc_no: '',
 		account_name: '',
@@ -149,7 +150,7 @@ const TV = () => {
 		try {
 			if (!formData.provider) {
 				throw new Error('Please select a provider');
-			} else if (!formData.plan) {
+			} else if (!formData.plan_id) {
 				throw new Error('Please select a subscription plan');
 			} else if (!formData.type) {
 				throw new Error('Please select subscription type');
@@ -164,7 +165,7 @@ const TV = () => {
 			}
 			const response = await axiosClient.post<{
 				provider_id: number;
-				plan_id: string;
+				plan_id: number;
 				type: string;
 				price: number;
 				customer_no: string;
@@ -172,7 +173,7 @@ const TV = () => {
 				pin: string;
 			}>('/cable', {
 				provider_id: formData.provider,
-				plan_id: formData.plan,
+				plan_id: formData.plan_id,
 				price: Number(formData.price),
 				type: formData.type,
 				customer_no: user?.phone_number || '',
@@ -278,10 +279,10 @@ const TV = () => {
 																...prev,
 																provider: provider.id,
 																name: provider.attributes.name,
-																plan:
+																plan_id:
 																	provider.id === prev.provider
-																		? prev.plan
-																		: '',
+																		? prev.plan_id
+																		: 0,
 																account_name: '',
 															}));
 															setShowProviderModal(false);
@@ -308,9 +309,9 @@ const TV = () => {
 									className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 								>
 									<Text className="text-lg">
-										{formData.plan ? (
+										{formData.plan_id ? (
 											<>
-												{formData.plan} - ₦
+												{formData.plan_name} - ₦
 												{Number(formData.price).toLocaleString()}
 											</>
 										) : (
@@ -342,7 +343,8 @@ const TV = () => {
 															onPress={() => {
 																setFormData(prev => ({
 																	...prev,
-																	plan: plan.attributes.name,
+																	plan_id: plan.id,
+																	plan_name: plan.attributes.name,
 																	price: plan.attributes.price,
 																}));
 																setShowPlanModal(false);
