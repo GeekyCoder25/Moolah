@@ -210,7 +210,11 @@ const Exam = () => {
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 								inputMode="numeric"
 								value={
-									formData.amount ? `₦${formData.amount.toLocaleString()}` : ''
+									formData.amount
+										? `₦${(
+												formData.amount * Number(formData.quantity || 1)
+										  ).toLocaleString()}`
+										: ''
 								}
 								placeholder="Amount"
 								editable={false}
