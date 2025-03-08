@@ -106,9 +106,7 @@ const Transfer = () => {
 							<InfoIcon />
 						</View>
 					</View>
-					<Text>
-						Wallet To Wallet Funds Transfer Attracts A Charges Of ₦50 Only.
-					</Text>
+					<Text>Wallet To Wallet Funds Transfer Is Free Of Charge.</Text>
 				</View>
 			</View>
 			<Button title="Send" onPress={() => handleSend()} />

@@ -164,7 +164,7 @@ const TV = () => {
 			}
 			const response = await axiosClient.post<{
 				provider_id: number;
-				plan: string;
+				plan_id: string;
 				type: string;
 				price: number;
 				customer_no: string;
@@ -172,7 +172,7 @@ const TV = () => {
 				pin: string;
 			}>('/cable', {
 				provider_id: formData.provider,
-				plan: formData.plan,
+				plan_id: formData.plan,
 				price: Number(formData.price),
 				type: formData.type,
 				customer_no: user?.phone_number || '',
@@ -212,7 +212,7 @@ const TV = () => {
 			behavior="padding"
 			keyboardVerticalOffset={20}
 		>
-			<ScrollView className="px-[5%] pt-5 pb-10 gap-x-4 flex-1">
+			<ScrollView className="px-[5%] pt-5 pb-20 gap-x-4 flex-1">
 				<Back title="TV" />
 				<View className="flex-1">
 					<View className="my-10">
@@ -442,7 +442,7 @@ const TV = () => {
 						)}
 					</View>
 				</View>
-				<View className="mt-10">
+				<View className="my-10">
 					{formData.account_name ? (
 						<Button title="Buy" onPress={() => handleBuy()} />
 					) : (

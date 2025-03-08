@@ -48,6 +48,7 @@ const PinModal: FC<PinModalProps> = props => {
 					<TouchableOpacity
 						onPress={() => setShowPin(false)}
 						className="ml-auto"
+						style={{marginLeft: 'auto'}}
 					>
 						<AntDesign name="close" size={24} color="black" />
 					</TouchableOpacity>

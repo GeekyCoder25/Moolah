@@ -355,7 +355,7 @@ const Electricity = () => {
 						)}
 					</View>
 				</View>
-				<View className="mt-10">
+				<View className="my-10">
 					{formData.account_name ? (
 						<Button title="Buy" onPress={() => handleBuy()} />
 					) : (
