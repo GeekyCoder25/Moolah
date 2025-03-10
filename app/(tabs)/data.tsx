@@ -68,6 +68,7 @@ const Data = () => {
 		network: '',
 		id: 0,
 		plan: '',
+		plan_id: 0,
 		price: '',
 		phone_number: '',
 		type: '',
@@ -137,7 +138,7 @@ const Data = () => {
 				network_id: formData.id,
 				data_type: formData.type,
 				data_plan: formData.plan,
-				data_plan_id: formData.id,
+				data_plan_id: formData.plan_id,
 				phone_number: formData.phone_number,
 				pin,
 			});
@@ -152,6 +153,7 @@ const Data = () => {
 					network: '',
 					id: 0,
 					plan: '',
+					plan_id: 0,
 					price: '',
 					phone_number: '',
 					type: '',
@@ -308,6 +310,7 @@ const Data = () => {
 																			plan: plan.attributes.name,
 																			price: plan.attributes.price,
 																			type: plan.attributes.type,
+																			plan_id: plan.id,
 																		}));
 																		setShowPlanModal(false);
 																	}}
