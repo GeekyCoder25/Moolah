@@ -70,7 +70,7 @@ const Data = () => {
 		plan: '',
 		price: '',
 		phone_number: '',
-		amount: '',
+		type: '',
 	});
 	const [showPin, setShowPin] = useState(false);
 	const [showNetworkModal, setShowNetworkModal] = useState(false);
@@ -135,7 +135,7 @@ const Data = () => {
 				pin: string;
 			}>('/data', {
 				network_id: formData.id,
-				data_type: 'SME',
+				data_type: formData.type,
 				data_plan: formData.plan,
 				data_plan_id: formData.id,
 				phone_number: formData.phone_number,
@@ -154,7 +154,7 @@ const Data = () => {
 					plan: '',
 					price: '',
 					phone_number: '',
-					amount: '',
+					type: '',
 				});
 			}
 		} catch (error: any) {
@@ -307,6 +307,7 @@ const Data = () => {
 																			...prev,
 																			plan: plan.attributes.name,
 																			price: plan.attributes.price,
+																			type: plan.attributes.type,
 																		}));
 																		setShowPlanModal(false);
 																	}}
