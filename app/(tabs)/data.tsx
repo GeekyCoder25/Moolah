@@ -187,7 +187,7 @@ const Data = () => {
 				<Back title="Data" />
 				<View className="flex-1">
 					<View className="my-10">
-						<Text className="text-3xl text-red-500" fontWeight={600}>
+						<Text className="text-3xl" fontWeight={600}>
 							Buy Data
 						</Text>
 						<Text className="text-secondary mt-2 rounded-tl-2xl">
@@ -385,7 +385,9 @@ const Data = () => {
 					</View> */}
 					</View>
 				</View>
-				<Button title="Buy" onPress={() => handleBuy()} />
+				<View className="my-10">
+					<Button title="Buy" onPress={() => handleBuy()} />
+				</View>
 				{showPin && (
 					<PinModal
 						showPin={showPin}

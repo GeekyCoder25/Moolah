@@ -220,7 +220,9 @@ const Airtime = () => {
 						</View>
 					</View>
 				</View>
-				<Button title="Buy" onPress={() => handleBuy()} />
+				<View className="my-10">
+					<Button title="Buy" onPress={() => handleBuy()} />
+				</View>
 				{showPin && (
 					<PinModal
 						showPin={showPin}
