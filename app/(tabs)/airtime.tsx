@@ -1,14 +1,13 @@
 import {
-	Image,
-	Keyboard,
 	KeyboardAvoidingView,
 	Modal,
 	Pressable,
+	ScrollView,
 	TextInput,
 	TouchableOpacity,
 	View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import Back from '@/components/back';
 import {Text} from '@/components/text';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -115,10 +114,7 @@ const Airtime = () => {
 			behavior="padding"
 			keyboardVerticalOffset={20}
 		>
-			<Pressable
-				onPress={Keyboard.dismiss}
-				className="px-[5%] py-5 gap-x-4 flex-1"
-			>
+			<ScrollView className="px-[5%] pt-5 pb-10 gap-x-4 flex-1">
 				<Back title="Airtime" />
 				<View className="flex-1">
 					<View className="my-10">
@@ -232,7 +228,7 @@ const Airtime = () => {
 						handleContinue={handleBuy}
 					/>
 				)}
-			</Pressable>
+			</ScrollView>
 		</KeyboardAvoidingView>
 	);
 };

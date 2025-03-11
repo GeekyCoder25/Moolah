@@ -1,5 +1,4 @@
 import {
-	Keyboard,
 	KeyboardAvoidingView,
 	Modal,
 	Pressable,
@@ -184,14 +183,11 @@ const Data = () => {
 			behavior="padding"
 			keyboardVerticalOffset={20}
 		>
-			<Pressable
-				onPress={Keyboard.dismiss}
-				className="px-[5%] py-5 gap-x-4 flex-1"
-			>
+			<ScrollView className="px-[5%] pt-5 pb-10 gap-x-4 flex-1">
 				<Back title="Data" />
 				<View className="flex-1">
 					<View className="my-10">
-						<Text className="text-3xl" fontWeight={600}>
+						<Text className="text-3xl text-red-500" fontWeight={600}>
 							Buy Data
 						</Text>
 						<Text className="text-secondary mt-2 rounded-tl-2xl">
@@ -397,7 +393,7 @@ const Data = () => {
 						handleContinue={handleBuy}
 					/>
 				)}
-			</Pressable>
+			</ScrollView>
 		</KeyboardAvoidingView>
 	);
 };
