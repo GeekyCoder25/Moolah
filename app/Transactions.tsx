@@ -1,8 +1,7 @@
-import {ActivityIndicator, RefreshControl, View} from 'react-native';
+import {ActivityIndicator, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Back from '@/components/back';
-import {Text} from 'react-native';
-import {Transaction, TransactionsResponse} from './(tabs)';
+import {TransactionsResponse} from './(tabs)';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import CallIcon from '@/assets/icons/call';
 import WifiIcon from '@/assets/icons/wifi';
@@ -10,11 +9,13 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import {AxiosClient} from '@/utils/axios';
 import {ScrollView} from 'react-native';
 import {GlobalColors} from '@/styles';
+import {useGlobalStore} from '@/context/store';
+import {Text} from '@/components/text';
+import {router} from 'expo-router';
 
 const Transactions = () => {
-	const [refreshing, setRefreshing] = useState(false);
-	const [transactions, setTransactions] = useState<Transaction[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
+	const {transactions, setTransactions} = useGlobalStore();
+	const [isLoading, setIsLoading] = useState(!transactions.length);
 
 	useEffect(() => {
 		const getTransactions = async () => {
@@ -34,15 +35,7 @@ const Transactions = () => {
 			}
 		};
 		getTransactions();
-	}, [refreshing]);
-
-	const handleRefresh = async () => {
-		setRefreshing(true);
-
-		setTimeout(() => {
-			setRefreshing(false);
-		}, 2000);
-	};
+	}, []);
 
 	if (isLoading) {
 		return (
@@ -66,14 +59,17 @@ const Transactions = () => {
 					<>
 						<View className="flex-row px-[5%] w-full my-5">
 							<Text className="flex-1">Type</Text>
-							<Text className="flex-1">Transaction id</Text>
+							<Text className="flex-1">Transaction status</Text>
 							<View className="" style={{width: 50}}>
 								<Text className="">Price</Text>
 							</View>
 						</View>
 						<ScrollView className="px-[5%]">
 							{transactions.map(transaction => (
-								<View
+								<TouchableOpacity
+									onPress={() =>
+										router.push(`/TransactionDetails?id=${transaction.id}`)
+									}
 									key={transaction.id}
 									className="flex-row flex-1 w-full mb-7 gap-x-5 border-b-{1px]"
 								>
@@ -113,15 +109,24 @@ const Transactions = () => {
 										</View>
 									</View>
 									<View className="flex-1">
-										<Text>{transaction.attributes.transaction_ref}</Text>
+										{transaction.attributes.status ? (
+											<Text className="text-red-500" fontWeight={600}>
+												Failed
+											</Text>
+										) : (
+											<Text className="text-green-500" fontWeight={600}>
+												Successful
+											</Text>
+										)}
 									</View>
 									<View className="" style={{width: 50}}>
-										<Text className="font-semibold text-secondary">
+										<Text className="text-secondary" fontWeight={600}>
 											₦{Number(transaction.attributes.amount).toLocaleString()}
 										</Text>
 									</View>
-								</View>
+								</TouchableOpacity>
 							))}
+							<View className="h-20" />
 						</ScrollView>
 					</>
 				) : (

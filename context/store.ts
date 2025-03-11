@@ -12,4 +12,6 @@ export const useGlobalStore = create<GlobalState>(set => ({
 	setShowPin: showPin => set({showPin}),
 	user: null,
 	setUser: user => set({user}),
+	transactions: [],
+	setTransactions: transactions => set({transactions}),
 }));

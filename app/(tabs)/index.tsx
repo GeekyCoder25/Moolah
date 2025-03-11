@@ -1,9 +1,7 @@
 import Logo from '@/assets/icons/logo';
 import {Text} from '@/components/text';
 import {
-	Image,
 	StyleSheet,
-	Platform,
 	View,
 	Pressable,
 	TouchableOpacity,
@@ -26,11 +24,10 @@ import {RefreshControl} from 'react-native';
 import {useCallback, useEffect, useState} from 'react';
 import {AxiosClient} from '@/utils/axios';
 import {UserResponse} from '../types';
-import {MemoryStorage} from '@/utils/storage';
-import {ACCESS_TOKEN_KEY} from '@/constants';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-
+import Ionicons from '@expo/vector-icons/Ionicons';
+import {MemoryStorage} from '@/utils/storage';
 // Root API response interface
 export interface TransactionsResponse {
 	status: number;
@@ -61,9 +58,9 @@ export interface TransactionAttributes {
 }
 
 export default function HomeScreen() {
-	const {user, setUser} = useGlobalStore();
+	const {user, setUser, transactions, setTransactions} = useGlobalStore();
 	const [refreshing, setRefreshing] = useState(false);
-	const [transactions, setTransactions] = useState<Transaction[]>([]);
+	const [showBalance, setShowBalance] = useState(true);
 
 	const handleRefresh = () => {
 		setRefreshing(true);
@@ -72,6 +69,18 @@ export default function HomeScreen() {
 			setRefreshing(false);
 		}, 1500);
 	};
+
+	useEffect(() => {
+		const storage = new MemoryStorage();
+		storage
+			.getItem('showBalance')
+			.then(res => setShowBalance(res ? JSON.parse(res) : false));
+	}, []);
+
+	useEffect(() => {
+		const storage = new MemoryStorage();
+		storage.setItem('showBalance', `${showBalance}`);
+	}, [showBalance]);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -128,16 +137,33 @@ export default function HomeScreen() {
 				</View>
 				<View className="bg-primary mt-7 p-7 gap-y-2 rounded-bl-xl rounded-tr-xl overflow-hidden">
 					<View className="z-10">
-						<Text className="text-xl text-white" fontWeight={600}>
-							Wallet Balance
-						</Text>
+						<View className="flex-row justify-between">
+							<View>
+								<Text className="text-xl text-white" fontWeight={600}>
+									Wallet Balance
+								</Text>
 
-						<Text className="text-white text-2xl" fontWeight={'bold'}>
-							₦
-							{user?.wallet_balance
-								? user.wallet_balance.toLocaleString()
-								: '0.00'}
-						</Text>
+								{showBalance ? (
+									<Text className="text-white text-2xl" fontWeight={'bold'}>
+										₦
+										{user?.wallet_balance
+											? user.wallet_balance.toLocaleString()
+											: '0.00'}
+									</Text>
+								) : (
+									<Text className="text-white text-2xl" fontWeight={'bold'}>
+										***
+									</Text>
+								)}
+							</View>
+							<TouchableOpacity onPress={() => setShowBalance(prev => !prev)}>
+								{showBalance ? (
+									<Ionicons name="eye-off" size={24} color="white" />
+								) : (
+									<Ionicons name="eye" size={24} color="white" />
+								)}
+							</TouchableOpacity>
+						</View>
 						<View className="flex-row flex-wrap gap-5 mt-5">
 							<TouchableOpacity
 								onPress={() => router.navigate('/Fund')}
@@ -248,13 +274,16 @@ export default function HomeScreen() {
 						<>
 							<View className="flex-row flex-1 w-full my-5">
 								<Text className="flex-1">Type</Text>
-								<Text className="flex-1">Transaction id</Text>
+								<Text className="flex-1">Transaction status</Text>
 								<View className="" style={{width: 50}}>
 									<Text className="">Price</Text>
 								</View>
 							</View>
 							{transactions.slice(0, 5).map(transaction => (
-								<View
+								<TouchableOpacity
+									onPress={() =>
+										router.push(`/TransactionDetails?id=${transaction.id}`)
+									}
 									key={transaction.id}
 									className="flex-row flex-1 w-full mb-7 gap-x-5"
 								>
@@ -294,14 +323,22 @@ export default function HomeScreen() {
 										</View>
 									</View>
 									<View className="flex-1">
-										<Text>{transaction.attributes.transaction_ref}</Text>
+										{transaction.attributes.status ? (
+											<Text className="text-red-500" fontWeight={600}>
+												Failed
+											</Text>
+										) : (
+											<Text className="text-green-500" fontWeight={600}>
+												Successful
+											</Text>
+										)}
 									</View>
 									<View className="" style={{width: 50}}>
-										<Text className="font-semibold text-secondary">
+										<Text className="text-secondary" fontWeight={600}>
 											₦{Number(transaction.attributes.amount).toLocaleString()}
 										</Text>
 									</View>
-								</View>
+								</TouchableOpacity>
 							))}
 						</>
 					) : (

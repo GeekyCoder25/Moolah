@@ -1,3 +1,4 @@
+import {Transaction} from '@/app/(tabs)';
 import {UserAttributes} from '@/app/types';
 
 export interface GlobalState {
@@ -11,4 +12,6 @@ export interface GlobalState {
 	setShowPin: (showPin: boolean) => void;
 	user: UserAttributes | null;
 	setUser: (user: UserAttributes | null) => void;
+	transactions: Transaction[];
+	setTransactions: (transactions: Transaction[]) => void;
 }
