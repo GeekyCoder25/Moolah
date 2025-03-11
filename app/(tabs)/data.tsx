@@ -1,5 +1,6 @@
 import {
 	Keyboard,
+	KeyboardAvoidingView,
 	Modal,
 	Pressable,
 	ScrollView,
@@ -178,195 +179,200 @@ const Data = () => {
 	};
 
 	return (
-		<Pressable
-			onPress={Keyboard.dismiss}
-			className="px-[5%] py-5 gap-x-4 flex-1"
+		<KeyboardAvoidingView
+			className="flex-1"
+			behavior="padding"
+			keyboardVerticalOffset={20}
 		>
-			<Back title="Data" />
-			<View className="flex-1">
-				<View className="my-10">
-					<Text className="text-3xl" fontWeight={600}>
-						Buy Data
-					</Text>
-					<Text className="text-secondary mt-2 rounded-tl-2xl">
-						Data for all Network
-					</Text>
-				</View>
+			<Pressable
+				onPress={Keyboard.dismiss}
+				className="px-[5%] py-5 gap-x-4 flex-1"
+			>
+				<Back title="Data" />
+				<View className="flex-1">
+					<View className="my-10">
+						<Text className="text-3xl" fontWeight={600}>
+							Buy Data
+						</Text>
+						<Text className="text-secondary mt-2 rounded-tl-2xl">
+							Data for all Network
+						</Text>
+					</View>
 
-				<View className="gap-y-5">
-					<View>
-						<View className="gap-y-5">
-							<Text className="text-xl" fontWeight={700}>
-								Network
-							</Text>
-							<TouchableOpacity
-								onPress={() => setShowNetworkModal(true)}
-								className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center overflow-hidden"
-							>
-								{formData.network ? (
-									<View className="flex-row items-center gap-x-5">
-										{networkProvidersIcon(formData.network.toLowerCase())}
+					<View className="gap-y-5">
+						<View>
+							<View className="gap-y-5">
+								<Text className="text-xl" fontWeight={700}>
+									Network
+								</Text>
+								<TouchableOpacity
+									onPress={() => setShowNetworkModal(true)}
+									className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center overflow-hidden"
+								>
+									{formData.network ? (
+										<View className="flex-row items-center gap-x-5">
+											{networkProvidersIcon(formData.network.toLowerCase())}
 
-										<Text className="text-lg">{formData.network}</Text>
-									</View>
-								) : (
-									<Text className="text-lg">Select Network</Text>
-								)}
+											<Text className="text-lg">{formData.network}</Text>
+										</View>
+									) : (
+										<Text className="text-lg">Select Network</Text>
+									)}
 
-								<FontAwesome name="caret-down" size={24} color="#7D7D7D" />
-							</TouchableOpacity>
-						</View>
-						{showNetworkModal && (
-							<Modal transparent>
-								<Pressable
-									style={globalStyles.overlay}
-									onPress={() => setShowNetworkModal(false)}
-								/>
-								<View className="flex-1 justify-end items-end">
-									<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-										<Text className="text-2xl" fontWeight={700}>
-											Select Network
-										</Text>
-										<View className="my-5">
-											{networks.map(network => (
-												<TouchableOpacity
-													key={network.label}
-													className="py-5 flex-row items-center gap-x-5"
-													onPress={() => {
-														setFormData(prev => ({
-															...prev,
-															network: network.label,
-															id: network.id,
-															plan: '',
-															price: '',
-														}));
-														setShowNetworkModal(false);
-													}}
-												>
-													{networkProvidersIcon(network.label.toLowerCase())}
+									<FontAwesome name="caret-down" size={24} color="#7D7D7D" />
+								</TouchableOpacity>
+							</View>
+							{showNetworkModal && (
+								<Modal transparent>
+									<Pressable
+										style={globalStyles.overlay}
+										onPress={() => setShowNetworkModal(false)}
+									/>
+									<View className="flex-1 justify-end items-end">
+										<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
+											<Text className="text-2xl" fontWeight={700}>
+												Select Network
+											</Text>
+											<View className="my-5">
+												{networks.map(network => (
+													<TouchableOpacity
+														key={network.label}
+														className="py-5 flex-row items-center gap-x-5"
+														onPress={() => {
+															setFormData(prev => ({
+																...prev,
+																network: network.label,
+																id: network.id,
+																plan: '',
+																price: '',
+															}));
+															setShowNetworkModal(false);
+														}}
+													>
+														{networkProvidersIcon(network.label.toLowerCase())}
 
-													<Text className="text-2xl">{network.label}</Text>
-												</TouchableOpacity>
-											))}
+														<Text className="text-2xl">{network.label}</Text>
+													</TouchableOpacity>
+												))}
+											</View>
 										</View>
 									</View>
-								</View>
-							</Modal>
-						)}
-					</View>
-					<View>
+								</Modal>
+							)}
+						</View>
+						<View>
+							<View className="gap-y-5">
+								<Text className="text-xl" fontWeight={700}>
+									Select Plan
+								</Text>
+								<TouchableOpacity
+									onPress={() => {
+										if (formData.network) {
+											return setShowPlanModal(true);
+										}
+										Toast.show({type: 'info', text1: 'Select a network first'});
+									}}
+									className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
+								>
+									<Text className="text-lg">
+										{formData.plan ? (
+											<>
+												{formData.plan} for ₦
+												{Number(formData.price).toLocaleString()}
+											</>
+										) : (
+											'Select Plan'
+										)}
+									</Text>
+
+									<FontAwesome name="caret-down" size={24} color="#7D7D7D" />
+								</TouchableOpacity>
+							</View>
+							{showPlanModal && (
+								<Modal transparent>
+									<Pressable
+										style={globalStyles.overlay}
+										onPress={() => setShowPlanModal(false)}
+									/>
+									<View className="flex-1 justify-end items-end">
+										<View className="bg-white w-full h-[70%] pt-8 rounded-t-2xl">
+											<Text className="text-2xl px-[5%]" fontWeight={700}>
+												Select Data Plan
+											</Text>
+
+											{plans.find(plan => plan.id === formData.id)?.attributes
+												.dataplans.length ? (
+												<ScrollView className="mt-5 px-[5%]">
+													{plans
+														.filter(plan => plan.id === formData.id)
+														.map(plan => (
+															<View key={plan.id}>
+																{plan.attributes.dataplans.map(plan => (
+																	<TouchableOpacity
+																		key={plan.id}
+																		onPress={() => {
+																			setFormData(prev => ({
+																				...prev,
+																				plan: plan.attributes.name,
+																				price: plan.attributes.price,
+																				type: plan.attributes.type,
+																				plan_id: plan.id,
+																			}));
+																			setShowPlanModal(false);
+																		}}
+																		className="py-3 flex-row gap-x-2"
+																	>
+																		<Text className="text-xl">
+																			{plan.attributes.name}{' '}
+																			{plan.attributes.type}
+																		</Text>
+																		<Text className="text-xl">for</Text>
+																		<Text className="text-xl">
+																			{plan.attributes.day}
+																			{Number(plan.attributes.day) > 1
+																				? 'days'
+																				: 'day'}
+																		</Text>
+																		<Text className="text-xl">-</Text>
+																		<Text className="text-xl">
+																			₦
+																			{Number(
+																				plan.attributes.price
+																			).toLocaleString()}
+																		</Text>
+																	</TouchableOpacity>
+																))}
+															</View>
+														))}
+												</ScrollView>
+											) : (
+												<View className="px-[5%] my-5">
+													<Text>No available data plans</Text>
+												</View>
+											)}
+										</View>
+									</View>
+								</Modal>
+							)}
+						</View>
 						<View className="gap-y-5">
 							<Text className="text-xl" fontWeight={700}>
-								Select Plan
+								Phone number
 							</Text>
-							<TouchableOpacity
-								onPress={() => {
-									if (formData.network) {
-										return setShowPlanModal(true);
-									}
-									Toast.show({type: 'info', text1: 'Select a network first'});
-								}}
-								className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
-							>
-								<Text className="text-lg">
-									{formData.plan ? (
-										<>
-											{formData.plan} for ₦
-											{Number(formData.price).toLocaleString()}
-										</>
-									) : (
-										'Select Plan'
-									)}
-								</Text>
 
-								<FontAwesome name="caret-down" size={24} color="#7D7D7D" />
-							</TouchableOpacity>
+							<TextInput
+								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
+								inputMode="tel"
+								maxLength={11}
+								value={formData.phone_number}
+								onChangeText={text =>
+									setFormData(prev => ({...prev, phone_number: text}))
+								}
+								placeholder="Phone number"
+								placeholderTextColor={'#7D7D7D'}
+							/>
 						</View>
-						{showPlanModal && (
-							<Modal transparent>
-								<Pressable
-									style={globalStyles.overlay}
-									onPress={() => setShowPlanModal(false)}
-								/>
-								<View className="flex-1 justify-end items-end">
-									<View className="bg-white w-full h-[70%] pt-8 rounded-t-2xl">
-										<Text className="text-2xl px-[5%]" fontWeight={700}>
-											Select Data Plan
-										</Text>
-
-										{plans.find(plan => plan.id === formData.id)?.attributes
-											.dataplans.length ? (
-											<ScrollView className="mt-5 px-[5%]">
-												{plans
-													.filter(plan => plan.id === formData.id)
-													.map(plan => (
-														<View key={plan.id}>
-															{plan.attributes.dataplans.map(plan => (
-																<TouchableOpacity
-																	key={plan.id}
-																	onPress={() => {
-																		setFormData(prev => ({
-																			...prev,
-																			plan: plan.attributes.name,
-																			price: plan.attributes.price,
-																			type: plan.attributes.type,
-																			plan_id: plan.id,
-																		}));
-																		setShowPlanModal(false);
-																	}}
-																	className="py-3 flex-row gap-x-2"
-																>
-																	<Text className="text-xl">
-																		{plan.attributes.name}{' '}
-																		{plan.attributes.type}
-																	</Text>
-																	<Text className="text-xl">for</Text>
-																	<Text className="text-xl">
-																		{plan.attributes.day}
-																		{Number(plan.attributes.day) > 1
-																			? 'days'
-																			: 'day'}
-																	</Text>
-																	<Text className="text-xl">-</Text>
-																	<Text className="text-xl">
-																		₦
-																		{Number(
-																			plan.attributes.price
-																		).toLocaleString()}
-																	</Text>
-																</TouchableOpacity>
-															))}
-														</View>
-													))}
-											</ScrollView>
-										) : (
-											<View className="px-[5%] my-5">
-												<Text>No available data plans</Text>
-											</View>
-										)}
-									</View>
-								</View>
-							</Modal>
-						)}
-					</View>
-					<View className="gap-y-5">
-						<Text className="text-xl" fontWeight={700}>
-							Phone number
-						</Text>
-
-						<TextInput
-							className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
-							inputMode="tel"
-							maxLength={11}
-							value={formData.phone_number}
-							onChangeText={text =>
-								setFormData(prev => ({...prev, phone_number: text}))
-							}
-							placeholder="Phone number"
-							placeholderTextColor={'#7D7D7D'}
-						/>
-					</View>
-					{/* <View className="gap-y-5">
+						{/* <View className="gap-y-5">
 						<Text className="text-xl" fontWeight={700}>
 							Amount
 						</Text>
@@ -381,17 +387,18 @@ const Data = () => {
 							placeholder="Amount"
 						/>
 					</View> */}
+					</View>
 				</View>
-			</View>
-			<Button title="Buy" onPress={() => handleBuy()} />
-			{showPin && (
-				<PinModal
-					showPin={showPin}
-					setShowPin={setShowPin}
-					handleContinue={handleBuy}
-				/>
-			)}
-		</Pressable>
+				<Button title="Buy" onPress={() => handleBuy()} />
+				{showPin && (
+					<PinModal
+						showPin={showPin}
+						setShowPin={setShowPin}
+						handleContinue={handleBuy}
+					/>
+				)}
+			</Pressable>
+		</KeyboardAvoidingView>
 	);
 };
 
