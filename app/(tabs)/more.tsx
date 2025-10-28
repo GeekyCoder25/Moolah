@@ -25,7 +25,7 @@ type RoutePaths =
 	| '/';
 
 const More = () => {
-	const {user} = useGlobalStore();
+	const {user, setAccessToken} = useGlobalStore();
 	const name = `${user?.firstname} ${user?.lastname}`;
 	const routes: {
 		title: string;
@@ -81,6 +81,7 @@ const More = () => {
 		const storage = new MemoryStorage();
 		await storage.removeItem(IS_LOGGED_IN);
 		await storage.removeItem(ACCESS_TOKEN_KEY);
+		setAccessToken('');
 		router.replace('/Signin');
 	};
 

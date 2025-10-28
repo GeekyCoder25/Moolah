@@ -78,7 +78,12 @@ const Transfer = () => {
 					<TextInput
 						className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 						value={formData.email}
-						onChangeText={text => setFormData(prev => ({...prev, email: text}))}
+						onChangeText={text =>
+							setFormData(prev => ({
+								...prev,
+								email: text.replace(/[<>"'&/]/g, ''),
+							}))
+						}
 						placeholder="Email"
 						placeholderTextColor={'#7D7D7D'}
 					/>
@@ -93,7 +98,10 @@ const Transfer = () => {
 						inputMode="numeric"
 						value={formData.amount}
 						onChangeText={text =>
-							setFormData(prev => ({...prev, amount: text}))
+							setFormData(prev => ({
+								...prev,
+								amount: text.replace(/[<>"'&/]/g, ''),
+							}))
 						}
 						placeholder="Amount"
 						placeholderTextColor={'#7D7D7D'}

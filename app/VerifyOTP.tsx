@@ -1,6 +1,7 @@
 import {
 	AppState,
 	AppStateStatus,
+	Dimensions,
 	Keyboard,
 	Pressable,
 	TextInput,
@@ -37,14 +38,20 @@ const VerifyOTP = () => {
 	const [isError2, setIsError2] = useState(false);
 	const [isError3, setIsError3] = useState(false);
 	const [isError4, setIsError4] = useState(false);
+	const [isError5, setIsError5] = useState(false);
+	const [isError6, setIsError6] = useState(false);
 	const [otpCode1, setOtpCode1] = useState('');
 	const [otpCode2, setOtpCode2] = useState('');
 	const [otpCode3, setOtpCode3] = useState('');
 	const [otpCode4, setOtpCode4] = useState('');
+	const [otpCode5, setOtpCode5] = useState('');
+	const [otpCode6, setOtpCode6] = useState('');
 	const inputRef = useRef<TextInput>(null);
 	const inputRef2 = useRef<TextInput>(null);
 	const inputRef3 = useRef<TextInput>(null);
 	const inputRef4 = useRef<TextInput>(null);
+	const inputRef5 = useRef<TextInput>(null);
+	const inputRef6 = useRef<TextInput>(null);
 	const [hasAutoPasted, setHasAutoPasted] = useState(false);
 	const [retry, setRetry] = useState(1);
 	const appState = useRef<AppStateStatus>(AppState.currentState);
@@ -65,7 +72,7 @@ const VerifyOTP = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const timerRef = useRef<NodeJS.Timeout | null>(null);
+	const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 	const startTimer = () => {
 		const endTimestamp = Date.now() + timeLeft * 1000; // Calculate target end time
@@ -160,7 +167,13 @@ const VerifyOTP = () => {
 			const clipboard = await Clipboard.getStringAsync();
 			let otp;
 			if (isClipboard) {
-				otp = clipboard[0] + clipboard[1] + clipboard[2] + clipboard[3];
+				otp =
+					clipboard[0] +
+					clipboard[1] +
+					clipboard[2] +
+					clipboard[3] +
+					clipboard[4] +
+					clipboard[5];
 			} else {
 				if (!otpCode1) {
 					setIsError1(true);
@@ -174,11 +187,24 @@ const VerifyOTP = () => {
 				if (!otpCode4) {
 					setIsError4(true);
 				}
+				if (!otpCode5) {
+					setIsError5(true);
+				}
+				if (!otpCode6) {
+					setIsError6(true);
+				}
 
-				if (!otpCode1 || !otpCode2 || !otpCode3 || !otpCode4) {
+				if (
+					!otpCode1 ||
+					!otpCode2 ||
+					!otpCode3 ||
+					!otpCode4 ||
+					!otpCode5 ||
+					!otpCode6
+				) {
 					return;
 				}
-				otp = otpCode1 + otpCode2 + otpCode3 + otpCode4;
+				otp = otpCode1 + otpCode2 + otpCode3 + otpCode4 + otpCode5 + otpCode6;
 			}
 			setLoading(true);
 			const response = await axiosClient.post<
@@ -197,6 +223,8 @@ const VerifyOTP = () => {
 			setIsError2(true);
 			setIsError3(true);
 			setIsError4(true);
+			setIsError5(true);
+			setIsError6(true);
 			Toast.show({
 				type: 'error',
 				text1: 'Error',
@@ -221,10 +249,14 @@ const VerifyOTP = () => {
 		setOtpCode2('');
 		setOtpCode3('');
 		setOtpCode4('');
+		setOtpCode5('');
+		setOtpCode6('');
 		setIsError1(false);
 		setIsError2(false);
 		setIsError3(false);
 		setIsError4(false);
+		setIsError5(false);
+		setIsError6(false);
 	};
 
 	const handleResend = async () => {
@@ -233,6 +265,7 @@ const VerifyOTP = () => {
 			const response = await axiosClient.post('/resend-verify/email', {email});
 
 			if (response.status === 200) {
+				console.log(response.data);
 				setTimeLeft(60);
 				Toast.show({
 					type: 'success',
@@ -242,6 +275,14 @@ const VerifyOTP = () => {
 			}
 		} catch (error: any) {
 			console.log('err', error.response?.data);
+			Toast.show({
+				type: 'error',
+				text1: 'Error',
+				text2:
+					error.response?.data?.message ||
+					error.message ||
+					'Unable to resend OTP. Please try again later.',
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -268,7 +309,7 @@ const VerifyOTP = () => {
 							<TextInput
 								onChangeText={text => {
 									text && inputRef2.current?.focus();
-									setOtpCode1(text);
+									setOtpCode1(text.replace(/[<>"'&/]/g, ''));
 									setIsError1(false);
 								}}
 								onFocus={() => setFocusedBox(1)}
@@ -276,11 +317,13 @@ const VerifyOTP = () => {
 								ref={inputRef}
 								maxLength={1}
 								textAlign="center"
-								value={otpCode1}
+								value={otpCode1.replace(/[<>"'&/]/g, '')}
 								autoFocus
-								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-bold ${
-									isError1 ? 'text-red-500' : ''
-								} ${
+								className={`border-[1px] ${
+									Dimensions.get('window').width < 300
+										? 'w-10 h-10 text-3xl rounded-xl'
+										: 'w-20 h-20 text-5xl rounded-2xl'
+								} p-1 font-bold ${isError1 ? 'text-red-500' : ''} ${
 									focusedBox === 1
 										? 'border-secondary'
 										: isError1
@@ -293,7 +336,7 @@ const VerifyOTP = () => {
 							<TextInput
 								onChangeText={text => {
 									text ? inputRef3.current?.focus() : inputRef.current?.focus();
-									setOtpCode2(text);
+									setOtpCode2(text.replace(/[<>"'&/]/g, ''));
 									setIsError2(false);
 								}}
 								onFocus={() => setFocusedBox(2)}
@@ -301,10 +344,12 @@ const VerifyOTP = () => {
 								ref={inputRef2}
 								maxLength={1}
 								textAlign="center"
-								value={otpCode2}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-bold ${
-									isError2 ? 'text-red-500' : ''
-								} ${
+								value={otpCode2.replace(/[<>"'&/]/g, '')}
+								className={`border-[1px] ${
+									Dimensions.get('window').width < 300
+										? 'w-10 h-10 text-3xl rounded-xl'
+										: 'w-20 h-20 text-5xl rounded-2xl'
+								} p-1 font-bold ${isError2 ? 'text-red-500' : ''} ${
 									focusedBox === 2
 										? 'border-secondary'
 										: isError2
@@ -319,7 +364,7 @@ const VerifyOTP = () => {
 									text
 										? inputRef4.current?.focus()
 										: inputRef2.current?.focus();
-									setOtpCode3(text);
+									setOtpCode3(text.replace(/[<>"'&/]/g, ''));
 									setIsError3(false);
 								}}
 								onFocus={() => setFocusedBox(3)}
@@ -327,10 +372,12 @@ const VerifyOTP = () => {
 								ref={inputRef3}
 								maxLength={1}
 								textAlign="center"
-								value={otpCode3}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-bold ${
-									isError3 ? 'text-red-500' : ''
-								} ${
+								value={otpCode3.replace(/[<>"'&/]/g, '')}
+								className={`border-[1px] ${
+									Dimensions.get('window').width < 300
+										? 'w-10 h-10 text-3xl rounded-xl'
+										: 'w-20 h-20 text-5xl rounded-2xl'
+								} p-1 font-bold ${isError3 ? 'text-red-500' : ''} ${
 									focusedBox === 3
 										? 'border-secondary'
 										: isError3
@@ -342,13 +389,11 @@ const VerifyOTP = () => {
 						<TouchableOpacity onPress={() => inputRef4.current?.focus()}>
 							<TextInput
 								onChangeText={text => {
+									text
+										? inputRef5.current?.focus()
+										: inputRef3.current?.focus();
 									setOtpCode4(text);
 									setIsError4(false);
-									if (!text) {
-										return inputRef3.current?.focus();
-									}
-									Keyboard.dismiss();
-									setFocusedBox(0);
 								}}
 								onFocus={() => setFocusedBox(4)}
 								inputMode="numeric"
@@ -356,12 +401,72 @@ const VerifyOTP = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCode4}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-bold ${
-									isError4 ? 'text-red-500' : ''
-								} ${
+								className={`border-[1px] ${
+									Dimensions.get('window').width < 300
+										? 'w-10 h-10 text-3xl rounded-xl'
+										: 'w-20 h-20 text-5xl rounded-2xl'
+								} p-1 font-bold ${isError4 ? 'text-red-500' : ''} ${
 									focusedBox === 4
 										? 'border-secondary'
 										: isError4
+										? 'border-red-500'
+										: 'border-[#C8C8C8]'
+								}`}
+							/>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => inputRef5.current?.focus()}>
+							<TextInput
+								onChangeText={text => {
+									text
+										? inputRef6.current?.focus()
+										: inputRef4.current?.focus();
+									setOtpCode5(text);
+									setIsError5(false);
+								}}
+								onFocus={() => setFocusedBox(5)}
+								inputMode="numeric"
+								ref={inputRef5}
+								maxLength={1}
+								textAlign="center"
+								value={otpCode5}
+								className={`border-[1px] ${
+									Dimensions.get('window').width < 300
+										? 'w-10 h-10 text-3xl rounded-xl'
+										: 'w-20 h-20 text-5xl rounded-2xl'
+								} p-1 font-bold ${isError5 ? 'text-red-500' : ''} ${
+									focusedBox === 5
+										? 'border-secondary'
+										: isError5
+										? 'border-red-500'
+										: 'border-[#C8C8C8]'
+								}`}
+							/>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => inputRef6.current?.focus()}>
+							<TextInput
+								onChangeText={text => {
+									setOtpCode6(text);
+									setIsError6(false);
+									if (!text) {
+										return inputRef5.current?.focus();
+									}
+									Keyboard.dismiss();
+									setFocusedBox(0);
+								}}
+								onFocus={() => setFocusedBox(6)}
+								inputMode="numeric"
+								ref={inputRef6}
+								maxLength={1}
+								textAlign="center"
+								value={otpCode6}
+								className={`border-[1px] ${
+									Dimensions.get('window').width < 300
+										? 'w-10 h-10 text-3xl rounded-xl'
+										: 'w-20 h-20 text-5xl rounded-2xl'
+								} p-1 font-bold ${isError6 ? 'text-red-500' : ''} ${
+									focusedBox === 6
+										? 'border-secondary'
+										: isError6
 										? 'border-red-500'
 										: 'border-[#C8C8C8]'
 								}`}

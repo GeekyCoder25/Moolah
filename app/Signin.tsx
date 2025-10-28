@@ -11,7 +11,7 @@ import {errorFormat} from '@/utils';
 import {MemoryStorage} from '@/utils/storage';
 import {ACCESS_TOKEN_KEY, IS_LOGGED_IN} from '@/constants';
 import {UserResponse} from './types';
-
+import AntDesign from '@expo/vector-icons/AntDesign';
 interface SigninRequest {
 	sPhone: string;
 	password: string;
@@ -29,16 +29,17 @@ interface SigninResponse {
 }
 
 const Signin = () => {
-	const {setLoading, setUser} = useGlobalStore();
+	const {setLoading, setUser, setAccessToken} = useGlobalStore();
 	const [formData, setFormData] = useState({
 		sPhone: '',
 		password: '',
 	});
+	const [showPassword, setShowPassword] = useState(false);
 
 	const handleSubmit = async () => {
+		const axiosClient = new AxiosClient();
 		try {
 			setLoading(true);
-			const axiosClient = new AxiosClient();
 
 			const response = await axiosClient.post<SigninRequest, SigninResponse>(
 				'/login',
@@ -46,7 +47,8 @@ const Signin = () => {
 			);
 			if (response.status === 200) {
 				const storage = new MemoryStorage();
-				await storage.setItem(ACCESS_TOKEN_KEY, response.data.data.token);
+				setAccessToken(response.data.data.token);
+				// await storage.setItem(ACCESS_TOKEN_KEY, response.data.data.token);
 				const email = response.data.data.user.email;
 				const userResponse = await axiosClient.get<UserResponse>('/user');
 				if (userResponse.status === 200) {
@@ -62,6 +64,16 @@ const Signin = () => {
 			}
 		} catch (error: any) {
 			console.log(error.response?.status, error.response?.data);
+			if (error.response.status === 403) {
+				if (formData.sPhone.includes('@')) {
+					router.replace(`/VerifyOTP?email=${formData.sPhone}`);
+					await axiosClient.post('/resend-verify/email', {
+						email: formData.sPhone,
+					});
+				} else {
+					router.replace('/Forget');
+				}
+			}
 			Toast.show({
 				type: 'error',
 				text1: 'Error',
@@ -90,25 +102,43 @@ const Signin = () => {
 						Phone Number / Email
 					</Text>
 					<TextInput
-						className="bg-white border-[1px] border-[#C8C8C8] w-full my-3 rounded-lg px-5 h-14"
+						className="bg-white border-[1px] border-[#C8C8C8] w-full my-3 rounded-lg px-5 h-14 text-black"
 						onChangeText={text =>
-							setFormData(prev => ({...prev, sPhone: text}))
+							setFormData(prev => ({
+								...prev,
+								sPhone: text.replace(/[<>"'&/]/g, ''),
+							}))
 						}
-						value={formData.sPhone}
+						value={formData.sPhone.replace(/[<>"'&/]/g, '')}
 					/>
 				</View>
 				<View className="">
 					<Text className="text-2xl" fontWeight={700}>
 						Password
 					</Text>
-					<TextInput
-						className="bg-white border-[1px] border-[#C8C8C8] w-full my-3 rounded-lg px-5 h-14"
-						onChangeText={text =>
-							setFormData(prev => ({...prev, password: text}))
-						}
-						value={formData.password}
-						secureTextEntry
-					/>
+					<View className="relative">
+						<TextInput
+							className="bg-white border-[1px] border-[#C8C8C8] w-full my-3 rounded-lg px-5 h-14 text-black"
+							onChangeText={text =>
+								setFormData(prev => ({
+									...prev,
+									password: text.replace(/[<>"'&/]/g, ''),
+								}))
+							}
+							value={formData.password.replace(/[<>"'&/]/g, '')}
+							secureTextEntry={!showPassword}
+						/>
+						<View className="absolute right-5 top-1/2 -translate-y-1/2">
+							{/* <EyeIcon /> */}
+							<TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+								{showPassword ? (
+									<AntDesign name="eye" size={24} color="#C8C8C8" />
+								) : (
+									<AntDesign name="eye-invisible" size={24} color="#C8C8C8" />
+								)}
+							</TouchableOpacity>
+						</View>
+					</View>
 					<TouchableOpacity onPress={() => router.navigate('/Forget')}>
 						<Text className="text-xl text-primary text-right" fontWeight={600}>
 							Forget Password?

@@ -61,7 +61,7 @@ const PinModal: FC<PinModalProps> = props => {
 								<TextInput
 									onChangeText={text => {
 										text && inputRef2.current?.focus();
-										setOtpCode1(text);
+										setOtpCode1(text.replace(/[<>"'&/]/g, ''));
 										setIsError1(false);
 									}}
 									onFocus={() => setFocusedBox(1)}
@@ -69,7 +69,7 @@ const PinModal: FC<PinModalProps> = props => {
 									ref={inputRef}
 									maxLength={1}
 									textAlign="center"
-									value={otpCode1}
+									value={otpCode1.replace(/[<>"'&/]/g, '')}
 									autoFocus
 									className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1W font-bold ${
 										isError1 ? 'text-red-500' : ''
@@ -88,7 +88,7 @@ const PinModal: FC<PinModalProps> = props => {
 										text
 											? inputRef3.current?.focus()
 											: inputRef.current?.focus();
-										setOtpCode2(text);
+										setOtpCode2(text.replace(/[<>"'&/]/g, ''));
 										setIsError2(false);
 									}}
 									onFocus={() => setFocusedBox(2)}
@@ -96,7 +96,7 @@ const PinModal: FC<PinModalProps> = props => {
 									ref={inputRef2}
 									maxLength={1}
 									textAlign="center"
-									value={otpCode2}
+									value={otpCode2.replace(/[<>"'&/]/g, '')}
 									className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1 font-bold ${
 										isError2 ? 'text-red-500' : ''
 									} ${
@@ -114,7 +114,7 @@ const PinModal: FC<PinModalProps> = props => {
 										text
 											? inputRef4.current?.focus()
 											: inputRef2.current?.focus();
-										setOtpCode3(text);
+										setOtpCode3(text.replace(/[<>"'&/]/g, ''));
 										setIsError3(false);
 									}}
 									onFocus={() => setFocusedBox(3)}
@@ -122,7 +122,7 @@ const PinModal: FC<PinModalProps> = props => {
 									ref={inputRef3}
 									maxLength={1}
 									textAlign="center"
-									value={otpCode3}
+									value={otpCode3.replace(/[<>"'&/]/g, '')}
 									className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1 font-bold ${
 										isError3 ? 'text-red-500' : ''
 									} ${
@@ -137,7 +137,7 @@ const PinModal: FC<PinModalProps> = props => {
 							<TouchableOpacity onPress={() => inputRef4.current?.focus()}>
 								<TextInput
 									onChangeText={text => {
-										setOtpCode4(text);
+										setOtpCode4(text.replace(/[<>"'&/]/g, ''));
 										setIsError4(false);
 										if (!text) {
 											return inputRef3.current?.focus();
@@ -150,7 +150,7 @@ const PinModal: FC<PinModalProps> = props => {
 									ref={inputRef4}
 									maxLength={1}
 									textAlign="center"
-									value={otpCode4}
+									value={otpCode4.replace(/[<>"'&/]/g, '')}
 									className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1 font-bold ${
 										isError4 ? 'text-red-500' : ''
 									} ${

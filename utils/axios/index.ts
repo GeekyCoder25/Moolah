@@ -40,19 +40,18 @@ export class AxiosClient {
 			const storage = new MemoryStorage();
 			await storage.removeItem(ACCESS_TOKEN_KEY);
 			await storage.removeItem(IS_LOGGED_IN);
-			// useGlobalStore.getState().reset();
+			useGlobalStore.getState().setAccessToken('');
 		}
 	}
 
 	private async mountInterceptors() {
 		this._axiosClient.interceptors.request.use(async config => {
-			const tokenExists =
-				(await this._storageClass.getItem(ACCESS_TOKEN_KEY)) != null;
+			const tokenExists = useGlobalStore.getState().accessToken;
+
+			// (await this._storageClass.getItem(ACCESS_TOKEN_KEY)) != null;
 
 			if (tokenExists) {
-				config.headers.Authorization = `Bearer ${await this._storageClass.getItem(
-					ACCESS_TOKEN_KEY
-				)}`;
+				config.headers.Authorization = `Bearer ${tokenExists}`;
 			}
 
 			return config;
@@ -63,8 +62,8 @@ export class AxiosClient {
 			response => response,
 			async (error: AxiosError<Error>) => {
 				if (error.config && error?.response?.status === 401) {
-					const tokenExists =
-						(await this._storageClass.getItem(ACCESS_TOKEN_KEY)) != null;
+					const tokenExists = useGlobalStore.getState().accessToken;
+
 					if (tokenExists) {
 						router.replace('/Signin');
 					}

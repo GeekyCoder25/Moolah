@@ -61,7 +61,10 @@ const ChangePassword = () => {
 							className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 							value={formData.old_password}
 							onChangeText={text =>
-								setFormData(prev => ({...prev, old_password: text}))
+								setFormData(prev => ({
+									...prev,
+									old_password: text.replace(/[<>"'&/]/g, ''),
+								}))
 							}
 							placeholder="Old password"
 						/>
@@ -75,7 +78,10 @@ const ChangePassword = () => {
 							className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 							value={formData.new_password}
 							onChangeText={text =>
-								setFormData(prev => ({...prev, new_password: text}))
+								setFormData(prev => ({
+									...prev,
+									new_password: text.replace(/[<>"'&/]/g, ''),
+								}))
 							}
 							placeholder="New password"
 						/>
@@ -91,7 +97,7 @@ const ChangePassword = () => {
 							onChangeText={text =>
 								setFormData(prev => ({
 									...prev,
-									new_password_confirmation: text,
+									new_password_confirmation: text.replace(/[<>"'&/]/g, ''),
 								}))
 							}
 							placeholder="Retype password"

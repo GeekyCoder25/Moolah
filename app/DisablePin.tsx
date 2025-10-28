@@ -49,7 +49,12 @@ const DisablePin = () => {
 						<TextInput
 							className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 							value={formData.pin}
-							onChangeText={text => setFormData(prev => ({...prev, pin: text}))}
+							onChangeText={text =>
+								setFormData(prev => ({
+									...prev,
+									pin: text.replace(/[<>"'&/]/g, ''),
+								}))
+							}
 							placeholder="Pin"
 							inputMode="numeric"
 						/>

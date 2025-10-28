@@ -96,6 +96,7 @@ const Profile = () => {
 									})
 								}
 								value={formData.fname}
+								editable={false}
 							/>
 						</View>
 						<View className="my-5">
@@ -115,6 +116,7 @@ const Profile = () => {
 									})
 								}
 								value={formData.lname}
+								editable={false}
 							/>
 						</View>
 						<View className="my-5">
@@ -154,6 +156,7 @@ const Profile = () => {
 									})
 								}
 								value={formData.phone_number}
+								editable={false}
 							/>
 						</View>
 						<View className="my-5">
@@ -173,6 +176,7 @@ const Profile = () => {
 									})
 								}
 								value={formData.state}
+								editable={false}
 							/>
 						</View>
 					</View>

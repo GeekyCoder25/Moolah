@@ -194,9 +194,12 @@ const Exam = () => {
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 								inputMode="tel"
 								maxLength={11}
-								value={formData.quantity}
+								value={formData.quantity.replace(/[<>"'&/]/g, '')}
 								onChangeText={text =>
-									setFormData(prev => ({...prev, quantity: text}))
+									setFormData(prev => ({
+										...prev,
+										quantity: text.replace(/[<>"'&/]/g, ''),
+									}))
 								}
 								placeholder="Quantity"
 							/>

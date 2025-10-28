@@ -320,9 +320,12 @@ const Electricity = () => {
 							<TextInput
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 								inputMode="tel"
-								value={formData.meter_no}
+								value={formData.meter_no.replace(/[<>"'&/]/g, '')}
 								onChangeText={text =>
-									setFormData(prev => ({...prev, meter_no: text}))
+									setFormData(prev => ({
+										...prev,
+										meter_no: text.replace(/[<>"'&/]/g, ''),
+									}))
 								}
 								placeholder="Meter number"
 							/>
@@ -335,9 +338,12 @@ const Electricity = () => {
 							<TextInput
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 								inputMode="numeric"
-								value={formData.amount}
+								value={formData.amount.replace(/[<>"'&/]/g, '')}
 								onChangeText={text =>
-									setFormData(prev => ({...prev, amount: text}))
+									setFormData(prev => ({
+										...prev,
+										amount: text.replace(/[<>"'&/]/g, ''),
+									}))
 								}
 								placeholder="Amount"
 							/>

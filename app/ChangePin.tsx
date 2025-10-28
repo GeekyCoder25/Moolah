@@ -74,7 +74,10 @@ const ChangePin = () => {
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 								value={formData.old_pin}
 								onChangeText={text =>
-									setFormData(prev => ({...prev, old_pin: text}))
+									setFormData(prev => ({
+										...prev,
+										old_pin: text.replace(/[<>"'&/]/g, ''),
+									}))
 								}
 								placeholder="Old pin"
 								inputMode="numeric"
@@ -89,7 +92,10 @@ const ChangePin = () => {
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 								value={formData.new_pin}
 								onChangeText={text =>
-									setFormData(prev => ({...prev, new_pin: text}))
+									setFormData(prev => ({
+										...prev,
+										new_pin: text.replace(/[<>"'&/]/g, ''),
+									}))
 								}
 								placeholder="New pin"
 								inputMode="numeric"
@@ -104,7 +110,10 @@ const ChangePin = () => {
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 								value={formData.new_pin_confirmation}
 								onChangeText={text =>
-									setFormData(prev => ({...prev, new_pin_confirmation: text}))
+									setFormData(prev => ({
+										...prev,
+										new_pin_confirmation: text.replace(/[<>"'&/]/g, ''),
+									}))
 								}
 								placeholder="Retype pin"
 								inputMode="numeric"

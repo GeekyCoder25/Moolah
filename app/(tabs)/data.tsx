@@ -360,9 +360,12 @@ const Data = () => {
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
 								inputMode="tel"
 								maxLength={11}
-								value={formData.phone_number}
+								value={formData.phone_number.replace(/[<>"'&/]/g, '')}
 								onChangeText={text =>
-									setFormData(prev => ({...prev, phone_number: text}))
+									setFormData(prev => ({
+										...prev,
+										phone_number: text.replace(/[<>"'&/]/g, ''),
+									}))
 								}
 								placeholder="Phone number"
 								placeholderTextColor={'#7D7D7D'}

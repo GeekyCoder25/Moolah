@@ -21,9 +21,55 @@ const ResetPassword = () => {
 		password: '',
 		password_confirmation: '',
 	});
+	const [error, setError] = useState(formData);
 
 	const handleChange = async () => {
 		try {
+			const password = String(formData.password || '').trim();
+			const confirm = String(formData.password_confirmation || '').trim();
+
+			// Password presence and length check
+			if (!password || password.length < 8) {
+				setError(prev => ({
+					...prev,
+					password: 'Password must be at least 8 characters',
+				}));
+				Toast.show({
+					type: 'error',
+					text1: 'Invalid password',
+					text2: 'Password must be at least 8 characters long.',
+				});
+				return;
+			}
+
+			// Confirm password presence
+			if (!confirm) {
+				setError(prev => ({
+					...prev,
+					password_confirmation: 'Please confirm your password',
+				}));
+				Toast.show({
+					type: 'error',
+					text1: 'Confirm password required',
+					text2: 'Please enter the same password in the confirmation field.',
+				});
+				return;
+			}
+
+			// Match check
+			if (password !== confirm) {
+				setError(prev => ({
+					...prev,
+					password_confirmation: 'Passwords do not match',
+				}));
+				Toast.show({
+					type: 'error',
+					text1: 'Passwords do not match',
+					text2: 'Please make sure both password fields are identical.',
+				});
+				return;
+			}
+
 			setLoading(true);
 			const axiosClient = new AxiosClient();
 			const response = await axiosClient.post<{
@@ -79,6 +125,9 @@ const ResetPassword = () => {
 							}
 							placeholder="New password"
 						/>
+						<View className="ml-1">
+							<Text className="text-red-500 text-sm">{error.password}</Text>
+						</View>
 					</View>
 					<View className="gap-y-5">
 						<Text className="text-xl" fontWeight={600}>
@@ -96,6 +145,11 @@ const ResetPassword = () => {
 							}
 							placeholder="Retype password"
 						/>
+						<View className="ml-1">
+							<Text className="text-red-500 text-sm">
+								{error.password_confirmation}
+							</Text>
+						</View>
 					</View>
 				</View>
 			</View>

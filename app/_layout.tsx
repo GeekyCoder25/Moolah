@@ -2,18 +2,22 @@ import {useFonts} from 'expo-font';
 import {Stack} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import {StatusBar} from 'expo-status-bar';
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {colorScheme} from 'nativewind';
 import 'react-native-reanimated';
 import '../styles/global.css';
 
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {View} from 'react-native';
+import {Text, View} from 'react-native';
 import {useGlobalStore} from '@/context/store';
 import {MemoryStorage} from '@/utils/storage';
 import {APP_THEME} from '@/constants';
 import Loading from './components/loading';
 import Toast from 'react-native-toast-message';
+import {
+	handleSecurityViolation,
+	performSecurityCheck,
+} from '@/utils/SecurityCheck';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -29,6 +33,30 @@ export default function RootLayout() {
 		PlusJakartaSansRegular: require('../assets/fonts/PlusJakartaSans-Regular.ttf'),
 		PlusJakartaSansSemiBold: require('../assets/fonts/PlusJakartaSans-SemiBold.ttf'),
 	});
+	const [isSecure, setIsSecure] = useState<boolean | null>(null);
+
+	useEffect(() => {
+		checkSecurity();
+	}, []);
+
+	const checkSecurity = async () => {
+		try {
+			// Perform security checks
+			const securityStatus = await performSecurityCheck();
+
+			// Handle violations (will show alert and exit if needed)
+			const hasViolations = handleSecurityViolation(securityStatus);
+
+			if (!hasViolations) {
+				setIsSecure(true);
+			} else {
+				setIsSecure(false);
+			}
+		} catch (error) {
+			console.error('Security check failed:', error);
+			setIsSecure(false);
+		}
+	};
 
 	useEffect(() => {
 		if (loaded) {
@@ -48,6 +76,14 @@ export default function RootLayout() {
 
 	if (!loaded) {
 		return null;
+	}
+
+	if (!isSecure) {
+		return (
+			<View className="flex-1 items-center justify-center bg-white">
+				<Text className="text-red-500">Security check failed</Text>
+			</View>
+		);
 	}
 
 	return (

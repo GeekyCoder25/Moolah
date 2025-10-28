@@ -14,4 +14,6 @@ export interface GlobalState {
 	setUser: (user: UserAttributes | null) => void;
 	transactions: Transaction[];
 	setTransactions: (transactions: Transaction[]) => void;
+	accessToken: string;
+	setAccessToken: (token: string) => void;
 }

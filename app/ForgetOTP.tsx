@@ -1,6 +1,7 @@
 import {
 	AppState,
 	AppStateStatus,
+	Dimensions,
 	Keyboard,
 	Pressable,
 	TextInput,
@@ -65,7 +66,7 @@ const ForgetOTP = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const timerRef = useRef<NodeJS.Timeout | null>(null);
+	const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 	const startTimer = () => {
 		const endTimestamp = Date.now() + timeLeft * 1000; // Calculate target end time
@@ -305,9 +306,11 @@ const ForgetOTP = () => {
 								textAlign="center"
 								value={otpCode1}
 								autoFocus
-								className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1 font-bold ${
-									isError1 ? 'text-red-500' : ''
-								} ${
+								className={`border-[1px] ${
+									Dimensions.get('window').width < 400
+										? 'w-10 h-10 text-3xl rounded-xl'
+										: 'w-20 h-20 text-5xl rounded-2xl'
+								} p-1 font-bold ${isError1 ? 'text-red-500' : ''} ${
 									focusedBox === 1
 										? 'border-secondary'
 										: isError1
@@ -329,9 +332,11 @@ const ForgetOTP = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCode2}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1 font-bold ${
-									isError2 ? 'text-red-500' : ''
-								} ${
+								className={`border-[1px] ${
+									Dimensions.get('window').width < 400
+										? 'w-10 h-10 text-3xl rounded-xl'
+										: 'w-20 h-20 text-5xl rounded-2xl'
+								} p-1 font-bold ${isError2 ? 'text-red-500' : ''} ${
 									focusedBox === 2
 										? 'border-secondary'
 										: isError2
@@ -355,9 +360,11 @@ const ForgetOTP = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCode3}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1 font-bold ${
-									isError3 ? 'text-red-500' : ''
-								} ${
+								className={`border-[1px] ${
+									Dimensions.get('window').width < 400
+										? 'w-10 h-10 text-3xl rounded-xl'
+										: 'w-20 h-20 text-5xl rounded-2xl'
+								} p-1 font-bold ${isError3 ? 'text-red-500' : ''} ${
 									focusedBox === 3
 										? 'border-secondary'
 										: isError3
@@ -381,9 +388,11 @@ const ForgetOTP = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCode4}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1 font-bold ${
-									isError4 ? 'text-red-500' : ''
-								} ${
+								className={`border-[1px] ${
+									Dimensions.get('window').width < 400
+										? 'w-10 h-10 text-3xl rounded-xl'
+										: 'w-20 h-20 text-5xl rounded-2xl'
+								} p-1 font-bold ${isError4 ? 'text-red-500' : ''} ${
 									focusedBox === 4
 										? 'border-secondary'
 										: isError4
@@ -407,9 +416,11 @@ const ForgetOTP = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCode5}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1 font-bold ${
-									isError5 ? 'text-red-500' : ''
-								} ${
+								className={`border-[1px] ${
+									Dimensions.get('window').width < 400
+										? 'w-10 h-10 text-3xl rounded-xl'
+										: 'w-20 h-20 text-5xl rounded-2xl'
+								} p-1 font-bold ${isError5 ? 'text-red-500' : ''} ${
 									focusedBox === 5
 										? 'border-secondary'
 										: isError5
@@ -435,9 +446,11 @@ const ForgetOTP = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCode6}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1 font-bold ${
-									isError6 ? 'text-red-500' : ''
-								} ${
+								className={`border-[1px] ${
+									Dimensions.get('window').width < 400
+										? 'w-10 h-10 text-3xl rounded-xl'
+										: 'w-20 h-20 text-5xl rounded-2xl'
+								} p-1 font-bold ${isError6 ? 'text-red-500' : ''} ${
 									focusedBox === 6
 										? 'border-secondary'
 										: isError6

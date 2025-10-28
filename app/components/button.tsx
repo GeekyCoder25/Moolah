@@ -12,7 +12,10 @@ const Button: FC<ButtonProps> = props => {
 	const {disabled, title, onPress} = props;
 
 	return (
-		<TouchableOpacity onPress={!disabled ? onPress : () => {}}>
+		<TouchableOpacity
+			onPress={!disabled ? onPress : () => {}}
+			disabled={disabled}
+		>
 			<View
 				className={`${
 					disabled ? 'bg-[#313a66]' : 'bg-primary'
