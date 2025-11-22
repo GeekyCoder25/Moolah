@@ -320,8 +320,8 @@ const VerifyOTP = () => {
 								value={otpCode1.replace(/[<>"'&/]/g, '')}
 								autoFocus
 								className={`border-[1px] ${
-									Dimensions.get('window').width < 300
-										? 'w-10 h-10 text-3xl rounded-xl'
+									Dimensions.get('window').width < 400
+										? 'w-14 h-14 text-3xl rounded-xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError1 ? 'text-red-500' : ''} ${
 									focusedBox === 1
@@ -346,8 +346,8 @@ const VerifyOTP = () => {
 								textAlign="center"
 								value={otpCode2.replace(/[<>"'&/]/g, '')}
 								className={`border-[1px] ${
-									Dimensions.get('window').width < 300
-										? 'w-10 h-10 text-3xl rounded-xl'
+									Dimensions.get('window').width < 400
+										? 'w-14 h-14 text-3xl rounded-xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError2 ? 'text-red-500' : ''} ${
 									focusedBox === 2
@@ -374,8 +374,8 @@ const VerifyOTP = () => {
 								textAlign="center"
 								value={otpCode3.replace(/[<>"'&/]/g, '')}
 								className={`border-[1px] ${
-									Dimensions.get('window').width < 300
-										? 'w-10 h-10 text-3xl rounded-xl'
+									Dimensions.get('window').width < 400
+										? 'w-14 h-14 text-3xl rounded-xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError3 ? 'text-red-500' : ''} ${
 									focusedBox === 3
@@ -402,8 +402,8 @@ const VerifyOTP = () => {
 								textAlign="center"
 								value={otpCode4}
 								className={`border-[1px] ${
-									Dimensions.get('window').width < 300
-										? 'w-10 h-10 text-3xl rounded-xl'
+									Dimensions.get('window').width < 400
+										? 'w-14 h-14 text-3xl rounded-xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError4 ? 'text-red-500' : ''} ${
 									focusedBox === 4
@@ -430,8 +430,8 @@ const VerifyOTP = () => {
 								textAlign="center"
 								value={otpCode5}
 								className={`border-[1px] ${
-									Dimensions.get('window').width < 300
-										? 'w-10 h-10 text-3xl rounded-xl'
+									Dimensions.get('window').width < 400
+										? 'w-14 h-14 text-3xl rounded-xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError5 ? 'text-red-500' : ''} ${
 									focusedBox === 5
@@ -460,8 +460,8 @@ const VerifyOTP = () => {
 								textAlign="center"
 								value={otpCode6}
 								className={`border-[1px] ${
-									Dimensions.get('window').width < 300
-										? 'w-10 h-10 text-3xl rounded-xl'
+									Dimensions.get('window').width < 400
+										? 'w-14 h-14 text-3xl rounded-xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError6 ? 'text-red-500' : ''} ${
 									focusedBox === 6

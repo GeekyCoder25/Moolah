@@ -17,7 +17,7 @@ import {router, useLocalSearchParams} from 'expo-router';
 import BackIcon from '@/assets/icons/back-icon';
 import * as Clipboard from 'expo-clipboard';
 import {MemoryStorage} from '@/utils/storage';
-import {IS_LOGGED_IN, LAST_OTP} from '@/constants';
+import {LAST_OTP} from '@/constants';
 import Toast from 'react-native-toast-message';
 import {useGlobalStore} from '@/context/store';
 import {AxiosClient} from '@/utils/axios';
@@ -255,6 +255,7 @@ const ForgetOTP = () => {
 				email,
 			});
 			if (response.status === 200) {
+				setTimeLeft(60);
 				Toast.show({
 					type: 'success',
 					text1: 'Success',
@@ -308,7 +309,7 @@ const ForgetOTP = () => {
 								autoFocus
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 400
-										? 'w-10 h-10 text-3xl rounded-xl'
+										? 'w-14 h-14 text-3xl rounded-xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError1 ? 'text-red-500' : ''} ${
 									focusedBox === 1
@@ -334,7 +335,7 @@ const ForgetOTP = () => {
 								value={otpCode2}
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 400
-										? 'w-10 h-10 text-3xl rounded-xl'
+										? 'w-14 h-14 text-3xl rounded-xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError2 ? 'text-red-500' : ''} ${
 									focusedBox === 2
@@ -362,7 +363,7 @@ const ForgetOTP = () => {
 								value={otpCode3}
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 400
-										? 'w-10 h-10 text-3xl rounded-xl'
+										? 'w-14 h-14 text-3xl rounded-xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError3 ? 'text-red-500' : ''} ${
 									focusedBox === 3
@@ -390,7 +391,7 @@ const ForgetOTP = () => {
 								value={otpCode4}
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 400
-										? 'w-10 h-10 text-3xl rounded-xl'
+										? 'w-14 h-14 text-3xl rounded-xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError4 ? 'text-red-500' : ''} ${
 									focusedBox === 4
@@ -418,7 +419,7 @@ const ForgetOTP = () => {
 								value={otpCode5}
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 400
-										? 'w-10 h-10 text-3xl rounded-xl'
+										? 'w-14 h-14 text-3xl rounded-xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError5 ? 'text-red-500' : ''} ${
 									focusedBox === 5
@@ -448,7 +449,7 @@ const ForgetOTP = () => {
 								value={otpCode6}
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 400
-										? 'w-10 h-10 text-3xl rounded-xl'
+										? 'w-14 h-14 text-3xl rounded-xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError6 ? 'text-red-500' : ''} ${
 									focusedBox === 6

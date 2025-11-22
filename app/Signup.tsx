@@ -194,14 +194,14 @@ const Signup = () => {
 
 			// clear password errors when valid
 			setError(prev => ({...prev, password: '', password_confirmation: ''}));
-			setFormData(prev => ({...prev, sPhone: phoneDigits}));
+
 			const axiosClient = new AxiosClient();
 			const storage = new MemoryStorage();
 			setLoading(true);
-			const response = await axiosClient.post<any, AuthResponse>(
-				'/register',
-				formData
-			);
+			const response = await axiosClient.post<any, AuthResponse>('/register', {
+				...formData,
+				sPhone: localWithZero,
+			});
 			if (response.status === 200) {
 				console.log(response.data);
 				setAccessToken(response.data.data.token);
@@ -408,7 +408,7 @@ const Signup = () => {
 						</View>
 					</View>
 				</View>
-				<View className="mb-20">
+				<View className="mb-60">
 					<Button
 						title="Sign up"
 						onPress={handleSubmit}
