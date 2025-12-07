@@ -41,6 +41,23 @@
 					"configureAndroidBackup": false,
 					"faceIDPermission": "Allow Paxi to access your Face ID biometric data."
 				}
+			],
+			"expo-font",
+			"expo-web-browser",
+			[
+				"@bam.tech/react-native-app-security",
+				{
+					"sslPinning": {
+						"paxi.ng": [
+							"N2LCxDMQ4ea2j5gwQ26jbMyFuOtQIu+9KbPXOLyEGjo=",
+							"jQJTbIh0grw0/1TkHSumWb+Fs0Ggogr621gT3PvPKG0="
+						]
+					},
+					"preventRecentScreenshots": {
+						"ios": {"enabled": true},
+						"android": {"enabled": true}
+					}
+				}
 			]
 		],
 		"experiments": {

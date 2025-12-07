@@ -1,3 +1,13 @@
+import BackIcon from '@/assets/icons/back-icon';
+import Logo from '@/assets/icons/logo';
+import {Text} from '@/components/text';
+import {LAST_OTP} from '@/constants';
+import {useGlobalStore} from '@/context/store';
+import {AxiosClient} from '@/utils/axios';
+import {MemoryStorage} from '@/utils/storage';
+import * as Clipboard from 'expo-clipboard';
+import {router, useLocalSearchParams} from 'expo-router';
+import React, {useEffect, useRef, useState} from 'react';
 import {
 	AppState,
 	AppStateStatus,
@@ -9,18 +19,8 @@ import {
 	TouchableWithoutFeedback,
 	View,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
-import Logo from '@/assets/icons/logo';
-import {Text} from '@/components/text';
-import Button from './components/button';
-import {router, useLocalSearchParams} from 'expo-router';
-import BackIcon from '@/assets/icons/back-icon';
-import * as Clipboard from 'expo-clipboard';
-import {MemoryStorage} from '@/utils/storage';
-import {LAST_OTP} from '@/constants';
 import Toast from 'react-native-toast-message';
-import {useGlobalStore} from '@/context/store';
-import {AxiosClient} from '@/utils/axios';
+import Button from './components/button';
 
 const ForgetOTP = () => {
 	const axiosClient = new AxiosClient();
@@ -74,7 +74,7 @@ const ForgetOTP = () => {
 
 		timerRef.current = setInterval(() => {
 			const currentTime = Date.now();
-			const remainingTime = Math.round((endTime.current! - currentTime) / 1000);
+			Math.round((endTime.current! - currentTime) / 1000);
 		}, 1000);
 	};
 
@@ -310,6 +310,8 @@ const ForgetOTP = () => {
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 400
 										? 'w-14 h-14 text-3xl rounded-xl'
+										: Dimensions.get('window').width < 450
+										? 'w-16 h-16 text-5xl rounded-2xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError1 ? 'text-red-500' : ''} ${
 									focusedBox === 1
@@ -323,7 +325,8 @@ const ForgetOTP = () => {
 						<TouchableOpacity onPress={() => inputRef2.current?.focus()}>
 							<TextInput
 								onChangeText={text => {
-									text ? inputRef3.current?.focus() : inputRef.current?.focus();
+									if (text) inputRef3.current?.focus();
+									else inputRef.current?.focus();
 									setOtpCode2(text);
 									setIsError2(false);
 								}}
@@ -336,6 +339,8 @@ const ForgetOTP = () => {
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 400
 										? 'w-14 h-14 text-3xl rounded-xl'
+										: Dimensions.get('window').width < 450
+										? 'w-16 h-16 text-5xl rounded-2xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError2 ? 'text-red-500' : ''} ${
 									focusedBox === 2
@@ -349,9 +354,8 @@ const ForgetOTP = () => {
 						<TouchableOpacity onPress={() => inputRef3.current?.focus()}>
 							<TextInput
 								onChangeText={text => {
-									text
-										? inputRef4.current?.focus()
-										: inputRef2.current?.focus();
+									if (text) inputRef4.current?.focus();
+									else inputRef2.current?.focus();
 									setOtpCode3(text);
 									setIsError3(false);
 								}}
@@ -364,6 +368,8 @@ const ForgetOTP = () => {
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 400
 										? 'w-14 h-14 text-3xl rounded-xl'
+										: Dimensions.get('window').width < 450
+										? 'w-16 h-16 text-5xl rounded-2xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError3 ? 'text-red-500' : ''} ${
 									focusedBox === 3
@@ -377,9 +383,8 @@ const ForgetOTP = () => {
 						<TouchableOpacity onPress={() => inputRef4.current?.focus()}>
 							<TextInput
 								onChangeText={text => {
-									text
-										? inputRef5.current?.focus()
-										: inputRef3.current?.focus();
+									if (text) inputRef5.current?.focus();
+									else inputRef3.current?.focus();
 									setOtpCode4(text);
 									setIsError4(false);
 								}}
@@ -392,6 +397,8 @@ const ForgetOTP = () => {
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 400
 										? 'w-14 h-14 text-3xl rounded-xl'
+										: Dimensions.get('window').width < 450
+										? 'w-16 h-16 text-5xl rounded-2xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError4 ? 'text-red-500' : ''} ${
 									focusedBox === 4
@@ -405,9 +412,8 @@ const ForgetOTP = () => {
 						<TouchableOpacity onPress={() => inputRef5.current?.focus()}>
 							<TextInput
 								onChangeText={text => {
-									text
-										? inputRef6.current?.focus()
-										: inputRef4.current?.focus();
+									if (text) inputRef6.current?.focus();
+									else inputRef4.current?.focus();
 									setOtpCode5(text);
 									setIsError5(false);
 								}}
@@ -420,6 +426,8 @@ const ForgetOTP = () => {
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 400
 										? 'w-14 h-14 text-3xl rounded-xl'
+										: Dimensions.get('window').width < 450
+										? 'w-16 h-16 text-5xl rounded-2xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError5 ? 'text-red-500' : ''} ${
 									focusedBox === 5
@@ -450,6 +458,8 @@ const ForgetOTP = () => {
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 400
 										? 'w-14 h-14 text-3xl rounded-xl'
+										: Dimensions.get('window').width < 450
+										? 'w-16 h-16 text-5xl rounded-2xl'
 										: 'w-20 h-20 text-5xl rounded-2xl'
 								} p-1 font-bold ${isError6 ? 'text-red-500' : ''} ${
 									focusedBox === 6
@@ -463,7 +473,7 @@ const ForgetOTP = () => {
 					</View>
 					<View className="flex-row justify-center">
 						<View>
-							<Text>Didn't get code{''} </Text>
+							<Text>Didn&apos;t get code{''} </Text>
 						</View>
 						{timeLeft ? (
 							<Text className="text-secondary"> Resend ({timeLeft})s</Text>

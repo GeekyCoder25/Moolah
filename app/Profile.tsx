@@ -1,14 +1,14 @@
-import {Image, ScrollView, TextInput, View} from 'react-native';
-import React, {useState} from 'react';
-import {Text} from '@/components/text';
 import Back from '@/components/back';
+import {Text} from '@/components/text';
 import {useGlobalStore} from '@/context/store';
-import Button from './components/button';
-import {AxiosClient} from '@/utils/axios';
-import Toast from 'react-native-toast-message';
-import {UserResponse} from './types';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import {GlobalColors} from '@/styles';
+import {AxiosClient} from '@/utils/axios';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import React, {useState} from 'react';
+import {ScrollView, TextInput, View} from 'react-native';
+import Toast from 'react-native-toast-message';
+import {UserResponse} from '../types';
+import Button from './components/button';
 
 const Profile = () => {
 	const {setLoading, user, setUser} = useGlobalStore();

@@ -1,17 +1,17 @@
-import {Text} from '@/components/text';
-import {ScrollView, TextInput, TouchableOpacity, View} from 'react-native';
-import React, {useState} from 'react';
 import Logo from '@/assets/icons/logo';
-import {router} from 'expo-router';
-import Button from './components/button';
+import {Text} from '@/components/text';
+import {IS_LOGGED_IN} from '@/constants';
 import {useGlobalStore} from '@/context/store';
-import Toast from 'react-native-toast-message';
-import {AxiosClient} from '@/utils/axios';
 import {errorFormat} from '@/utils';
+import {AxiosClient} from '@/utils/axios';
 import {MemoryStorage} from '@/utils/storage';
-import {ACCESS_TOKEN_KEY, IS_LOGGED_IN} from '@/constants';
-import {UserResponse} from './types';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import {router} from 'expo-router';
+import React, {useState} from 'react';
+import {ScrollView, TextInput, TouchableOpacity, View} from 'react-native';
+import Toast from 'react-native-toast-message';
+import {UserResponse} from '../types';
+import Button from './components/button';
 interface SigninRequest {
 	sPhone: string;
 	password: string;

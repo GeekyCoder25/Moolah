@@ -1,5 +1,5 @@
 import {Transaction} from '@/app/(tabs)';
-import {UserAttributes} from '@/app/types';
+import {UserAttributes} from '@/types';
 
 export interface GlobalState {
 	isLoggedIn: boolean;

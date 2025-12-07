@@ -1,33 +1,32 @@
-import Logo from '@/assets/icons/logo';
-import {Text} from '@/components/text';
-import {
-	StyleSheet,
-	View,
-	Pressable,
-	TouchableOpacity,
-	ScrollView,
-} from 'react-native';
-import Entypo from '@expo/vector-icons/Entypo';
-import {GlobalColors} from '@/styles';
-import WalletBgIcon from '@/assets/icons/wallet-bg';
-import WifiIcon from '@/assets/icons/wifi';
 import CallIcon from '@/assets/icons/call';
-import ElectricityIcon from '@/assets/icons/electricity';
-import MonitorIcon from '@/assets/icons/monitor';
-import GraduationCapIcon from '@/assets/icons/graduation';
 import CameraIcon from '@/assets/icons/camera';
-import {router, useFocusEffect} from 'expo-router';
-import {useGlobalStore} from '@/context/store';
+import ElectricityIcon from '@/assets/icons/electricity';
+import GraduationCapIcon from '@/assets/icons/graduation';
+import Logo from '@/assets/icons/logo';
+import MonitorIcon from '@/assets/icons/monitor';
 import NotificationIcon from '@/assets/icons/notification';
 import ProfileIcon from '@/assets/icons/profile';
-import {RefreshControl} from 'react-native';
-import {useCallback, useEffect, useState} from 'react';
+import WalletBgIcon from '@/assets/icons/wallet-bg';
+import WifiIcon from '@/assets/icons/wifi';
+import {Text} from '@/components/text';
+import {useGlobalStore} from '@/context/store';
+import {GlobalColors} from '@/styles';
 import {AxiosClient} from '@/utils/axios';
-import {UserResponse} from '../types';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import {MemoryStorage} from '@/utils/storage';
+import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {MemoryStorage} from '@/utils/storage';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import {router, useFocusEffect} from 'expo-router';
+import {useCallback, useEffect, useState} from 'react';
+import {
+	Pressable,
+	RefreshControl,
+	ScrollView,
+	TouchableOpacity,
+	View,
+} from 'react-native';
+import {UserResponse} from '../../types';
 // Root API response interface
 export interface TransactionsResponse {
 	status: number;
@@ -92,7 +91,9 @@ export default function HomeScreen() {
 					if (response.status === 200) {
 						setUser(response.data.data.attributes);
 					}
-				} catch (error) {}
+				} catch (error) {
+					console.log(error);
+				}
 			};
 			const getTransactions = async () => {
 				try {
@@ -105,11 +106,13 @@ export default function HomeScreen() {
 					if (response.status === 200) {
 						setTransactions(response.data.data);
 					}
-				} catch (error) {}
+				} catch (error) {
+					console.log(error);
+				}
 			};
 			getTransactions();
 			getUser();
-		}, [refreshing])
+		}, [setTransactions, setUser])
 	);
 
 	return (
@@ -289,19 +292,19 @@ export default function HomeScreen() {
 								>
 									<View className="flex-1 flex-row items-center">
 										<View className="w-10">
-											{transaction.attributes.servicename == 'Wallet Topup' ||
-											transaction.attributes.servicename == 'Wallet Credit' ? (
+											{transaction.attributes.servicename === 'Wallet Topup' ||
+											transaction.attributes.servicename === 'Wallet Credit' ? (
 												<MaterialCommunityIcons
 													name="wallet-plus"
 													size={24}
 													color="#7D7D7D"
 												/>
-											) : transaction.attributes.servicename == 'Airtime' ? (
+											) : transaction.attributes.servicename === 'Airtime' ? (
 												<CallIcon color={'#7D7D7D'} />
-											) : transaction.attributes.servicename == 'Data' ? (
+											) : transaction.attributes.servicename === 'Data' ? (
 												<WifiIcon color={'#7D7D7D'} />
 											) : (
-												transaction.attributes.servicename ==
+												transaction.attributes.servicename ===
 													'Wallet Transfer' && (
 													<FontAwesome6
 														name="money-bill-transfer"
@@ -351,22 +354,3 @@ export default function HomeScreen() {
 		</ScrollView>
 	);
 }
-
-const styles = StyleSheet.create({
-	titleContainer: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 8,
-	},
-	stepContainer: {
-		gap: 8,
-		marginBottom: 8,
-	},
-	reactLogo: {
-		height: 178,
-		width: 290,
-		bottom: 0,
-		left: 0,
-		position: 'absolute',
-	},
-});

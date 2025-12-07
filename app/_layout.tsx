@@ -2,22 +2,23 @@ import {useFonts} from 'expo-font';
 import {Stack} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import {StatusBar} from 'expo-status-bar';
-import {useEffect, useState} from 'react';
 import {colorScheme} from 'nativewind';
+import {useEffect, useState} from 'react';
 import 'react-native-reanimated';
 import '../styles/global.css';
 
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Text, View} from 'react-native';
-import {useGlobalStore} from '@/context/store';
-import {MemoryStorage} from '@/utils/storage';
+import {Text} from '@/components/text';
 import {APP_THEME} from '@/constants';
-import Loading from './components/loading';
-import Toast from 'react-native-toast-message';
+import {useGlobalStore} from '@/context/store';
 import {
 	handleSecurityViolation,
 	performSecurityCheck,
 } from '@/utils/SecurityCheck';
+import {MemoryStorage} from '@/utils/storage';
+import {View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
+import Loading from './components/loading';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -33,7 +34,7 @@ export default function RootLayout() {
 		PlusJakartaSansRegular: require('../assets/fonts/PlusJakartaSans-Regular.ttf'),
 		PlusJakartaSansSemiBold: require('../assets/fonts/PlusJakartaSans-SemiBold.ttf'),
 	});
-	const [isSecure, setIsSecure] = useState<boolean | null>(null);
+	const [isSecure, setIsSecure] = useState<boolean | null>(true);
 
 	useEffect(() => {
 		checkSecurity();
@@ -71,8 +72,7 @@ export default function RootLayout() {
 			};
 			setTheme();
 		}
-		7;
-	}, [loaded]);
+	}, [loaded, setDarkMode]);
 
 	if (!loaded) {
 		return null;

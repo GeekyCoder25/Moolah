@@ -1,5 +1,5 @@
 import JailMonkey from 'jail-monkey';
-import {Platform, Alert} from 'react-native';
+import {Alert, BackHandler, Platform} from 'react-native';
 
 export interface SecurityStatus {
 	isRooted: boolean;
@@ -33,7 +33,6 @@ export const performSecurityCheck = async (): Promise<SecurityStatus> => {
 	const canMockLocation =
 		Platform.OS === 'android' && JailMonkey.canMockLocation();
 	if (canMockLocation) violations.push('Mock location enabled');
-	44;
 
 	// Check for development build
 	const isDevelopmentBuild = __DEV__;
@@ -49,17 +48,17 @@ export const performSecurityCheck = async (): Promise<SecurityStatus> => {
 };
 
 export const handleSecurityViolation = (status: SecurityStatus) => {
-	if (status.violations.length > 0 && !status.isDevelopmentBuild) {
+	if (status.violations.length > 0) {
 		Alert.alert(
 			'Security Warning',
 			status.canMockLocation
 				? 'Mock location is enabled. This app cannot run with mock location for security reasons.'
-				: status.isDebuggedMode
-				? 'Debugger detected. This app cannot run in debugging mode for security reasons.'
-				: status.isJailbroken
-				? 'Device is jailbroken. This app cannot run on jailbroken devices for security reasons.'
 				: status.isRooted
 				? 'This app cannot run on rooted devices for security reasons.'
+				: status.isJailbroken
+				? 'Device is jailbroken. This app cannot run on jailbroken devices for security reasons.'
+				: status.isDebuggedMode
+				? 'Debugger detected. This app cannot run in debugging mode for security reasons.'
 				: 'The app is running in an unauthorized environment.',
 			[
 				{
@@ -67,7 +66,6 @@ export const handleSecurityViolation = (status: SecurityStatus) => {
 					onPress: () => {
 						// Force close the app
 						if (Platform.OS === 'android') {
-							const {BackHandler} = require('react-native');
 							BackHandler.exitApp();
 						}
 					},
