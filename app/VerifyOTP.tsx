@@ -295,7 +295,7 @@ const VerifyOTP = () => {
 					<BackIcon />
 				</Pressable>
 				<Logo />
-				<Text className="text-3xl mt-10 mb-2" fontWeight={700}>
+				<Text className="text-3xl mt-10 mb-2 font-bold">
 					Verify your Email address
 				</Text>
 				<Text className="text-[#222222] text-lg">
@@ -491,7 +491,7 @@ const VerifyOTP = () => {
 							<Text className="text-secondary"> Resend ({timeLeft})s</Text>
 						) : (
 							<TouchableOpacity onPress={handleResend}>
-								<Text className="text-secondary" fontWeight={600}>
+								<Text className="text-secondary font-semibold">
 									{' '}
 									Resend OTP
 								</Text>

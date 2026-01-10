@@ -1,13 +1,13 @@
-import {ScrollView, TextInput, View} from 'react-native';
-import React, {useState} from 'react';
+import InfoIcon from '@/assets/icons/info-icon';
 import Back from '@/components/back';
 import {Text} from '@/components/text';
-import InfoIcon from '@/assets/icons/info-icon';
-import Button from './components/button';
 import {useGlobalStore} from '@/context/store';
 import {AxiosClient} from '@/utils/axios';
-import Toast from 'react-native-toast-message';
 import {router} from 'expo-router';
+import React, {useState} from 'react';
+import {ScrollView, TextInput, View} from 'react-native';
+import Toast from 'react-native-toast-message';
+import Button from './components/button';
 import PinModal from './components/PinModal';
 
 const Transfer = () => {
@@ -71,9 +71,7 @@ const Transfer = () => {
 			<Back title="Transfer" />
 			<View className="gap-y-5 my-20 flex-1">
 				<View className="gap-y-5">
-					<Text className="text-xl" fontWeight={700}>
-						Receiver email
-					</Text>
+					<Text className="text-xl font-bold">Receiver email</Text>
 
 					<TextInput
 						className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -89,9 +87,7 @@ const Transfer = () => {
 					/>
 				</View>
 				<View className="gap-y-5">
-					<Text className="text-xl" fontWeight={700}>
-						Amount
-					</Text>
+					<Text className="text-xl font-bold">Amount</Text>
 
 					<TextInput
 						className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"

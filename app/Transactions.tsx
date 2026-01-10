@@ -1,16 +1,22 @@
-import {ActivityIndicator, TouchableOpacity, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import Back from '@/components/back';
-import {TransactionsResponse} from './(tabs)';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import CallIcon from '@/assets/icons/call';
 import WifiIcon from '@/assets/icons/wifi';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import Back from '@/components/back';
 import {AxiosClient} from '@/utils/axios';
-import {ScrollView} from 'react-native';
-import {GlobalColors} from '@/styles';
-import {useGlobalStore} from '@/context/store';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import React, {useEffect, useState} from 'react';
+import {
+	ActivityIndicator,
+	ScrollView,
+	TouchableOpacity,
+	View,
+} from 'react-native';
+import {TransactionsResponse} from './(tabs)';
+
 import {Text} from '@/components/text';
+import {useGlobalStore} from '@/context/store';
+import {GlobalColors} from '@/styles';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import {router} from 'expo-router';
 
 const Transactions = () => {
@@ -30,12 +36,13 @@ const Transactions = () => {
 					setTransactions(response.data.data);
 				}
 			} catch (error) {
+				console.log(error);
 			} finally {
 				setIsLoading(false);
 			}
 		};
 		getTransactions();
-	}, []);
+	}, [setTransactions]);
 
 	if (isLoading) {
 		return (
@@ -75,26 +82,40 @@ const Transactions = () => {
 								>
 									<View className="flex-1 flex-row items-center">
 										<View className="w-10">
-											{transaction.attributes.servicename == 'Wallet Topup' ||
-											transaction.attributes.servicename == 'Wallet Credit' ? (
+											{transaction.attributes.servicename === 'Wallet Topup' ||
+											transaction.attributes.servicename === 'Wallet Credit' ? (
 												<MaterialCommunityIcons
 													name="wallet-plus"
 													size={24}
 													color="#7D7D7D"
 												/>
-											) : transaction.attributes.servicename == 'Airtime' ? (
+											) : transaction.attributes.servicename === 'Airtime' ||
+											  transaction.attributes.servicename ===
+													'Airtime Purchase' ? (
 												<CallIcon color={'#7D7D7D'} />
-											) : transaction.attributes.servicename == 'Data' ? (
+											) : transaction.attributes.servicename === 'Data' ? (
 												<WifiIcon color={'#7D7D7D'} />
+											) : transaction.attributes.servicename ===
+													'Wallet Transfer' ||
+											  transaction.attributes.servicename ===
+													'Wallet Debit' ? (
+												<FontAwesome6
+													name="money-bill-transfer"
+													size={20}
+													color="#7D7D7D"
+												/>
+											) : transaction.attributes.servicename ===
+											  'EPIN Purchase' ? (
+												<WifiIcon color={'#7D7D7D'} />
+											) : transaction.attributes.servicename ===
+											  'Electricity Bill' ? (
+												<MaterialIcons
+													name="electric-bolt"
+													size={24}
+													color="#7D7D7D"
+												/>
 											) : (
-												transaction.attributes.servicename ==
-													'Wallet Transfer' && (
-													<FontAwesome6
-														name="money-bill-transfer"
-														size={20}
-														color="#7D7D7D"
-													/>
-												)
+												''
 											)}
 										</View>
 										<View className="ml-2">
@@ -110,17 +131,15 @@ const Transactions = () => {
 									</View>
 									<View className="flex-1">
 										{transaction.attributes.status ? (
-											<Text className="text-red-500" fontWeight={600}>
-												Failed
-											</Text>
+											<Text className="text-red-500 font-semibold">Failed</Text>
 										) : (
-											<Text className="text-green-500" fontWeight={600}>
+											<Text className="text-green-500 font-semibold">
 												Successful
 											</Text>
 										)}
 									</View>
 									<View className="" style={{width: 50}}>
-										<Text className="text-secondary" fontWeight={600}>
+										<Text className="text-secondary font-semibold">
 											₦{Number(transaction.attributes.amount).toLocaleString()}
 										</Text>
 									</View>

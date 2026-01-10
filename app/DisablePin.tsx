@@ -1,3 +1,8 @@
+import Back from '@/components/back';
+import {Text} from '@/components/text';
+import {globalStyles} from '@/styles';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import React, {useState} from 'react';
 import {
 	Modal,
 	Pressable,
@@ -5,12 +10,7 @@ import {
 	TouchableOpacity,
 	View,
 } from 'react-native';
-import React, {useState} from 'react';
-import Back from '@/components/back';
-import {Text} from '@/components/text';
 import Button from './components/button';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import {globalStyles} from '@/styles';
 
 const DisablePin = () => {
 	const [formData, setFormData] = useState({
@@ -42,9 +42,7 @@ const DisablePin = () => {
 			<View className="flex-1">
 				<View className="gap-y-5 my-10">
 					<View className="gap-y-5">
-						<Text className="text-xl" fontWeight={600}>
-							Pin
-						</Text>
+						<Text className="text-xl font-semibold">Pin</Text>
 
 						<TextInput
 							className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -61,9 +59,7 @@ const DisablePin = () => {
 					</View>
 
 					<View className="gap-y-5">
-						<Text className="text-xl" fontWeight={600}>
-							Status
-						</Text>
+						<Text className="text-xl font-semibold">Status</Text>
 						<TouchableOpacity
 							onPress={() => setShowProviderModal(true)}
 							className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -85,9 +81,7 @@ const DisablePin = () => {
 					/>
 					<View className="flex-1 justify-end items-end">
 						<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-							<Text className="text-2xl" fontWeight={700}>
-								Select Meter Type
-							</Text>
+							<Text className="text-2xl font-bold">Select Meter Type</Text>
 							<View className="my-5">
 								{statuses.map(status => (
 									<TouchableOpacity

@@ -1,12 +1,12 @@
-import {TextInput, View} from 'react-native';
-import React, {useState} from 'react';
 import Back from '@/components/back';
 import {Text} from '@/components/text';
-import Button from './components/button';
 import {useGlobalStore} from '@/context/store';
 import {AxiosClient} from '@/utils/axios';
-import Toast from 'react-native-toast-message';
 import {router} from 'expo-router';
+import React, {useState} from 'react';
+import {TextInput, View} from 'react-native';
+import Toast from 'react-native-toast-message';
+import Button from './components/button';
 
 const ChangePassword = () => {
 	const {setLoading} = useGlobalStore();
@@ -53,9 +53,7 @@ const ChangePassword = () => {
 			<View className="flex-1">
 				<View className="gap-y-5 my-10">
 					<View className="gap-y-5">
-						<Text className="text-xl" fontWeight={600}>
-							Old Password
-						</Text>
+						<Text className="text-xl font-semibold">Old Password</Text>
 
 						<TextInput
 							className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -70,9 +68,7 @@ const ChangePassword = () => {
 						/>
 					</View>
 					<View className="gap-y-5">
-						<Text className="text-xl" fontWeight={600}>
-							New Password
-						</Text>
+						<Text className="text-xl font-semibold">New Password</Text>
 
 						<TextInput
 							className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -87,9 +83,7 @@ const ChangePassword = () => {
 						/>
 					</View>
 					<View className="gap-y-5">
-						<Text className="text-xl" fontWeight={600}>
-							Retype Password
-						</Text>
+						<Text className="text-xl font-semibold">Retype Password</Text>
 
 						<TextInput
 							className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"

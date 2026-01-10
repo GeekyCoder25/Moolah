@@ -6,10 +6,11 @@ interface ButtonProps {
 	title: string;
 	onPress: () => void;
 	disabled?: boolean;
+	className?: string;
 }
 
 const Button: FC<ButtonProps> = props => {
-	const {disabled, title, onPress} = props;
+	const {disabled, title, onPress, className} = props;
 
 	return (
 		<TouchableOpacity
@@ -19,9 +20,9 @@ const Button: FC<ButtonProps> = props => {
 			<View
 				className={`${
 					disabled ? 'bg-[#313a66]' : 'bg-primary'
-				} p-6 rounded-xl justify-center`}
+				} p-6 rounded-xl justify-center ${className}`}
 			>
-				<Text className="text-white text-center text-xl" fontWeight={700}>
+				<Text className="text-white text-center text-xl font-bold">
 					{title}
 				</Text>
 			</View>

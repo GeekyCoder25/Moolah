@@ -68,21 +68,19 @@ const Profile = () => {
 					/> */}
 					<FontAwesome name="user" size={100} color={GlobalColors.secondary} />
 					<View className="items-center">
-						<Text className="text-2xl" fontWeight={600}>
+						<Text className="text-2xl font-semibold">
 							{firstname} {lastname}
 						</Text>
 						<Text className="text-xl">{email}</Text>
 					</View>
 
 					<View className="w-full mt-10">
-						<Text className="text-secondary text-xl" fontWeight={600}>
+						<Text className="text-secondary text-xl font-semibold">
 							Account Details
 						</Text>
 
 						<View className="my-5">
-							<Text className="text-xl" fontWeight={600}>
-								First name
-							</Text>
+							<Text className="text-xl font-semibold">First name</Text>
 							<TextInput
 								className="border-[1px] border-[#C8C8C8] mt-2 p-5 rounded-xl h-14"
 								placeholder="Name"
@@ -100,9 +98,7 @@ const Profile = () => {
 							/>
 						</View>
 						<View className="my-5">
-							<Text className="text-xl" fontWeight={600}>
-								Last name
-							</Text>
+							<Text className="text-xl font-semibold">Last name</Text>
 							<TextInput
 								className="border-[1px] border-[#C8C8C8] mt-2 p-5 rounded-xl h-14"
 								placeholder="Name"
@@ -120,9 +116,7 @@ const Profile = () => {
 							/>
 						</View>
 						<View className="my-5">
-							<Text className="text-xl" fontWeight={600}>
-								Email address
-							</Text>
+							<Text className="text-xl font-semibold">Email address</Text>
 							<TextInput
 								className="border-[1px] border-[#C8C8C8] mt-2 p-5 rounded-xl h-14"
 								placeholder="Email address"
@@ -140,9 +134,7 @@ const Profile = () => {
 							/>
 						</View>
 						<View className="my-5">
-							<Text className="text-xl" fontWeight={600}>
-								Phone number
-							</Text>
+							<Text className="text-xl font-semibold">Phone number</Text>
 							<TextInput
 								className="border-[1px] border-[#C8C8C8] mt-2 p-5 rounded-xl h-14"
 								placeholder="Phone number"
@@ -160,9 +152,7 @@ const Profile = () => {
 							/>
 						</View>
 						<View className="my-5">
-							<Text className="text-xl" fontWeight={600}>
-								State
-							</Text>
+							<Text className="text-xl font-semibold">State</Text>
 							<TextInput
 								className="border-[1px] border-[#C8C8C8] mt-2 p-5 rounded-xl h-14"
 								placeholder="State"

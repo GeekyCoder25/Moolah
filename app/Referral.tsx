@@ -1,11 +1,11 @@
-import {TextInput, TouchableOpacity, View} from 'react-native';
-import React from 'react';
-import Back from '@/components/back';
 import WalletBgIcon from '@/assets/icons/wallet-bg';
+import Back from '@/components/back';
 import {Text} from '@/components/text';
-import Toast from 'react-native-toast-message';
 import {useGlobalStore} from '@/context/store';
 import * as Clipboard from 'expo-clipboard';
+import React from 'react';
+import {TouchableOpacity, View} from 'react-native';
+import Toast from 'react-native-toast-message';
 
 const Referral = () => {
 	const {user} = useGlobalStore();
@@ -24,20 +24,14 @@ const Referral = () => {
 			<View className="bg-primary mt-7 p-7 gap-y-2 rounded-bl-xl rounded-tr-xl overflow-hidden">
 				<View className="z-10 flex-row gap-x-10 justify-around">
 					<View className="bg-white rounded-xl gap-y-3 py-5 w-36  justify-center items-center">
-						<Text className="text-xl" fontWeight={600}>
-							Referrals
-						</Text>
+						<Text className="text-xl font-semibold">Referrals</Text>
 
-						<Text className="bg-bold text-4xl" fontWeight={600}>
-							0
-						</Text>
+						<Text className="bg-bold text-4xl font-semibold">0</Text>
 					</View>
 					<View className="bg-white rounded-xl gap-y-3 py-5 w-36 justify-center items-center">
-						<Text className="text-xl" fontWeight={600}>
-							Commission
-						</Text>
+						<Text className="text-xl font-semibold">Commission</Text>
 
-						<Text className="bg-bold text-4xl" fontWeight={600}>
+						<Text className="bg-bold text-4xl font-semibold">
 							{user?.referral_wallet_balance.toLocaleString()}
 						</Text>
 					</View>
@@ -49,9 +43,7 @@ const Referral = () => {
 			</View>
 
 			<View className="bg-white rounded-lg my-10 px-5 py-10">
-				<Text className="text-xl" fontWeight={600}>
-					Referral link
-				</Text>
+				<Text className="text-xl font-semibold">Referral link</Text>
 
 				<View className="border-[1px] border-[#C8C8C8] rounded-md mt-10 px-5 py-5">
 					<Text className="text-[#7D7D7D] font-semibold">
@@ -75,9 +67,7 @@ const Referral = () => {
 				</View>
 			</View>
 			<View className="bg-white rounded-lg mb-10 px-5 py-10">
-				<Text className="text-xl" fontWeight={600}>
-					Commission list
-				</Text>
+				<Text className="text-xl font-semibold">Commission list</Text>
 			</View>
 		</View>
 	);

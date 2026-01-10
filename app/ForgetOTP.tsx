@@ -284,9 +284,7 @@ const ForgetOTP = () => {
 					<BackIcon />
 				</Pressable>
 				<Logo />
-				<Text className="text-3xl mt-10 mb-2" fontWeight={700}>
-					Get code
-				</Text>
+				<Text className="text-3xl mt-10 mb-2 font-bold">Get code</Text>
 				<Text className="text-[#222222] text-lg">
 					Enter code sent to your email
 				</Text>
@@ -479,7 +477,7 @@ const ForgetOTP = () => {
 							<Text className="text-secondary"> Resend ({timeLeft})s</Text>
 						) : (
 							<TouchableOpacity onPress={handleResend}>
-								<Text className="text-secondary" fontWeight={600}>
+								<Text className="text-secondary font-semibold">
 									{' '}
 									Resend OTP
 								</Text>

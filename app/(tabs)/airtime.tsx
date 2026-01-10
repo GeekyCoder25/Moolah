@@ -1,3 +1,15 @@
+import NineMobileIcon from '@/assets/icons/9mobile';
+import AirtelIcon from '@/assets/icons/airtel';
+import GloIcon from '@/assets/icons/glo';
+import MTNIcon from '@/assets/icons/mtn';
+import Back from '@/components/back';
+import {Text} from '@/components/text';
+import {useGlobalStore} from '@/context/store';
+import {globalStyles} from '@/styles';
+import {AxiosClient} from '@/utils/axios';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import {router} from 'expo-router';
+import React, {useState} from 'react';
 import {
 	KeyboardAvoidingView,
 	Modal,
@@ -7,21 +19,9 @@ import {
 	TouchableOpacity,
 	View,
 } from 'react-native';
-import React, {useState} from 'react';
-import Back from '@/components/back';
-import {Text} from '@/components/text';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import {globalStyles} from '@/styles';
-import Button from '../components/button';
 import Toast from 'react-native-toast-message';
-import {AxiosClient} from '@/utils/axios';
-import {router} from 'expo-router';
-import {useGlobalStore} from '@/context/store';
+import Button from '../components/button';
 import PinModal from '../components/PinModal';
-import GloIcon from '@/assets/icons/glo';
-import MTNIcon from '@/assets/icons/mtn';
-import AirtelIcon from '@/assets/icons/airtel';
-import NineMobileIcon from '@/assets/icons/9mobile';
 
 const Airtime = () => {
 	const {setLoading} = useGlobalStore();
@@ -44,7 +44,7 @@ const Airtime = () => {
 			id: 2,
 		},
 		{
-			label: '9mobile',
+			label: 'T2-Mobile',
 			id: 3,
 		},
 		{
@@ -118,9 +118,7 @@ const Airtime = () => {
 				<Back title="Airtime" />
 				<View className="flex-1">
 					<View className="my-10">
-						<Text className="text-3xl" fontWeight={600}>
-							Buy Airtime
-						</Text>
+						<Text className="text-3xl font-semibold">Buy Airtime</Text>
 						<Text className="text-secondary mt-2 rounded-tl-2xl">
 							Airtime for all Network
 						</Text>
@@ -129,9 +127,7 @@ const Airtime = () => {
 					<View className="gap-y-5">
 						<View>
 							<View className="gap-y-5">
-								<Text className="text-xl" fontWeight={700}>
-									Network
-								</Text>
+								<Text className="text-xl font-bold">Network</Text>
 								<TouchableOpacity
 									onPress={() => setShowNetworkModal(true)}
 									className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center overflow-hidden"
@@ -157,9 +153,7 @@ const Airtime = () => {
 									/>
 									<View className="flex-1 justify-end items-end">
 										<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-											<Text className="text-2xl" fontWeight={700}>
-												Select Network
-											</Text>
+											<Text className="text-2xl font-bold">Select Network</Text>
 											<View className="my-5">
 												{networks.map(network => (
 													<TouchableOpacity
@@ -186,9 +180,7 @@ const Airtime = () => {
 							)}
 						</View>
 						<View className="gap-y-5">
-							<Text className="text-xl" fontWeight={700}>
-								Phone number
-							</Text>
+							<Text className="text-xl font-bold">Phone number</Text>
 
 							<TextInput
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -206,9 +198,7 @@ const Airtime = () => {
 							/>
 						</View>
 						<View className="gap-y-5">
-							<Text className="text-xl" fontWeight={700}>
-								Amount
-							</Text>
+							<Text className="text-xl font-bold">Amount</Text>
 
 							<TextInput
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -251,7 +241,7 @@ export const networkProvidersIcon = (network: string) => {
 			return <MTNIcon />;
 		case 'airtel':
 			return <AirtelIcon />;
-		case '9mobile':
+		case 't2-mobile':
 			return <NineMobileIcon />;
 		default:
 			break;

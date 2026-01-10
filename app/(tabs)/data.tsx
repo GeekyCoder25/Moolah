@@ -1,3 +1,11 @@
+import Back from '@/components/back';
+import {Text} from '@/components/text';
+import {useGlobalStore} from '@/context/store';
+import {globalStyles} from '@/styles';
+import {AxiosClient} from '@/utils/axios';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import {router} from 'expo-router';
+import React, {useEffect, useState} from 'react';
 import {
 	KeyboardAvoidingView,
 	Modal,
@@ -7,16 +15,8 @@ import {
 	TouchableOpacity,
 	View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
-import Back from '@/components/back';
-import {Text} from '@/components/text';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import {globalStyles} from '@/styles';
-import Button from '../components/button';
-import {AxiosClient} from '@/utils/axios';
-import {useGlobalStore} from '@/context/store';
 import Toast from 'react-native-toast-message';
-import {router} from 'expo-router';
+import Button from '../components/button';
 import PinModal from '../components/PinModal';
 import {networkProvidersIcon} from './airtime';
 
@@ -36,7 +36,7 @@ export interface NetworkData {
 }
 
 export interface NetworkAttributes {
-	network: string; // e.g. "MTN", "GLO", "9MOBILE", "AIRTEL"
+	network: string; // e.g. "MTN", "GLO", "T2-MOBILE", "AIRTEL"
 	network_status: string; // e.g. "On" or "Off"
 	vtuStatus: string; // e.g. "On" or "Off"
 	sharesellStatus: string; // e.g. "On" or "Off"
@@ -88,7 +88,7 @@ const Data = () => {
 			id: 2,
 		},
 		{
-			label: '9mobile',
+			label: 'T2-Mobile',
 			id: 3,
 		},
 		{
@@ -107,7 +107,9 @@ const Data = () => {
 				if (response.status === 200) {
 					setPlans(response.data.data.data);
 				}
-			} catch (error) {}
+			} catch (error) {
+				console.log(error);
+			}
 		};
 		getDataPlans();
 	}, []);
@@ -187,9 +189,7 @@ const Data = () => {
 				<Back title="Data" />
 				<View className="flex-1">
 					<View className="my-10">
-						<Text className="text-3xl" fontWeight={600}>
-							Buy Data
-						</Text>
+						<Text className="text-3xl font-semibold">Buy Data</Text>
 						<Text className="text-secondary mt-2 rounded-tl-2xl">
 							Data for all Network
 						</Text>
@@ -198,9 +198,7 @@ const Data = () => {
 					<View className="gap-y-5">
 						<View>
 							<View className="gap-y-5">
-								<Text className="text-xl" fontWeight={700}>
-									Network
-								</Text>
+								<Text className="text-xl font-bold">Network</Text>
 								<TouchableOpacity
 									onPress={() => setShowNetworkModal(true)}
 									className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center overflow-hidden"
@@ -226,9 +224,7 @@ const Data = () => {
 									/>
 									<View className="flex-1 justify-end items-end">
 										<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-											<Text className="text-2xl" fontWeight={700}>
-												Select Network
-											</Text>
+											<Text className="text-2xl font-bold">Select Network</Text>
 											<View className="my-5">
 												{networks.map(network => (
 													<TouchableOpacity
@@ -258,9 +254,7 @@ const Data = () => {
 						</View>
 						<View>
 							<View className="gap-y-5">
-								<Text className="text-xl" fontWeight={700}>
-									Select Plan
-								</Text>
+								<Text className="text-xl font-bold">Select Plan</Text>
 								<TouchableOpacity
 									onPress={() => {
 										if (formData.network) {
@@ -292,7 +286,7 @@ const Data = () => {
 									/>
 									<View className="flex-1 justify-end items-end">
 										<View className="bg-white w-full h-[70%] pt-8 rounded-t-2xl">
-											<Text className="text-2xl px-[5%]" fontWeight={700}>
+											<Text className="text-2xl px-[5%] font-bold">
 												Select Data Plan
 											</Text>
 
@@ -352,9 +346,7 @@ const Data = () => {
 							)}
 						</View>
 						<View className="gap-y-5">
-							<Text className="text-xl" fontWeight={700}>
-								Phone number
-							</Text>
+							<Text className="text-xl font-bold">Phone number</Text>
 
 							<TextInput
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -372,7 +364,7 @@ const Data = () => {
 							/>
 						</View>
 						{/* <View className="gap-y-5">
-						<Text className="text-xl" fontWeight={700}>
+						<Text className="text-xl font-bold">
 							Amount
 						</Text>
 

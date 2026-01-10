@@ -1,11 +1,11 @@
 import Back from '@/components/back';
 import {Text} from '@/components/text';
 import {useGlobalStore} from '@/context/store';
+import * as Clipboard from 'expo-clipboard';
 import {router, useLocalSearchParams} from 'expo-router';
 import React from 'react';
 import {Pressable, ScrollView, View} from 'react-native';
 import Toast from 'react-native-toast-message';
-import * as Clipboard from 'expo-clipboard';
 
 const TransactionDetails = () => {
 	const {id}: {id: string} = useLocalSearchParams();
@@ -74,17 +74,11 @@ const TransactionDetails = () => {
 				<View className="flex-row px-2 bg-[#f2f2f2]">
 					<Text className="flex-1 py-2">Status</Text>
 					{transaction.attributes.status ? (
-						<Text
-							className="flex-1 border-l-[1px] border-[#dee2e6] pl-2 py-3 text-red-500"
-							fontWeight={600}
-						>
+						<Text className="flex-1 border-l-[1px] border-[#dee2e6] pl-2 py-3 text-red-500 font-semibold">
 							Failed Transaction
 						</Text>
 					) : (
-						<Text
-							className="flex-1 border-l-[1px] border-[#dee2e6] pl-2 py-3 text-green-500"
-							fontWeight={600}
-						>
+						<Text className="flex-1 border-l-[1px] border-[#dee2e6] pl-2 py-3 text-green-500 font-semibold">
 							Successful Transaction
 						</Text>
 					)}

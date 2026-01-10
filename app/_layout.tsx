@@ -15,6 +15,7 @@ import {
 	performSecurityCheck,
 } from '@/utils/SecurityCheck';
 import {MemoryStorage} from '@/utils/storage';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -22,22 +23,25 @@ import Loading from './components/loading';
 
 SplashScreen.preventAutoHideAsync();
 
+const queryClient = new QueryClient();
+
 export default function RootLayout() {
 	const {setDarkMode} = useGlobalStore();
 	const insets = useSafeAreaInsets();
 	const [loaded] = useFonts({
 		SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+		PlusJakartaSansExtraLight: require('../assets/fonts/PlusJakartaSans-ExtraLight.ttf'),
+		PlusJakartaSansLight: require('../assets/fonts/PlusJakartaSans-Light.ttf'),
+		PlusJakartaSansRegular: require('../assets/fonts/PlusJakartaSans-Regular.ttf'),
+		PlusJakartaSansMedium: require('../assets/fonts/PlusJakartaSans-Medium.ttf'),
+		PlusJakartaSansSemiBold: require('../assets/fonts/PlusJakartaSans-SemiBold.ttf'),
 		PlusJakartaSansBold: require('../assets/fonts/PlusJakartaSans-Bold.ttf'),
 		PlusJakartaSansExtraBold: require('../assets/fonts/PlusJakartaSans-ExtraBold.ttf'),
-		PlusJakartaSansExtraLight: require('../assets/fonts/PlusJakartaSans-ExtraLight.ttf'),
-		PlusJakartaSansMedium: require('../assets/fonts/PlusJakartaSans-Medium.ttf'),
-		PlusJakartaSansRegular: require('../assets/fonts/PlusJakartaSans-Regular.ttf'),
-		PlusJakartaSansSemiBold: require('../assets/fonts/PlusJakartaSans-SemiBold.ttf'),
 	});
 	const [isSecure, setIsSecure] = useState<boolean | null>(true);
 
 	useEffect(() => {
-		checkSecurity();
+		// checkSecurity();
 	}, []);
 
 	const checkSecurity = async () => {
@@ -87,22 +91,24 @@ export default function RootLayout() {
 	}
 
 	return (
-		<View className="flex-1">
-			<View style={{height: insets.top, backgroundColor: '#FFF'}}>
-				<StatusBar style="dark" />
+		<QueryClientProvider client={queryClient}>
+			<View className="flex-1">
+				<View style={{height: insets.top, backgroundColor: '#FFF'}}>
+					<StatusBar style="dark" />
+				</View>
+				<Stack screenOptions={{headerShown: false}}>
+					<Stack.Screen name="Signup" />
+					<Stack.Screen name="Signin" />
+					<Stack.Screen name="(tabs)" />
+					<Stack.Screen name="Electricity" />
+					<Stack.Screen name="Tv" />
+					<Stack.Screen name="Exam" />
+					<Stack.Screen name="VerifyOTP" />
+					<Stack.Screen name="+not-found" />
+				</Stack>
+				<Loading />
+				<Toast />
 			</View>
-			<Stack screenOptions={{headerShown: false}}>
-				<Stack.Screen name="Signup" />
-				<Stack.Screen name="Signin" />
-				<Stack.Screen name="(tabs)" />
-				<Stack.Screen name="Electricity" />
-				<Stack.Screen name="Tv" />
-				<Stack.Screen name="Exam" />
-				<Stack.Screen name="VerifyOTP" />
-				<Stack.Screen name="+not-found" />
-			</Stack>
-			<Loading />
-			<Toast />
-		</View>
+		</QueryClientProvider>
 	);
 }

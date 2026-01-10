@@ -1,21 +1,20 @@
+import Logo from '@/assets/icons/logo';
 import {Text} from '@/components/text';
+import {useGlobalStore} from '@/context/store';
+import {AxiosClient} from '@/utils/axios';
+import {MemoryStorage} from '@/utils/storage';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import {router} from 'expo-router';
+import React, {useState} from 'react';
 import {
 	KeyboardAvoidingView,
+	ScrollView,
 	TextInput,
 	TouchableOpacity,
 	View,
 } from 'react-native';
-import React, {useState} from 'react';
-import Logo from '@/assets/icons/logo';
-import {router} from 'expo-router';
-import {ScrollView} from 'react-native';
-import Button from './components/button';
-import {AxiosClient} from '@/utils/axios';
 import Toast from 'react-native-toast-message';
-import {useGlobalStore} from '@/context/store';
-import {MemoryStorage} from '@/utils/storage';
-import {ACCESS_TOKEN_KEY} from '@/constants';
-import AntDesign from '@expo/vector-icons/AntDesign';
+import Button from './components/button';
 
 interface User {
 	createdAt: string;
@@ -227,7 +226,7 @@ const Signup = () => {
 		<ScrollView className="bg-white flex-1 px-[3%] py-5 pb-28">
 			<KeyboardAvoidingView>
 				<Logo />
-				<Text className="text-4xl mt-10 mb-2" fontWeight={700}>
+				<Text className="text-4xl mt-10 mb-2 font-bold">
 					Create your account
 				</Text>
 				<Text className="text-[#222222] text-xl">
@@ -236,9 +235,7 @@ const Signup = () => {
 
 				<View className="my-20 gap-y-3">
 					<View className="">
-						<Text className="text-xl" fontWeight={600}>
-							First Name
-						</Text>
+						<Text className="text-xl font-semibold">First Name</Text>
 						<TextInput
 							className="bg-white border-[1px] border-[#C8C8C8] w-full mt-3 mb-2 rounded-lg px-5 h-14 text-black"
 							onChangeText={text => {
@@ -258,9 +255,7 @@ const Signup = () => {
 						</View>
 					</View>
 					<View className="">
-						<Text className="text-xl" fontWeight={600}>
-							Last Name
-						</Text>
+						<Text className="text-xl font-semibold">Last Name</Text>
 						<TextInput
 							className="bg-white border-[1px] border-[#C8C8C8] w-full mt-3 mb-2 rounded-lg px-5 h-14 text-black"
 							onChangeText={text => {
@@ -280,9 +275,7 @@ const Signup = () => {
 						</View>
 					</View>
 					<View className="">
-						<Text className="text-xl" fontWeight={600}>
-							Email address
-						</Text>
+						<Text className="text-xl font-semibold">Email address</Text>
 						<TextInput
 							className="bg-white border-[1px] border-[#C8C8C8] w-full mt-3 mb-2 rounded-lg px-5 h-14 text-black"
 							onChangeText={text => {
@@ -303,9 +296,7 @@ const Signup = () => {
 						</View>
 					</View>
 					<View className="">
-						<Text className="text-xl" fontWeight={600}>
-							Phone Number
-						</Text>
+						<Text className="text-xl font-semibold">Phone Number</Text>
 						<TextInput
 							className="bg-white border-[1px] border-[#C8C8C8] w-full mt-3 mb-2 rounded-lg px-5 h-14 text-black"
 							onChangeText={text => {
@@ -332,9 +323,7 @@ const Signup = () => {
 						</View>
 					</View>
 					<View className="">
-						<Text className="text-xl" fontWeight={600}>
-							Password
-						</Text>
+						<Text className="text-xl font-semibold">Password</Text>
 						<View className="relative">
 							<TextInput
 								className="bg-white border-[1px] border-[#C8C8C8] w-full mt-3 mb-2 rounded-lg px-5 h-14 text-black"
@@ -369,9 +358,7 @@ const Signup = () => {
 						</View>
 					</View>
 					<View className="">
-						<Text className="text-xl" fontWeight={600}>
-							Confirm Password
-						</Text>
+						<Text className="text-xl font-semibold">Confirm Password</Text>
 						<View className="relative">
 							<TextInput
 								className="bg-white border-[1px] border-[#C8C8C8] w-full mt-3 mb-2 rounded-lg px-5 h-14 text-black"
@@ -418,9 +405,7 @@ const Signup = () => {
 						<Text className="text-xl">Don't have an account? </Text>
 
 						<TouchableOpacity onPress={() => router.navigate('/Signin')}>
-							<Text className="text-primary text-2xl" fontWeight={700}>
-								Sign in{' '}
-							</Text>
+							<Text className="text-primary text-2xl font-bold">Sign in </Text>
 						</TouchableOpacity>
 					</View>
 				</View>

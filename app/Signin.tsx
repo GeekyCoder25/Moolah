@@ -1,6 +1,6 @@
 import Logo from '@/assets/icons/logo';
 import {Text} from '@/components/text';
-import {IS_LOGGED_IN} from '@/constants';
+import {ACCESS_TOKEN_KEY, IS_LOGGED_IN} from '@/constants';
 import {useGlobalStore} from '@/context/store';
 import {errorFormat} from '@/utils';
 import {AxiosClient} from '@/utils/axios';
@@ -48,7 +48,8 @@ const Signin = () => {
 			if (response.status === 200) {
 				const storage = new MemoryStorage();
 				setAccessToken(response.data.data.token);
-				// await storage.setItem(ACCESS_TOKEN_KEY, response.data.data.token);
+				__DEV__ &&
+					(await storage.setItem(ACCESS_TOKEN_KEY, response.data.data.token));
 				const email = response.data.data.user.email;
 				const userResponse = await axiosClient.get<UserResponse>('/user');
 				if (userResponse.status === 200) {
@@ -89,7 +90,7 @@ const Signin = () => {
 	return (
 		<ScrollView className="bg-white flex-1 px-[3%] py-5">
 			<Logo />
-			<Text className="text-4xl mt-10 mb-2" fontWeight={700}>
+			<Text className="text-4xl mt-10 mb-2 font-bold">
 				Sign in to your account
 			</Text>
 			<Text className="text-[#222222] text-xl">
@@ -98,9 +99,7 @@ const Signin = () => {
 
 			<View className="my-20 gap-y-5">
 				<View className="">
-					<Text className="text-2xl" fontWeight={700}>
-						Phone Number / Email
-					</Text>
+					<Text className="text-2xl font-bold">Phone Number / Email</Text>
 					<TextInput
 						className="bg-white border-[1px] border-[#C8C8C8] w-full my-3 rounded-lg px-5 h-14 text-black"
 						onChangeText={text =>
@@ -113,9 +112,7 @@ const Signin = () => {
 					/>
 				</View>
 				<View className="">
-					<Text className="text-2xl" fontWeight={700}>
-						Password
-					</Text>
+					<Text className="text-2xl font-bold">Password</Text>
 					<View className="relative">
 						<TextInput
 							className="bg-white border-[1px] border-[#C8C8C8] w-full my-3 rounded-lg px-5 h-14 text-black"
@@ -140,7 +137,7 @@ const Signin = () => {
 						</View>
 					</View>
 					<TouchableOpacity onPress={() => router.navigate('/Forget')}>
-						<Text className="text-xl text-primary text-right" fontWeight={600}>
+						<Text className="text-xl text-primary text-right font-semibold">
 							Forget Password?
 						</Text>
 					</TouchableOpacity>
@@ -152,9 +149,7 @@ const Signin = () => {
 					<Text className="text-xl">Already have an existing account? </Text>
 
 					<TouchableOpacity onPress={() => router.navigate('/Signup')}>
-						<Text className="text-primary text-2xl" fontWeight={700}>
-							Sign up{' '}
-						</Text>
+						<Text className="text-primary text-2xl font-bold">Sign up </Text>
 					</TouchableOpacity>
 				</View>
 			</View>

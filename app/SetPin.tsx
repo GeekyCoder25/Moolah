@@ -1,3 +1,12 @@
+import BackIcon from '@/assets/icons/back-icon';
+import Logo from '@/assets/icons/logo';
+import {Text} from '@/components/text';
+import {IS_LOGGED_IN} from '@/constants';
+import {useGlobalStore} from '@/context/store';
+import {AxiosClient} from '@/utils/axios';
+import {MemoryStorage} from '@/utils/storage';
+import {router} from 'expo-router';
+import React, {useRef, useState} from 'react';
 import {
 	Keyboard,
 	Pressable,
@@ -6,17 +15,8 @@ import {
 	TouchableWithoutFeedback,
 	View,
 } from 'react-native';
-import React, {useRef, useState} from 'react';
-import Logo from '@/assets/icons/logo';
-import {Text} from '@/components/text';
-import Button from './components/button';
-import {router} from 'expo-router';
-import BackIcon from '@/assets/icons/back-icon';
-import {MemoryStorage} from '@/utils/storage';
-import {IS_LOGGED_IN} from '@/constants';
 import Toast from 'react-native-toast-message';
-import {useGlobalStore} from '@/context/store';
-import {AxiosClient} from '@/utils/axios';
+import Button from './components/button';
 
 const SetPin = () => {
 	const axiosClient = new AxiosClient();
@@ -164,7 +164,7 @@ const SetPin = () => {
 					<BackIcon />
 				</Pressable>
 				<Logo />
-				<Text className="text-3xl mt-10 mb-2" fontWeight={700}>
+				<Text className="text-3xl mt-10 mb-2 font-bold">
 					Set transaction pin
 				</Text>
 				<Text className="text-[#222222] text-lg">
@@ -202,7 +202,8 @@ const SetPin = () => {
 						<TouchableOpacity onPress={() => inputRef2.current?.focus()}>
 							<TextInput
 								onChangeText={text => {
-									text ? inputRef3.current?.focus() : inputRef.current?.focus();
+									if (text) inputRef3.current?.focus();
+									else inputRef.current?.focus();
 									setOtpCode2(text);
 									setIsError2(false);
 								}}
@@ -226,9 +227,8 @@ const SetPin = () => {
 						<TouchableOpacity onPress={() => inputRef3.current?.focus()}>
 							<TextInput
 								onChangeText={text => {
-									text
-										? inputRef4.current?.focus()
-										: inputRef2.current?.focus();
+									if (text) inputRef4.current?.focus();
+									else inputRef2.current?.focus();
 									setOtpCode3(text);
 									setIsError3(false);
 								}}
@@ -278,9 +278,7 @@ const SetPin = () => {
 							/>
 						</TouchableOpacity>
 					</View>
-					<Text className="text-2xl my-5" fontWeight={600}>
-						Confirm Pin
-					</Text>
+					<Text className="text-2xl my-5 font-semibold">Confirm Pin</Text>
 					<View className="flex-row justify-between gap-x-3 mt-5 max-w-[350px]">
 						<TouchableOpacity onPress={() => inputRefConfirm.current?.focus()}>
 							<TextInput
@@ -310,9 +308,8 @@ const SetPin = () => {
 						<TouchableOpacity onPress={() => inputRefConfirm2.current?.focus()}>
 							<TextInput
 								onChangeText={text => {
-									text
-										? inputRefConfirm3.current?.focus()
-										: inputRefConfirm.current?.focus();
+									if (text) inputRefConfirm3.current?.focus();
+									else inputRefConfirm.current?.focus();
 									setOtpCodeConfirm2(text);
 									setIsErrorConfirm2(false);
 								}}
@@ -336,9 +333,8 @@ const SetPin = () => {
 						<TouchableOpacity onPress={() => inputRefConfirm3.current?.focus()}>
 							<TextInput
 								onChangeText={text => {
-									text
-										? inputRefConfirm4.current?.focus()
-										: inputRefConfirm2.current?.focus();
+									if (text) inputRefConfirm4.current?.focus();
+									else inputRefConfirm2.current?.focus();
 									setOtpCodeConfirm3(text);
 									setIsErrorConfirm3(false);
 								}}

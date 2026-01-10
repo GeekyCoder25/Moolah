@@ -1,18 +1,18 @@
+import {Text} from '@/components/text';
+import {globalStyles} from '@/styles';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import React, {Dispatch, FC, SetStateAction, useRef, useState} from 'react';
 import {
-	View,
+	Keyboard,
 	Modal,
 	Pressable,
 	TextInput,
 	TouchableOpacity,
-	Keyboard,
+	View,
 } from 'react-native';
-import React, {Dispatch, FC, SetStateAction, useRef, useState} from 'react';
-import {Text} from '@/components/text';
-import {globalStyles} from '@/styles';
-import Button from './button';
 import Toast from 'react-native-toast-message';
+import Button from './button';
 import Loading from './loading';
-import AntDesign from '@expo/vector-icons/AntDesign';
 interface PinModalProps {
 	showPin: boolean;
 	setShowPin: Dispatch<SetStateAction<boolean>>;
@@ -52,7 +52,7 @@ const PinModal: FC<PinModalProps> = props => {
 					>
 						<AntDesign name="close" size={24} color="black" />
 					</TouchableOpacity>
-					<Text className="text-xl text-center" fontWeight={600}>
+					<Text className="text-xl text-center font-semibold">
 						Enter Transaction Pin
 					</Text>
 					<View className="my-10 gap-y-5">

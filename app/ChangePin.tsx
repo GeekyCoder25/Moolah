@@ -1,17 +1,17 @@
+import Back from '@/components/back';
+import {Text} from '@/components/text';
+import {useGlobalStore} from '@/context/store';
+import {AxiosClient} from '@/utils/axios';
+import {router} from 'expo-router';
+import React, {useState} from 'react';
 import {
 	Keyboard,
 	TextInput,
 	TouchableWithoutFeedback,
 	View,
 } from 'react-native';
-import React, {useState} from 'react';
-import Back from '@/components/back';
-import {Text} from '@/components/text';
-import Button from './components/button';
-import {useGlobalStore} from '@/context/store';
-import {AxiosClient} from '@/utils/axios';
 import Toast from 'react-native-toast-message';
-import {router} from 'expo-router';
+import Button from './components/button';
 
 const ChangePin = () => {
 	const {setLoading} = useGlobalStore();
@@ -66,9 +66,7 @@ const ChangePin = () => {
 				<View className="flex-1">
 					<View className="gap-y-5 my-10">
 						<View className="gap-y-5">
-							<Text className="text-xl" fontWeight={600}>
-								Old Pin
-							</Text>
+							<Text className="text-xl font-semibold">Old Pin</Text>
 
 							<TextInput
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -84,9 +82,7 @@ const ChangePin = () => {
 							/>
 						</View>
 						<View className="gap-y-5">
-							<Text className="text-xl" fontWeight={600}>
-								New Pin
-							</Text>
+							<Text className="text-xl font-semibold">New Pin</Text>
 
 							<TextInput
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -102,9 +98,7 @@ const ChangePin = () => {
 							/>
 						</View>
 						<View className="gap-y-5">
-							<Text className="text-xl" fontWeight={600}>
-								Retype Pin
-							</Text>
+							<Text className="text-xl font-semibold">Retype Pin</Text>
 
 							<TextInput
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"

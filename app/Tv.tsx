@@ -1,3 +1,12 @@
+import InfoIcon from '@/assets/icons/info-icon';
+import Back from '@/components/back';
+import {Text} from '@/components/text';
+import {useGlobalStore} from '@/context/store';
+import {globalStyles} from '@/styles';
+import {AxiosClient} from '@/utils/axios';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import {router} from 'expo-router';
+import React, {useEffect, useState} from 'react';
 import {
 	KeyboardAvoidingView,
 	Modal,
@@ -7,17 +16,8 @@ import {
 	TouchableOpacity,
 	View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
-import Back from '@/components/back';
-import {Text} from '@/components/text';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import {globalStyles} from '@/styles';
-import Button from './components/button';
-import InfoIcon from '@/assets/icons/info-icon';
-import {useGlobalStore} from '@/context/store';
-import {AxiosClient} from '@/utils/axios';
 import Toast from 'react-native-toast-message';
-import {router} from 'expo-router';
+import Button from './components/button';
 import PinModal from './components/PinModal';
 
 // Top-level API response
@@ -217,9 +217,7 @@ const TV = () => {
 				<Back title="TV" />
 				<View className="flex-1">
 					<View className="my-10">
-						<Text className="text-3xl" fontWeight={600}>
-							Cable TV
-						</Text>
+						<Text className="text-3xl font-semibold">Cable TV</Text>
 						<Text className="text-secondary mt-2 rounded-tl-2xl">
 							Cable tv subscription
 						</Text>
@@ -244,9 +242,7 @@ const TV = () => {
 					<View className="gap-y-5">
 						<View>
 							<View className="gap-y-5">
-								<Text className="text-xl" fontWeight={700}>
-									Provider
-								</Text>
+								<Text className="text-xl font-bold">Provider</Text>
 								<TouchableOpacity
 									onPress={() => setShowProviderModal(true)}
 									className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -266,7 +262,7 @@ const TV = () => {
 									/>
 									<View className="flex-1 justify-end items-end">
 										<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-											<Text className="text-2xl" fontWeight={700}>
+											<Text className="text-2xl font-bold">
 												Select Provider
 											</Text>
 											<ScrollView className="my-5">
@@ -301,9 +297,7 @@ const TV = () => {
 						</View>
 						<View>
 							<View className="gap-y-5">
-								<Text className="text-xl" fontWeight={700}>
-									Plan
-								</Text>
+								<Text className="text-xl font-bold">Plan</Text>
 								<TouchableOpacity
 									onPress={() => setShowPlanModal(true)}
 									className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -330,7 +324,7 @@ const TV = () => {
 									/>
 									<View className="flex-1 justify-end items-end">
 										<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-											<Text className="text-2xl" fontWeight={700}>
+											<Text className="text-2xl font-bold">
 												Select subscription plan
 											</Text>
 											<ScrollView className="my-5">
@@ -364,9 +358,7 @@ const TV = () => {
 						</View>
 						<View>
 							<View className="gap-y-5">
-								<Text className="text-xl" fontWeight={700}>
-									Subscription Type
-								</Text>
+								<Text className="text-xl font-bold">Subscription Type</Text>
 								<TouchableOpacity
 									onPress={() => setShowTypeModal(true)}
 									className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -386,7 +378,7 @@ const TV = () => {
 									/>
 									<View className="flex-1 justify-end items-end">
 										<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-											<Text className="text-2xl" fontWeight={700}>
+											<Text className="text-2xl font-bold">
 												Select Meter Type
 											</Text>
 											<View className="my-5">
@@ -413,9 +405,7 @@ const TV = () => {
 						</View>
 
 						<View className="gap-y-5">
-							<Text className="text-xl" fontWeight={700}>
-								IUC Number
-							</Text>
+							<Text className="text-xl font-bold">IUC Number</Text>
 
 							<TextInput
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -429,15 +419,14 @@ const TV = () => {
 									}))
 								}
 								placeholder="Decoder Number"
+								placeholderTextColor={'#7D7D7D'}
 							/>
 						</View>
 						{formData.account_name && (
 							<View className="gap-y-5">
-								<Text className="text-xl" fontWeight={700}>
-									Account Name
-								</Text>
+								<Text className="text-xl font-bold">Account Name</Text>
 
-								<Text className="text-secondary h-14" fontWeight={600}>
+								<Text className="text-secondary h-14 font-semibold">
 									{formData.account_name}
 								</Text>
 							</View>

@@ -1,3 +1,12 @@
+import InfoIcon from '@/assets/icons/info-icon';
+import Back from '@/components/back';
+import {Text} from '@/components/text';
+import {useGlobalStore} from '@/context/store';
+import {globalStyles} from '@/styles';
+import {AxiosClient} from '@/utils/axios';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import {router} from 'expo-router';
+import React, {useEffect, useState} from 'react';
 import {
 	KeyboardAvoidingView,
 	Modal,
@@ -7,17 +16,8 @@ import {
 	TouchableOpacity,
 	View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
-import Back from '@/components/back';
-import {Text} from '@/components/text';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import {globalStyles} from '@/styles';
-import Button from './components/button';
-import InfoIcon from '@/assets/icons/info-icon';
-import {useGlobalStore} from '@/context/store';
-import {AxiosClient} from '@/utils/axios';
 import Toast from 'react-native-toast-message';
-import {router} from 'expo-router';
+import Button from './components/button';
 import PinModal from './components/PinModal';
 
 export interface ProviderAttributes {
@@ -75,7 +75,9 @@ const Electricity = () => {
 					setProviders(response.data.data.provider);
 					setMeters(response.data.data.meter_type);
 				}
-			} catch (error) {}
+			} catch (error) {
+				console.log(error);
+			}
 		};
 		getProviders();
 	}, []);
@@ -188,9 +190,7 @@ const Electricity = () => {
 				<Back title="Electricity" />
 				<View className="flex-1">
 					<View className="my-10">
-						<Text className="text-3xl" fontWeight={600}>
-							Electricity Bill
-						</Text>
+						<Text className="text-3xl font-semibold">Electricity Bill</Text>
 						<Text className="text-secondary mt-2 rounded-tl-2xl">
 							Electricity Payment
 						</Text>
@@ -211,9 +211,7 @@ const Electricity = () => {
 					<View className="gap-y-5">
 						<View>
 							<View className="gap-y-5">
-								<Text className="text-xl" fontWeight={700}>
-									Provider
-								</Text>
+								<Text className="text-xl font-bold">Provider</Text>
 								<TouchableOpacity
 									onPress={() => setShowProviderModal(true)}
 									className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -233,7 +231,7 @@ const Electricity = () => {
 									/>
 									<View className="flex-1 justify-end items-end">
 										<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-											<Text className="text-2xl" fontWeight={700}>
+											<Text className="text-2xl font-bold">
 												Select Provider
 											</Text>
 											<ScrollView className="my-5">
@@ -264,9 +262,7 @@ const Electricity = () => {
 						</View>
 						<View>
 							<View className="gap-y-5">
-								<Text className="text-xl" fontWeight={700}>
-									Meter Type
-								</Text>
+								<Text className="text-xl font-bold">Meter Type</Text>
 								<TouchableOpacity
 									onPress={() => setShowTypeModal(true)}
 									className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -286,7 +282,7 @@ const Electricity = () => {
 									/>
 									<View className="flex-1 justify-end items-end">
 										<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-											<Text className="text-3xl" fontWeight={700}>
+											<Text className="text-3xl font-bold">
 												Select Meter Type
 											</Text>
 											<View className="my-10">
@@ -313,9 +309,7 @@ const Electricity = () => {
 							)}
 						</View>
 						<View className="gap-y-5">
-							<Text className="text-xl" fontWeight={700}>
-								Meter number
-							</Text>
+							<Text className="text-xl font-bold">Meter number</Text>
 
 							<TextInput
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -328,12 +322,11 @@ const Electricity = () => {
 									}))
 								}
 								placeholder="Meter number"
+								placeholderTextColor={'#7D7D7D'}
 							/>
 						</View>
 						<View className="gap-y-5">
-							<Text className="text-xl" fontWeight={700}>
-								Amount
-							</Text>
+							<Text className="text-xl font-bold">Amount</Text>
 
 							<TextInput
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -346,15 +339,14 @@ const Electricity = () => {
 									}))
 								}
 								placeholder="Amount"
+								placeholderTextColor={'#7D7D7D'}
 							/>
 						</View>
 						{formData.account_name && (
 							<View className="gap-y-5">
-								<Text className="text-xl" fontWeight={700}>
-									Account Name
-								</Text>
+								<Text className="text-xl font-bold">Account Name</Text>
 
-								<Text className="text-secondary h-14" fontWeight={600}>
+								<Text className="text-secondary h-14 font-semibold">
 									{formData.account_name}
 								</Text>
 							</View>

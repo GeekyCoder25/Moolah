@@ -1,14 +1,12 @@
-import {Pressable, TextInput, View} from 'react-native';
-import React, {useState} from 'react';
-import Back from '@/components/back';
+import BackIcon from '@/assets/icons/back-icon';
 import {Text} from '@/components/text';
-import Button from './components/button';
 import {useGlobalStore} from '@/context/store';
 import {AxiosClient} from '@/utils/axios';
+import {router, useLocalSearchParams, useNavigation} from 'expo-router';
+import React, {useState} from 'react';
+import {Pressable, TextInput, View} from 'react-native';
 import Toast from 'react-native-toast-message';
-import {router, useLocalSearchParams} from 'expo-router';
-import BackIcon from '@/assets/icons/back-icon';
-import {useNavigation} from 'expo-router';
+import Button from './components/button';
 
 const ResetPassword = () => {
 	const navigation = useNavigation();
@@ -113,9 +111,7 @@ const ResetPassword = () => {
 			<View className="flex-1">
 				<View className="gap-y-5 my-10">
 					<View className="gap-y-5">
-						<Text className="text-xl" fontWeight={600}>
-							New Password
-						</Text>
+						<Text className="text-xl font-semibold">New Password</Text>
 
 						<TextInput
 							className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -130,9 +126,7 @@ const ResetPassword = () => {
 						</View>
 					</View>
 					<View className="gap-y-5">
-						<Text className="text-xl" fontWeight={600}>
-							Retype Password
-						</Text>
+						<Text className="text-xl font-semibold">Retype Password</Text>
 
 						<TextInput
 							className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"

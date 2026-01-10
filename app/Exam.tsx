@@ -1,24 +1,24 @@
+import Back from '@/components/back';
+import {Text} from '@/components/text';
+import {useGlobalStore} from '@/context/store';
+import {globalStyles} from '@/styles';
+import {AxiosClient} from '@/utils/axios';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import {router} from 'expo-router';
+import React, {useEffect, useState} from 'react';
 import {
 	Keyboard,
 	Modal,
 	Pressable,
+	ScrollView,
 	TextInput,
 	TouchableOpacity,
 	TouchableWithoutFeedback,
 	View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
-import Back from '@/components/back';
-import {Text} from '@/components/text';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import {globalStyles} from '@/styles';
-import Button from './components/button';
-import {useGlobalStore} from '@/context/store';
-import {AxiosClient} from '@/utils/axios';
 import Toast from 'react-native-toast-message';
-import {router} from 'expo-router';
+import Button from './components/button';
 import PinModal from './components/PinModal';
-import {ScrollView} from 'react-native';
 
 export interface ExamProviderAttributes {
 	name: string;
@@ -61,7 +61,9 @@ const Exam = () => {
 					setProviders(response.data.data);
 					// setMeters(response.data.data.meter_type);
 				}
-			} catch (error) {}
+			} catch (error) {
+				console.log(error);
+			}
 		};
 		getProviders();
 	}, []);
@@ -124,18 +126,14 @@ const Exam = () => {
 				<Back title="Exam Pins" />
 				<View className="flex-1">
 					<View className="my-10">
-						<Text className="text-3xl" fontWeight={600}>
-							Exam Pins
-						</Text>
+						<Text className="text-3xl font-semibold">Exam Pins</Text>
 						{/* <Text className="text-secondary mt-2 rounded-tl-2xl"></Text> */}
 					</View>
 
 					<View className="gap-y-5">
 						<View>
 							<View className="gap-y-5">
-								<Text className="text-xl" fontWeight={700}>
-									Exam type
-								</Text>
+								<Text className="text-xl font-bold">Exam type</Text>
 								<TouchableOpacity
 									onPress={() => setShowProviderModal(true)}
 									className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -155,7 +153,7 @@ const Exam = () => {
 									/>
 									<View className="flex-1 justify-end items-end">
 										<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-											<Text className="text-2xl" fontWeight={700}>
+											<Text className="text-2xl font-bold">
 												Select Provider
 											</Text>
 											<ScrollView className="my-5">
@@ -186,9 +184,7 @@ const Exam = () => {
 						</View>
 
 						<View className="gap-y-5">
-							<Text className="text-xl" fontWeight={700}>
-								Quantity
-							</Text>
+							<Text className="text-xl font-bold">Quantity</Text>
 
 							<TextInput
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -202,12 +198,11 @@ const Exam = () => {
 									}))
 								}
 								placeholder="Quantity"
+								placeholderTextColor={'#7D7D7D'}
 							/>
 						</View>
 						<View className="gap-y-5">
-							<Text className="text-xl" fontWeight={700}>
-								Amount
-							</Text>
+							<Text className="text-xl font-bold">Amount</Text>
 
 							<TextInput
 								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -219,7 +214,8 @@ const Exam = () => {
 										  ).toLocaleString()}`
 										: ''
 								}
-								placeholder="Amount"
+								// placeholder="Amount"
+								// placeholderTextColor={'#7D7D7D'}
 								editable={false}
 							/>
 						</View>

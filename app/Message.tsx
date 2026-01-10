@@ -1,13 +1,13 @@
-import {TextInput, TouchableOpacity, View} from 'react-native';
-import React, {useState} from 'react';
-import {Text} from '@/components/text';
 import Back from '@/components/back';
-import {ScrollView} from 'react-native';
-import Button from './components/button';
-import {AxiosClient} from '@/utils/axios';
+import {Text} from '@/components/text';
+import React, {useState} from 'react';
+import {ScrollView, TextInput, View} from 'react-native';
+
 import {useGlobalStore} from '@/context/store';
-import Toast from 'react-native-toast-message';
+import {AxiosClient} from '@/utils/axios';
 import {router} from 'expo-router';
+import Toast from 'react-native-toast-message';
+import Button from './components/button';
 
 const Message = () => {
 	const {setLoading, user} = useGlobalStore();
@@ -58,17 +58,13 @@ const Message = () => {
 
 			<View>
 				<View className="mt-10">
-					<Text className="text-3xl" fontWeight={600}>
-						Send direct message
-					</Text>
+					<Text className="text-3xl font-semibold">Send direct message</Text>
 					<Text className="text-secondary mt-2 rounded-tl-2xl">Contact us</Text>
 				</View>
 
 				<View className="gap-y-5 my-10">
 					<View className="gap-y-5">
-						<Text className="text-xl" fontWeight={600}>
-							Subject
-						</Text>
+						<Text className="text-xl font-semibold">Subject</Text>
 
 						<TextInput
 							className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
@@ -80,9 +76,7 @@ const Message = () => {
 						/>
 					</View>
 					<View className="gap-y-5">
-						<Text className="text-xl" fontWeight={600}>
-							Message
-						</Text>
+						<Text className="text-xl font-semibold">Message</Text>
 
 						<TextInput
 							className="w-full border-[1px] border-[#C8C8C8] p-5 h-36 rounded-lg flex-row justify-between items-center"

@@ -1,11 +1,15 @@
+import BallIcon from '@/assets/icons/ball';
+import BroadBandIcon from '@/assets/icons/broadband';
 import CallIcon from '@/assets/icons/call';
 import CameraIcon from '@/assets/icons/camera';
+import CardsIcon from '@/assets/icons/cards';
 import ElectricityIcon from '@/assets/icons/electricity';
 import GraduationCapIcon from '@/assets/icons/graduation';
 import Logo from '@/assets/icons/logo';
 import MonitorIcon from '@/assets/icons/monitor';
 import NotificationIcon from '@/assets/icons/notification';
 import ProfileIcon from '@/assets/icons/profile';
+import UpgradeIcon from '@/assets/icons/upgrade';
 import WalletBgIcon from '@/assets/icons/wallet-bg';
 import WifiIcon from '@/assets/icons/wifi';
 import {Text} from '@/components/text';
@@ -17,6 +21,8 @@ import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import {useQuery} from '@tanstack/react-query';
 import {router, useFocusEffect} from 'expo-router';
 import {useCallback, useEffect, useState} from 'react';
 import {
@@ -26,7 +32,10 @@ import {
 	TouchableOpacity,
 	View,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import {UserResponse} from '../../types';
+import Button from '../components/button';
+import PinModal from '../components/PinModal';
 // Root API response interface
 export interface TransactionsResponse {
 	status: number;
@@ -57,9 +66,11 @@ export interface TransactionAttributes {
 }
 
 export default function HomeScreen() {
-	const {user, setUser, transactions, setTransactions} = useGlobalStore();
+	const {user, setUser, transactions, setLoading, setTransactions} =
+		useGlobalStore();
 	const [refreshing, setRefreshing] = useState(false);
 	const [showBalance, setShowBalance] = useState(true);
+	const [showPin, setShowPin] = useState(false);
 
 	const handleRefresh = () => {
 		setRefreshing(true);
@@ -115,6 +126,49 @@ export default function HomeScreen() {
 		}, [setTransactions, setUser])
 	);
 
+	const handleUpgrade = async (pin?: string) => {
+		if (!pin) {
+			return setShowPin(true);
+		}
+		try {
+			setLoading(true);
+			const axiosClient = new AxiosClient();
+			const response = await axiosClient.post('/vendor', {pin});
+
+			if (response.status === 200) {
+				Toast.show({
+					type: 'success',
+					text1: 'Success',
+					text2: 'Upgrade request submitted successfully',
+				});
+			}
+		} catch (error: any) {
+			console.log(error);
+			Toast.show({
+				type: 'error',
+				text1: 'Error',
+				text2:
+					error.response.data.message ||
+					error.response.data.error ||
+					'Failed to submit upgrade request',
+			});
+		} finally {
+			if (pin) {
+				setShowPin(false);
+			}
+			setLoading(false);
+		}
+	};
+
+	const {data: userData} = useQuery({
+		queryKey: ['user'],
+		queryFn: async () => {
+			const axiosClient = new AxiosClient();
+			const response = await axiosClient.get<UserResponse>('/user');
+			return response.data;
+		},
+	});
+
 	return (
 		<ScrollView
 			className="flex-1 px-[3%]"
@@ -142,21 +196,19 @@ export default function HomeScreen() {
 					<View className="z-10">
 						<View className="flex-row justify-between">
 							<View>
-								<Text className="text-xl text-white" fontWeight={600}>
+								<Text className="text-xl text-white font-semibold">
 									Wallet Balance
 								</Text>
 
 								{showBalance ? (
-									<Text className="text-white text-2xl" fontWeight={'bold'}>
+									<Text className="text-white text-2xl font-bold">
 										₦
 										{user?.wallet_balance
 											? user.wallet_balance.toLocaleString()
 											: '0.00'}
 									</Text>
 								) : (
-									<Text className="text-white text-2xl" fontWeight={'bold'}>
-										***
-									</Text>
+									<Text className="text-white text-2xl font-bold">***</Text>
 								)}
 							</View>
 							<TouchableOpacity onPress={() => setShowBalance(prev => !prev)}>
@@ -172,7 +224,7 @@ export default function HomeScreen() {
 								onPress={() => router.navigate('/Fund')}
 								className="bg-white py-3 px-5 rounded-md flex-row items-center gap-x-2"
 							>
-								<Text className="text-secondary text-xl" fontWeight={600}>
+								<Text className="text-secondary text-xl font-semibold">
 									Fund Wallet
 								</Text>
 								<Entypo
@@ -185,7 +237,7 @@ export default function HomeScreen() {
 								onPress={() => router.navigate('/Transfer')}
 								className="bg-white py-3 px-5 rounded-md flex-row items-center gap-x-2"
 							>
-								<Text className="text-secondary text-xl" fontWeight={600}>
+								<Text className="text-secondary text-xl font-semibold">
 									Wallet Transfer
 								</Text>
 								<Entypo
@@ -203,69 +255,127 @@ export default function HomeScreen() {
 				</View>
 			</View>
 
-			<View className="bg-white px-10 py-10 mt-5 rounded-xl gap-10 mb-10">
+			<View className="bg-white px-10 py-10 mt-5 rounded-xl gap-10c mb-10">
 				<View className="flex-row justify-around flex-wrap gap-10 ">
 					<Pressable
 						onPress={() => router.navigate('/(tabs)/data')}
 						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
 					>
 						<WifiIcon />
-						<Text className="text-[#7D7D7D]">Data</Text>
+						<Text className="text-[#7D7D7D] text-sm font-semibold">Data</Text>
 					</Pressable>
 					<Pressable
 						onPress={() => router.navigate('/(tabs)/airtime')}
 						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
 					>
 						<CallIcon />
-						<Text className="text-[#7D7D7D]">Airtime</Text>
+						<Text className="text-[#7D7D7D] text-sm font-semibold">
+							Airtime
+						</Text>
 					</Pressable>
 					<Pressable
 						onPress={() => router.navigate('/Electricity')}
 						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
 					>
 						<ElectricityIcon />
-						<Text className="text-[#7D7D7D]">Electricity</Text>
+						<Text className="text-[#7D7D7D] text-sm font-semibold">
+							Electricity
+						</Text>
 					</Pressable>
 					<Pressable
 						onPress={() => router.navigate('/Tv')}
 						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
 					>
 						<MonitorIcon />
-						<Text className="text-[#7D7D7D]">TV</Text>
+						<Text className="text-[#7D7D7D] text-sm font-semibold">TV</Text>
 					</Pressable>
 					<Pressable
 						onPress={() => router.navigate('/Exam')}
 						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
 					>
 						<GraduationCapIcon />
-						<Text className="text-[#7D7D7D]">Exam card</Text>
+						<Text className="text-[#7D7D7D] text-sm font-semibold">
+							Exam card
+						</Text>
 					</Pressable>
 
+					<Pressable
+						onPress={() => router.navigate('/Broadband')}
+						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
+					>
+						<BroadBandIcon />
+						<Text className="text-[#7D7D7D] text-sm font-semibold">
+							Broadband
+						</Text>
+					</Pressable>
+					<Pressable
+						onPress={() => router.navigate('/Betting')}
+						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
+					>
+						<BallIcon />
+						<Text className="text-[#7D7D7D] text-sm font-semibold">
+							Betting
+						</Text>
+					</Pressable>
 					<Pressable
 						onPress={() => router.navigate('/')}
 						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
 					>
 						<CameraIcon />
-						<Text className="text-[#7D7D7D]">Promote</Text>
-					</Pressable>
-
-					<Pressable
-						onPress={() => router.navigate('/')}
-						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
-					>
-						<CameraIcon />
-						<Text className="text-[#7D7D7D]">Authorize</Text>
+						<Text className="text-[#7D7D7D] text-sm font-semibold">
+							Promote
+						</Text>
 					</Pressable>
 				</View>
 			</View>
+			<View className="bg-white px-5 py-5 rounded-xl gap-3 mb-5 flex-row items-center">
+				<View className="flex-row gap-3 flex-1 items-center">
+					<CardsIcon />
+					<View className="flex-1">
+						<Text className="font-semibold text-xl">
+							Get printed recharge cards
+						</Text>
+						<Text className="text-[#292D32] text-sm mt-1">
+							Printing services for all recharge cards available
+						</Text>
+					</View>
+				</View>
+				<Button
+					title="Get started"
+					onPress={() => router.navigate('/Printing')}
+					className="py-4 px-6 rounded-md"
+				/>
+			</View>
+
+			{userData?.data.type === 'user' && (
+				<View className="bg-white px-5 py-5 rounded-xl gap-3 mb-5 flex-row items-center">
+					<View className="flex-row gap-3 flex-1 items-center">
+						<UpgradeIcon />
+						<View className="flex-1">
+							<Text className="font-semibold text-xl">
+								Upgrade to become an agent
+							</Text>
+							<Text className="text-[#292D32] text-sm mt-1">
+								You can view our pricing page for details about the discounts
+								available for Agents
+							</Text>
+						</View>
+					</View>
+					<Button
+						title="Upgrade"
+						onPress={() => handleUpgrade()}
+						className="py-4 px-6 rounded-md"
+					/>
+				</View>
+			)}
 			<View className="mt-5">
 				<View className="flex flex-row justify-between items-center">
-					<Text className="text-[#313131] text-2xl" fontWeight={600}>
+					<Text className="text-[#313131] text-2xl font-semibold">
 						Recent Transaction
 					</Text>
 					{transactions.length > 5 && (
 						<TouchableOpacity onPress={() => router.navigate('/Transactions')}>
-							<Text className="text-secondary text-lg" fontWeight={600}>
+							<Text className="text-secondary text-lg font-semibold">
 								See all
 							</Text>
 						</TouchableOpacity>
@@ -299,19 +409,33 @@ export default function HomeScreen() {
 													size={24}
 													color="#7D7D7D"
 												/>
-											) : transaction.attributes.servicename === 'Airtime' ? (
+											) : transaction.attributes.servicename === 'Airtime' ||
+											  transaction.attributes.servicename ===
+													'Airtime Purchase' ? (
 												<CallIcon color={'#7D7D7D'} />
 											) : transaction.attributes.servicename === 'Data' ? (
 												<WifiIcon color={'#7D7D7D'} />
+											) : transaction.attributes.servicename ===
+													'Wallet Transfer' ||
+											  transaction.attributes.servicename ===
+													'Wallet Debit' ? (
+												<FontAwesome6
+													name="money-bill-transfer"
+													size={20}
+													color="#7D7D7D"
+												/>
+											) : transaction.attributes.servicename ===
+											  'EPIN Purchase' ? (
+												<WifiIcon color={'#7D7D7D'} />
+											) : transaction.attributes.servicename ===
+											  'Electricity Bill' ? (
+												<MaterialIcons
+													name="electric-bolt"
+													size={24}
+													color="#7D7D7D"
+												/>
 											) : (
-												transaction.attributes.servicename ===
-													'Wallet Transfer' && (
-													<FontAwesome6
-														name="money-bill-transfer"
-														size={20}
-														color="#7D7D7D"
-													/>
-												)
+												''
 											)}
 										</View>
 										<View className="ml-2">
@@ -327,17 +451,15 @@ export default function HomeScreen() {
 									</View>
 									<View className="flex-1">
 										{transaction.attributes.status ? (
-											<Text className="text-red-500" fontWeight={600}>
-												Failed
-											</Text>
+											<Text className="text-red-500 font-semibold">Failed</Text>
 										) : (
-											<Text className="text-green-500" fontWeight={600}>
+											<Text className="text-green-500 font-semibold">
 												Successful
 											</Text>
 										)}
 									</View>
 									<View className="" style={{width: 50}}>
-										<Text className="text-secondary" fontWeight={600}>
+										<Text className="text-secondary font-semibold">
 											₦{Number(transaction.attributes.amount).toLocaleString()}
 										</Text>
 									</View>
@@ -351,6 +473,14 @@ export default function HomeScreen() {
 					)}
 				</View>
 			</View>
+
+			{showPin && (
+				<PinModal
+					showPin={showPin}
+					setShowPin={setShowPin}
+					handleContinue={handleUpgrade}
+				/>
+			)}
 		</ScrollView>
 	);
 }

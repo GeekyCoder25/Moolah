@@ -5,13 +5,13 @@ import axios, {
 	AxiosResponse,
 } from 'axios';
 
+import {router} from 'expo-router';
 import {ACCESS_TOKEN_KEY, IS_LOGGED_IN} from '../../constants';
 import {BASE_API_URL} from '../../constants/env-vars';
+import {useGlobalStore} from '../../context/store';
 import {MemoryStorage} from '../storage';
 import {StorageInterface} from '../storage/storage.types';
 import {AxiosClientProps} from './axios.types';
-import {useGlobalStore} from '../../context/store';
-import {router} from 'expo-router';
 
 export class AxiosClient {
 	_axiosClient: AxiosInstance;
@@ -46,9 +46,10 @@ export class AxiosClient {
 
 	private async mountInterceptors() {
 		this._axiosClient.interceptors.request.use(async config => {
-			const tokenExists = useGlobalStore.getState().accessToken;
-
-			// (await this._storageClass.getItem(ACCESS_TOKEN_KEY)) != null;
+			const tokenExists = __DEV__
+				? useGlobalStore.getState().accessToken ||
+				  (await this._storageClass.getItem(ACCESS_TOKEN_KEY))
+				: useGlobalStore.getState().accessToken;
 
 			if (tokenExists) {
 				config.headers.Authorization = `Bearer ${tokenExists}`;
