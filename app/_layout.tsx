@@ -41,7 +41,7 @@ export default function RootLayout() {
 	const [isSecure, setIsSecure] = useState<boolean | null>(true);
 
 	useEffect(() => {
-		// checkSecurity();
+		checkSecurity();
 	}, []);
 
 	const checkSecurity = async () => {
