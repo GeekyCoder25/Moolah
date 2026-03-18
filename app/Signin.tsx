@@ -31,8 +31,8 @@ interface SigninResponse {
 const Signin = () => {
 	const {setLoading, setUser, setAccessToken} = useGlobalStore();
 	const [formData, setFormData] = useState({
-		sPhone: '',
-		password: '',
+		sPhone: __DEV__ ? '08027504524' : '',
+		password: __DEV__ ? 'PaPa@200' : '',
 	});
 	const [showPassword, setShowPassword] = useState(false);
 
@@ -43,7 +43,7 @@ const Signin = () => {
 
 			const response = await axiosClient.post<SigninRequest, SigninResponse>(
 				'/login',
-				formData
+				formData,
 			);
 			if (response.status === 200) {
 				const storage = new MemoryStorage();
@@ -65,7 +65,7 @@ const Signin = () => {
 			}
 		} catch (error: any) {
 			console.log(error.response?.status, error.response?.data);
-			if (error.response.status === 403) {
+			if (error.response?.status === 403) {
 				if (formData.sPhone.includes('@')) {
 					router.replace(`/VerifyOTP?email=${formData.sPhone}`);
 					await axiosClient.post('/resend-verify/email', {
@@ -79,7 +79,9 @@ const Signin = () => {
 				type: 'error',
 				text1: 'Error',
 				text2: errorFormat(
-					error.response?.data?.message || error.response?.data || error.message
+					error.response?.data?.message ||
+						error.response?.data ||
+						error.message,
 				),
 			});
 		} finally {

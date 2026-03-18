@@ -38,6 +38,30 @@ export interface ExamApiResponse {
 	data: ExamProvider[];
 }
 
+interface ExamHistoryRecord {
+	orderid: string;
+	provider: string;
+	product_name: string;
+	statuscode: string;
+	status: string;
+	pins: string;
+	amount: string;
+	date: string;
+}
+
+interface ExamHistoryResponse {
+	status: number;
+	message: string;
+	data: {
+		current_page: number;
+		data: ExamHistoryRecord[];
+		last_page: number;
+		next_page_url: string | null;
+		prev_page_url: string | null;
+		total: number;
+	};
+}
+
 const Exam = () => {
 	const {setLoading} = useGlobalStore();
 	const [showPin, setShowPin] = useState(false);
@@ -48,6 +72,9 @@ const Exam = () => {
 		amount: 0,
 	});
 	const [showProviderModal, setShowProviderModal] = useState(false);
+	const [showHistory, setShowHistory] = useState(false);
+	const [historyLoading, setHistoryLoading] = useState(false);
+	const [history, setHistory] = useState<ExamHistoryRecord[]>([]);
 	const [providers, setProviders] = useState<ExamProvider[]>([]);
 
 	useEffect(() => {
@@ -67,6 +94,22 @@ const Exam = () => {
 		};
 		getProviders();
 	}, []);
+
+	const fetchHistory = async () => {
+		try {
+			setHistoryLoading(true);
+			const axiosClient = new AxiosClient();
+			const response =
+				await axiosClient.get<ExamHistoryResponse>('/exam-card/history');
+			if (response.status === 200) {
+				setHistory(response.data.data.data);
+			}
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setHistoryLoading(false);
+		}
+	};
 
 	const handleBuy = async (pin?: string) => {
 		try {
@@ -124,6 +167,15 @@ const Exam = () => {
 		<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 			<View className="px-[5%] pt-5 pb-10 gap-x-4 flex-1">
 				<Back title="Exam Pins" />
+				<TouchableOpacity
+					className="self-end mt-2"
+					onPress={() => {
+						setShowHistory(true);
+						fetchHistory();
+					}}
+				>
+					<Text className="text-[#1A73E8] text-sm font-medium">History</Text>
+				</TouchableOpacity>
 				<View className="flex-1">
 					<View className="my-10">
 						<Text className="text-3xl font-semibold">Exam Pins</Text>
@@ -211,7 +263,7 @@ const Exam = () => {
 									formData.amount
 										? `₦${(
 												formData.amount * Number(formData.quantity || 1)
-										  ).toLocaleString()}`
+											).toLocaleString()}`
 										: ''
 								}
 								// placeholder="Amount"
@@ -228,6 +280,86 @@ const Exam = () => {
 						setShowPin={setShowPin}
 						handleContinue={handleBuy}
 					/>
+				)}
+				{/* History Modal */}
+				{showHistory && (
+					<Modal transparent animationType="slide">
+						<Pressable
+							className="flex-1 bg-black/40"
+							onPress={() => setShowHistory(false)}
+						/>
+						<View
+							className="bg-[#F5F5F5] w-full rounded-t-2xl"
+							style={{maxHeight: '80%'}}
+						>
+							<View className="px-[5%] pt-6 pb-4 bg-white rounded-t-2xl flex-row justify-between items-center">
+								<Text className="text-2xl font-bold">Purchase History</Text>
+								<TouchableOpacity onPress={() => setShowHistory(false)}>
+									<Text className="text-[#666] text-base">✕</Text>
+								</TouchableOpacity>
+							</View>
+							{historyLoading ? (
+								<View className="py-16 items-center">
+									<Text className="text-[#666] text-base">Loading...</Text>
+								</View>
+							) : history.length === 0 ? (
+								<View className="py-16 items-center">
+									<Text className="text-[#666] text-base">
+										No history found
+									</Text>
+								</View>
+							) : (
+								<ScrollView
+									className="px-[5%] py-4"
+									showsVerticalScrollIndicator={false}
+								>
+									{history.map(record => (
+										<View
+											key={record.orderid}
+											className="bg-white rounded-xl px-4 py-4 mb-3"
+										>
+											<View className="flex-row justify-between items-center mb-2">
+												<Text className="font-bold text-base text-[#111]">
+													{record.product_name}
+												</Text>
+												<View
+													className={`px-2 py-0.5 rounded-full ${
+														record.status === 'SUCCESS'
+															? 'bg-green-100'
+															: 'bg-red-100'
+													}`}
+												>
+													<Text
+														className={`text-xs font-semibold ${
+															record.status === 'SUCCESS'
+																? 'text-green-700'
+																: 'text-red-600'
+														}`}
+													>
+														{record.status}
+													</Text>
+												</View>
+											</View>
+											<Text className="font-semibold text-secondary text-sm mb-2">
+												₦{Number(record.amount).toLocaleString()}
+											</Text>
+											{record.pins.split('<=>').map((pin, i) => (
+												<Text
+													key={i}
+													className="text-[#1A73E8] text-sm font-medium mb-0.5"
+												>
+													PIN {i + 1}: {pin.trim()}
+												</Text>
+											))}
+											<Text className="text-[#999] text-xs mt-1">
+												{record.date}
+											</Text>
+										</View>
+									))}
+								</ScrollView>
+							)}
+						</View>
+					</Modal>
 				)}
 			</View>
 		</TouchableWithoutFeedback>

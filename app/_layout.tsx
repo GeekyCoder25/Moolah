@@ -2,19 +2,17 @@ import {useFonts} from 'expo-font';
 import {Stack} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import {StatusBar} from 'expo-status-bar';
-import {colorScheme} from 'nativewind';
 import {useEffect, useState} from 'react';
 import 'react-native-reanimated';
 import '../styles/global.css';
 
 import {Text} from '@/components/text';
-import {APP_THEME} from '@/constants';
 import {useGlobalStore} from '@/context/store';
 import {
 	handleSecurityViolation,
 	performSecurityCheck,
 } from '@/utils/SecurityCheck';
-import {MemoryStorage} from '@/utils/storage';
+import {initialize, SmileConfig} from '@smile_identity/react-native-expo';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -24,6 +22,13 @@ import Loading from './components/loading';
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
+
+const config = new SmileConfig(
+	'8214', // Partner ID from Smile ID portal
+	'XPzd7Gq9W146zcfCVzL+ti+Fh8oMjlEWKi5Eey88pe9pWBDeUHWGCFEZeRu7uYLALBJBHA2Qm5A4AiVECq7L88TRVfqoQrdk2pSeKkjqG3e3bSHDjkpMTF8DxHUqxiMG+PrzjQatp/OoDXvciZqjyk3MOOfw/W8QUYx+SAw1jE4=', // Authentication token
+	'https://api.smileidentity.com/v1/', // Production lambda URL
+	'https://testapi.smileidentity.com/v1/', // Test lambda URL
+);
 
 export default function RootLayout() {
 	const {setDarkMode} = useGlobalStore();
@@ -41,6 +46,7 @@ export default function RootLayout() {
 	const [isSecure, setIsSecure] = useState<boolean | null>(true);
 
 	useEffect(() => {
+		initialize(true, true, config);
 		checkSecurity();
 	}, []);
 
@@ -66,12 +72,7 @@ export default function RootLayout() {
 	useEffect(() => {
 		if (loaded) {
 			const setTheme = async () => {
-				const storage = new MemoryStorage();
-				const mode = await storage.getItem(APP_THEME);
-
-				setDarkMode(
-					mode ? (mode === 'dark' ? true : false) : colorScheme.get() === 'dark'
-				);
+				setDarkMode(false);
 				SplashScreen.hideAsync();
 			};
 			setTheme();

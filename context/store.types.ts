@@ -16,4 +16,6 @@ export interface GlobalState {
 	setTransactions: (transactions: Transaction[]) => void;
 	accessToken: string;
 	setAccessToken: (token: string) => void;
+	nin: string;
+	setNin: (nin: string) => void;
 }

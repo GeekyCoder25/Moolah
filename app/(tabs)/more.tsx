@@ -1,20 +1,19 @@
-import {TouchableOpacity, View} from 'react-native';
-import React from 'react';
-import Back from '@/components/back';
-import ProfileIcon from '@/assets/icons/profile';
-import {Text} from '@/components/text';
 import BackIcon from '@/assets/icons/back-icon';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Back from '@/components/back';
+import {Text} from '@/components/text';
+import {useGlobalStore} from '@/context/store';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import {useGlobalStore} from '@/context/store';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import {router} from 'expo-router';
-import {ScrollView} from 'react-native';
-import {MemoryStorage} from '@/utils/storage';
+import React from 'react';
+import {ScrollView, TouchableOpacity, View} from 'react-native';
+
 import {ACCESS_TOKEN_KEY, IS_LOGGED_IN} from '@/constants';
+import {MemoryStorage} from '@/utils/storage';
 
 type RoutePaths =
 	| '/Profile'

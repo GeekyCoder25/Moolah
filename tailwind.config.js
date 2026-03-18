@@ -18,6 +18,7 @@ module.exports = {
 				'plus-semibold': ['PlusJakartaSansSemiBold'],
 				semibold: ['PlusJakartaSansSemiBold'],
 				bold: ['PlusJakartaSansBold'],
+				'plus-bold': ['PlusJakartaSansBold'],
 				extrabold: ['PlusJakartaSansExtraBold'],
 			},
 		},

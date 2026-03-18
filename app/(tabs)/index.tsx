@@ -9,7 +9,7 @@ import Logo from '@/assets/icons/logo';
 import MonitorIcon from '@/assets/icons/monitor';
 import NotificationIcon from '@/assets/icons/notification';
 import ProfileIcon from '@/assets/icons/profile';
-import UpgradeIcon from '@/assets/icons/upgrade';
+import ProfileCardIcon from '@/assets/icons/profile-card';
 import WalletBgIcon from '@/assets/icons/wallet-bg';
 import WifiIcon from '@/assets/icons/wifi';
 import {Text} from '@/components/text';
@@ -22,7 +22,6 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import {useQuery} from '@tanstack/react-query';
 import {router, useFocusEffect} from 'expo-router';
 import {useCallback, useEffect, useState} from 'react';
 import {
@@ -110,9 +109,8 @@ export default function HomeScreen() {
 				try {
 					const axiosClient = new AxiosClient();
 
-					const response = await axiosClient.get<TransactionsResponse>(
-						'/transactions'
-					);
+					const response =
+						await axiosClient.get<TransactionsResponse>('/transactions');
 
 					if (response.status === 200) {
 						setTransactions(response.data.data);
@@ -123,7 +121,7 @@ export default function HomeScreen() {
 			};
 			getTransactions();
 			getUser();
-		}, [setTransactions, setUser])
+		}, [setTransactions, setUser]),
 	);
 
 	const handleUpgrade = async (pin?: string) => {
@@ -160,14 +158,14 @@ export default function HomeScreen() {
 		}
 	};
 
-	const {data: userData} = useQuery({
-		queryKey: ['user'],
-		queryFn: async () => {
-			const axiosClient = new AxiosClient();
-			const response = await axiosClient.get<UserResponse>('/user');
-			return response.data;
-		},
-	});
+	// const {data: userData} = useQuery({
+	// 	queryKey: ['user'],
+	// 	queryFn: async () => {
+	// 		const axiosClient = new AxiosClient();
+	// 		const response = await axiosClient.get<UserResponse>('/user');
+	// 		return response.data;
+	// 	},
+	// });
 
 	return (
 		<ScrollView
@@ -328,6 +326,26 @@ export default function HomeScreen() {
 					</Pressable>
 				</View>
 			</View>
+
+			{user?.kyc_status !== 'pending' && user?.kyc_status !== 'approved' && (
+				<View className="bg-white px-5 py-5 rounded-xl gap-3 mb-5 flex-row items-center">
+					<View className="flex-row gap-3 flex-1 items-center">
+						<ProfileCardIcon />
+						<View className="flex-1">
+							<Text className="font-semibold text-xl">Verify your NIN</Text>
+							<Text className="text-[#292D32] text-sm mt-1">
+								For security and compliance, please verify your NIN before
+								making transactions.
+							</Text>
+						</View>
+					</View>
+					<Button
+						title="Verify NIN"
+						onPress={() => router.navigate('/kyc/Step1')}
+						className="py-4 px-6 rounded-md w-full min-w-32"
+					/>
+				</View>
+			)}
 			<View className="bg-white px-5 py-5 rounded-xl gap-3 mb-5 flex-row items-center">
 				<View className="flex-row gap-3 flex-1 items-center">
 					<CardsIcon />
@@ -347,7 +365,7 @@ export default function HomeScreen() {
 				/>
 			</View>
 
-			{userData?.data.type === 'user' && (
+			{/* {userData?.data.type === 'user' && (
 				<View className="bg-white px-5 py-5 rounded-xl gap-3 mb-5 flex-row items-center">
 					<View className="flex-row gap-3 flex-1 items-center">
 						<UpgradeIcon />
@@ -367,7 +385,7 @@ export default function HomeScreen() {
 						className="py-4 px-6 rounded-md"
 					/>
 				</View>
-			)}
+			)} */}
 			<View className="mt-5">
 				<View className="flex flex-row justify-between items-center">
 					<Text className="text-[#313131] text-2xl font-semibold">

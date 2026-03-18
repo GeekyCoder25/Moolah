@@ -2,7 +2,7 @@
 	"expo": {
 		"name": "Paxi",
 		"slug": "paxi",
-		"version": "1.0.0",
+		"version": "1.0.1",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
 		"scheme": "paxi",
@@ -42,23 +42,26 @@
 					"faceIDPermission": "Allow Paxi to access your Face ID biometric data."
 				}
 			],
+			[
+				"expo-camera",
+				{
+					"cameraPermission": "Allow Paxi to access your camera"
+				}
+			],
 			"expo-font",
 			"expo-web-browser",
 			[
-				"@bam.tech/react-native-app-security",
+				"expo-build-properties",
 				{
-					"sslPinning": {
-						"paxi.ng": [
-							"N2LCxDMQ4ea2j5gwQ26jbMyFuOtQIu+9KbPXOLyEGjo=",
-							"jQJTbIh0grw0/1TkHSumWb+Fs0Ggogr621gT3PvPKG0="
-						]
-					},
-					"preventRecentScreenshots": {
-						"ios": {"enabled": true},
-						"android": {"enabled": true}
+					"android": {
+						"compileSdkVersion": 36,
+						"targetSdkVersion": 36,
+						"buildToolsVersion": "36.0.0"
 					}
 				}
-			]
+			],
+			"./plugins/withMlKitConflict.js",
+			"./plugins/withSmileIdPackagingFix"
 		],
 		"experiments": {
 			"typedRoutes": true

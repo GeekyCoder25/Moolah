@@ -20,8 +20,12 @@ export interface UserAttributes {
 	wallet_balance: number;
 	referral_wallet_balance: number;
 	apiKey: string;
+	email_verified: boolean;
+	mobile_verified: boolean;
 	verification_status: boolean;
 	referral_link: string;
+	nin_status: string;
+	kyc_status: string;
 	banks: BankDetails[];
 	created_at: string;
 }

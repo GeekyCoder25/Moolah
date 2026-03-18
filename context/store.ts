@@ -16,4 +16,6 @@ export const useGlobalStore = create<GlobalState>(set => ({
 	setTransactions: transactions => set({transactions}),
 	accessToken: '',
 	setAccessToken: accessToken => set({accessToken}),
+	nin: '',
+	setNin: nin => set({nin}),
 }));

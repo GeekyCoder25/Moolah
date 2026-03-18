@@ -2,9 +2,7 @@ import InfoIcon from '@/assets/icons/info-icon';
 import Back from '@/components/back';
 import {Text} from '@/components/text';
 import {useGlobalStore} from '@/context/store';
-import {globalStyles} from '@/styles';
 import {AxiosClient} from '@/utils/axios';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import {router} from 'expo-router';
 import React, {useEffect, useState} from 'react';
 import {
@@ -27,13 +25,11 @@ export interface ApiResponse {
 	data: Data;
 }
 
-// Data object containing subscription types and cable TV providers
 export interface Data {
 	subscription_type: string[];
 	cableTv: CableTvProvider[];
 }
 
-// Each cable TV provider
 export interface CableTvProvider {
 	type: string;
 	id: number;
@@ -46,7 +42,6 @@ export interface CableTvProvider {
 	};
 }
 
-// Each cable TV plan under a provider
 export interface CableTvPlan {
 	type: string;
 	id: number;
@@ -56,6 +51,7 @@ export interface CableTvPlan {
 		day: string;
 	};
 }
+
 export interface VerifyApiResponse {
 	status: number;
 	message: string;
@@ -67,6 +63,15 @@ export interface VerifyApiResponse {
 		Customer_Name: string;
 	};
 }
+
+const PLAN_TABS = ['HOT', 'Premium'] as const;
+type PlanTab = (typeof PLAN_TABS)[number];
+
+// Provider name → emoji/letter avatar for display
+const providerInitial = (name: string) => {
+	if (!name) return '📺';
+	return name.charAt(0).toUpperCase();
+};
 
 const TV = () => {
 	const {setLoading, user} = useGlobalStore();
@@ -82,18 +87,16 @@ const TV = () => {
 		account_name: '',
 	});
 	const [showProviderModal, setShowProviderModal] = useState(false);
-	const [showPlanModal, setShowPlanModal] = useState(false);
 	const [showTypeModal, setShowTypeModal] = useState(false);
 	const [providers, setProviders] = useState<CableTvProvider[]>([]);
 	const [types, setTypes] = useState<string[]>([]);
+	const [activePlanTab, setActivePlanTab] = useState<PlanTab>('HOT');
 
 	useEffect(() => {
 		const getProviders = async () => {
 			try {
 				const axiosClient = new AxiosClient();
-
 				const response = await axiosClient.get<ApiResponse>('/cable');
-
 				if (response.status === 200) {
 					setProviders(response.data.data.cableTv);
 					setTypes(response.data.data.subscription_type);
@@ -103,16 +106,22 @@ const TV = () => {
 		getProviders();
 	}, []);
 
+	const currentProvider = providers.find(p => p.id === formData.provider);
+	const allPlans = currentProvider?.relationships.plan ?? [];
+
+	// HOT = cheaper/shorter plans, Premium = more expensive
+	const filteredPlans =
+		activePlanTab === 'HOT'
+			? allPlans.filter(p => Number(p.attributes.price) <= 5000)
+			: allPlans.filter(p => Number(p.attributes.price) > 5000);
+
 	const handleVerify = async () => {
 		setLoading(true);
 		try {
-			if (!formData.provider) {
-				throw new Error('Please select a provider');
-			} else if (!formData.iuc_no) {
-				throw new Error('Please input your decoder number ');
-			}
-			const axiosClient = new AxiosClient();
+			if (!formData.provider) throw new Error('Please select a provider');
+			if (!formData.iuc_no) throw new Error('Please input your decoder number');
 
+			const axiosClient = new AxiosClient();
 			const response = await axiosClient.post<
 				{provider_id: number; iuc_no: string},
 				VerifyApiResponse
@@ -140,7 +149,6 @@ const TV = () => {
 					error.response?.data ||
 					error.message,
 			});
-			console.log(error.response.data || error.message);
 		} finally {
 			setLoading(false);
 		}
@@ -148,21 +156,16 @@ const TV = () => {
 
 	const handleBuy = async (pin?: string) => {
 		try {
-			if (!formData.provider) {
-				throw new Error('Please select a provider');
-			} else if (!formData.plan_id) {
+			if (!formData.provider) throw new Error('Please select a provider');
+			if (!formData.plan_id)
 				throw new Error('Please select a subscription plan');
-			} else if (!formData.type) {
-				throw new Error('Please select subscription type');
-			} else if (!formData.iuc_no) {
-				throw new Error('Please input your decoder number ');
-			}
+			if (!formData.type) throw new Error('Please select subscription type');
+			if (!formData.iuc_no) throw new Error('Please input your decoder number');
+
 			setLoading(true);
 			const axiosClient = new AxiosClient();
+			if (!pin) return setShowPin(true);
 
-			if (!pin) {
-				return setShowPin(true);
-			}
 			const response = await axiosClient.post<{
 				provider_id: number;
 				plan_id: number;
@@ -180,11 +183,12 @@ const TV = () => {
 				iuc_no: formData.iuc_no,
 				pin,
 			});
+
 			if (response.status === 200) {
 				Toast.show({
 					type: 'success',
 					text1: 'Success',
-					text2: 'Exam card purchase successful',
+					text2: 'Cable TV subscription successful',
 				});
 				router.back();
 			}
@@ -198,256 +202,271 @@ const TV = () => {
 					error.response?.data ||
 					error.message,
 			});
-			console.log(error.response?.data || error.message);
 		} finally {
-			if (pin) {
-				setShowPin(false);
-			}
+			if (pin) setShowPin(false);
 			setLoading(false);
 		}
 	};
 
 	return (
 		<KeyboardAvoidingView
-			className="flex-1"
+			className="flex-1 bg-[#F5F5F5]"
 			behavior="padding"
 			keyboardVerticalOffset={20}
 		>
-			<ScrollView className="px-[5%] pt-5 pb-20 gap-x-4 flex-1">
-				<Back title="TV" />
-				<View className="flex-1">
-					<View className="my-10">
-						<Text className="text-3xl font-semibold">Cable TV</Text>
-						<Text className="text-secondary mt-2 rounded-tl-2xl">
-							Cable tv subscription
-						</Text>
-					</View>
-					<View className="mb-10 bg-[#dee8f6] px-10 py-5 rounded-xl gap-y-5">
-						<View className="flex-row items-center">
-							<Text className="text-secondary">
-								Note{' '}
-								<View className="mt-5">
-									<InfoIcon />
-								</View>
+			{/* Header */}
+			<View className="px-[5%] pt-5 bg-[#F5F5F5]">
+				<Back title="Tv" />
+			</View>
+
+			<ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+				{/* Provider Selector */}
+				<TouchableOpacity
+					onPress={() => setShowProviderModal(true)}
+					className="mx-[5%] mt-4 mb-4 bg-white border border-[#E8E8E8] rounded-xl px-4 h-14 flex-row items-center justify-between"
+				>
+					<View className="flex-row items-center gap-x-3">
+						{/* Provider avatar */}
+						<View className="w-8 h-8 bg-[#1A73E8] rounded-md items-center justify-center">
+							<Text className="text-white font-bold text-sm">
+								{providerInitial(formData.name)}
 							</Text>
 						</View>
-						<Text>
-							You can contact DSTV/GOtv's customers care unit on
-							01-2703232/08039003788 or the toll free lines: 08149860333,
-							07080630333, and 09090630333 for assistance. STARTIMES's customers
-							care unit on (094618888, 014618888)
+						<Text className="text-base font-medium text-[#111]">
+							{formData.name || 'Select Provider'}
 						</Text>
 					</View>
+					<Text className="text-[#7D7D7D] text-xs">▼</Text>
+				</TouchableOpacity>
 
-					<View className="gap-y-5">
-						<View>
-							<View className="gap-y-5">
-								<Text className="text-xl font-bold">Provider</Text>
+				{/* IUC Number Card */}
+				<View className="mx-[5%] mb-4 bg-white rounded-xl px-4 pt-4 pb-5">
+					<View className="flex-row justify-between items-center mb-3">
+						<Text className="text-base font-bold text-[#111]">IUC Number</Text>
+						<TouchableOpacity>
+							<Text className="text-[#1A73E8] text-sm font-medium">
+								Beneficiaries
+							</Text>
+						</TouchableOpacity>
+					</View>
+
+					{/* Underline-style input */}
+					<TextInput
+						className="border-b border-[#E0E0E0] py-2 text-base text-[#111]"
+						inputMode="numeric"
+						value={formData.iuc_no.replace(/[<>"'&/]/g, '')}
+						onChangeText={text =>
+							setFormData(prev => ({
+								...prev,
+								iuc_no: text.replace(/[<>"'&/]/g, ''),
+								account_name: '',
+							}))
+						}
+						placeholder="Enter your number"
+						placeholderTextColor={'#999'}
+						onEndEditing={() => {
+							if (formData.provider && formData.iuc_no) handleVerify();
+						}}
+					/>
+
+					{/* Verified account name */}
+					{formData.account_name ? (
+						<Text className="text-[#1A73E8] font-semibold mt-3 text-sm">
+							{formData.account_name}
+						</Text>
+					) : null}
+				</View>
+
+				{/* Subscription Type selector (shown after IUC verified) */}
+				{formData.account_name ? (
+					<TouchableOpacity
+						onPress={() => setShowTypeModal(true)}
+						className="mx-[5%] mb-4 bg-white border border-[#E8E8E8] rounded-xl px-4 h-14 flex-row items-center justify-between"
+					>
+						<Text className="text-base text-[#111]">
+							{formData.type || 'Select subscription type'}
+						</Text>
+						<Text className="text-[#7D7D7D] text-xs">▼</Text>
+					</TouchableOpacity>
+				) : null}
+
+				{/* Plans section — only shown when provider selected */}
+				{formData.provider ? (
+					<View className="mx-[5%] bg-white rounded-xl px-4 pt-4 pb-5 mb-6">
+						<Text className="text-xl font-bold text-[#111] mb-4">
+							Buy Subscription
+						</Text>
+
+						{/* HOT / Premium sub-tabs */}
+						<View className="flex-row gap-x-6 mb-4">
+							{PLAN_TABS.map(tab => (
 								<TouchableOpacity
-									onPress={() => setShowProviderModal(true)}
-									className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
+									key={tab}
+									onPress={() => setActivePlanTab(tab)}
+									className="pb-2"
 								>
-									<Text className="text-lg">
-										{formData.name || 'Select Provider'}
+									<Text
+										className={`text-base font-medium ${
+											activePlanTab === tab ? 'text-[#111]' : 'text-[#999]'
+										}`}
+									>
+										{tab}
 									</Text>
-
-									<FontAwesome name="caret-down" size={24} color="#7D7D7D" />
+									{activePlanTab === tab && (
+										<View className="h-[2.5px] bg-[#0D1B4B] rounded-full mt-1" />
+									)}
 								</TouchableOpacity>
-							</View>
-							{showProviderModal && (
-								<Modal transparent>
-									<Pressable
-										style={globalStyles.overlay}
-										onPress={() => setShowProviderModal(false)}
-									/>
-									<View className="flex-1 justify-end items-end">
-										<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-											<Text className="text-2xl font-bold">
-												Select Provider
+							))}
+						</View>
+
+						{/* Plan Cards Grid */}
+						{filteredPlans.length > 0 ? (
+							<View className="flex-row flex-wrap gap-3">
+								{filteredPlans.map(plan => {
+									const isSelected = formData.plan_id === plan.id;
+									return (
+										<TouchableOpacity
+											key={plan.id}
+											onPress={() =>
+												setFormData(prev => ({
+													...prev,
+													plan_id: plan.id,
+													plan_name: plan.attributes.name,
+													price: plan.attributes.price,
+												}))
+											}
+											style={{width: '47%'}}
+											className={`rounded-xl p-4 border ${
+												isSelected
+													? 'border-secondary bg-[#EEF1FA]'
+													: 'border-[#E8E8E8] bg-[#F8F9FB]'
+											}`}
+										>
+											<Text className="text-[#888] text-xs mb-1">
+												{plan.attributes.day}{' '}
+												{Number(plan.attributes.day) > 1 ? 'days' : 'day'}
 											</Text>
-											<ScrollView className="my-5">
-												{providers.map(provider => (
-													<TouchableOpacity
-														key={provider.attributes.name}
-														className="py-5"
-														onPress={() => {
-															setFormData(prev => ({
-																...prev,
-																provider: provider.id,
-																name: provider.attributes.name,
-																plan_id:
-																	provider.id === prev.provider
-																		? prev.plan_id
-																		: 0,
-																account_name: '',
-															}));
-															setShowProviderModal(false);
-														}}
-													>
-														<Text className="text-2xl">
-															{provider.attributes.name}
-														</Text>
-													</TouchableOpacity>
-												))}
-											</ScrollView>
-										</View>
-									</View>
-								</Modal>
-							)}
-						</View>
-						<View>
-							<View className="gap-y-5">
-								<Text className="text-xl font-bold">Plan</Text>
-								<TouchableOpacity
-									onPress={() => setShowPlanModal(true)}
-									className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
-								>
-									<Text className="text-lg">
-										{formData.plan_id ? (
-											<>
-												{formData.plan_name} - ₦
-												{Number(formData.price).toLocaleString()}
-											</>
-										) : (
-											'Select subscription plan'
-										)}
-									</Text>
-
-									<FontAwesome name="caret-down" size={24} color="#7D7D7D" />
-								</TouchableOpacity>
-							</View>
-							{showPlanModal && (
-								<Modal transparent>
-									<Pressable
-										style={globalStyles.overlay}
-										onPress={() => setShowPlanModal(false)}
-									/>
-									<View className="flex-1 justify-end items-end">
-										<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-											<Text className="text-2xl font-bold">
-												Select subscription plan
+											<Text
+												className="text-base font-bold text-[#111] leading-tight"
+												numberOfLines={2}
+											>
+												{plan.attributes.name}
 											</Text>
-											<ScrollView className="my-5">
-												{providers
-													.find(provider => provider.id === formData.provider)
-													?.relationships.plan.map(plan => (
-														<TouchableOpacity
-															key={plan.id}
-															className="py-5"
-															onPress={() => {
-																setFormData(prev => ({
-																	...prev,
-																	plan_id: plan.id,
-																	plan_name: plan.attributes.name,
-																	price: plan.attributes.price,
-																}));
-																setShowPlanModal(false);
-															}}
-														>
-															<Text className="text-xl">
-																{plan.attributes.name} - ₦
-																{Number(plan.attributes.price).toLocaleString()}
-															</Text>
-														</TouchableOpacity>
-													))}
-											</ScrollView>
-										</View>
-									</View>
-								</Modal>
-							)}
-						</View>
-						<View>
-							<View className="gap-y-5">
-								<Text className="text-xl font-bold">Subscription Type</Text>
-								<TouchableOpacity
-									onPress={() => setShowTypeModal(true)}
-									className="border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
-								>
-									<Text className="text-lg">
-										{formData.type || 'Select subscription type'}
-									</Text>
-
-									<FontAwesome name="caret-down" size={24} color="#7D7D7D" />
-								</TouchableOpacity>
-							</View>
-							{showTypeModal && (
-								<Modal transparent>
-									<Pressable
-										style={globalStyles.overlay}
-										onPress={() => setShowTypeModal(false)}
-									/>
-									<View className="flex-1 justify-end items-end">
-										<View className="bg-white w-full h-[70%] py-8 px-[5%] rounded-t-2xl">
-											<Text className="text-2xl font-bold">
-												Select Meter Type
+											<Text className="text-[#1A73E8] font-semibold mt-1 text-sm">
+												₦{Number(plan.attributes.price).toLocaleString()}
 											</Text>
-											<View className="my-5">
-												{types.map(type => (
-													<TouchableOpacity
-														key={type}
-														className="py-5"
-														onPress={() => {
-															setFormData(prev => ({
-																...prev,
-																type,
-															}));
-															setShowTypeModal(false);
-														}}
-													>
-														<Text className="text-2xl">{type}</Text>
-													</TouchableOpacity>
-												))}
-											</View>
-										</View>
-									</View>
-								</Modal>
-							)}
-						</View>
-
-						<View className="gap-y-5">
-							<Text className="text-xl font-bold">IUC Number</Text>
-
-							<TextInput
-								className="w-full border-[1px] border-[#C8C8C8] px-5 h-14 rounded-lg flex-row justify-between items-center"
-								inputMode="numeric"
-								value={formData.iuc_no.replace(/[<>"'&/]/g, '')}
-								onChangeText={text =>
-									setFormData(prev => ({
-										...prev,
-										iuc_no: text.replace(/[<>"'&/]/g, ''),
-										account_name: '',
-									}))
-								}
-								placeholder="Decoder Number"
-								placeholderTextColor={'#7D7D7D'}
-							/>
-						</View>
-						{formData.account_name && (
-							<View className="gap-y-5">
-								<Text className="text-xl font-bold">Account Name</Text>
-
-								<Text className="text-secondary h-14 font-semibold">
-									{formData.account_name}
-								</Text>
+										</TouchableOpacity>
+									);
+								})}
 							</View>
+						) : (
+							<Text className="text-[#999] text-sm">
+								No plans available in this category
+							</Text>
 						)}
 					</View>
+				) : null}
+
+				{/* Note banner */}
+				<View className="mx-[5%] mb-8 bg-[#dee8f6] px-4 py-4 rounded-xl flex-row gap-x-3">
+					<InfoIcon />
+					<Text className="text-[#444] text-xs leading-5 flex-1">
+						Contact DSTV/GOtv on 01-2703232 / 08039003788 or toll free:
+						08149860333, 07080630333, 09090630333. STARTIMES: 094618888,
+						014618888.
+					</Text>
 				</View>
-				<View className="my-10">
-					{formData.account_name ? (
-						<Button title="Buy" onPress={() => handleBuy()} />
-					) : (
-						<Button title="Verify" onPress={handleVerify} />
-					)}
-				</View>
-				{showPin && (
-					<PinModal
-						showPin={showPin}
-						setShowPin={setShowPin}
-						handleContinue={handleBuy}
-					/>
-				)}
 			</ScrollView>
+
+			{/* Provider Modal */}
+			{showProviderModal && (
+				<Modal transparent animationType="slide">
+					<Pressable
+						className="flex-1 bg-black/40"
+						onPress={() => setShowProviderModal(false)}
+					/>
+					<View className="bg-white w-full py-8 px-[5%] rounded-t-2xl">
+						<Text className="text-2xl font-bold mb-5">Select Provider</Text>
+						<ScrollView>
+							{providers.map(provider => (
+								<TouchableOpacity
+									key={provider.id}
+									className="py-4 border-b border-[#F0F0F0] flex-row items-center gap-x-4"
+									onPress={() => {
+										setFormData(prev => ({
+											...prev,
+											provider: provider.id,
+											name: provider.attributes.name,
+											plan_id: 0,
+											plan_name: '',
+											price: '',
+											account_name: '',
+										}));
+										setShowProviderModal(false);
+									}}
+								>
+									<View className="w-8 h-8 bg-[#1A73E8] rounded-md items-center justify-center">
+										<Text className="text-white font-bold text-sm">
+											{providerInitial(provider.attributes.name)}
+										</Text>
+									</View>
+									<Text className="text-xl">{provider.attributes.name}</Text>
+								</TouchableOpacity>
+							))}
+						</ScrollView>
+					</View>
+				</Modal>
+			)}
+
+			{/* Subscription Type Modal */}
+			{showTypeModal && (
+				<Modal transparent animationType="slide">
+					<Pressable
+						className="flex-1 bg-black/40"
+						onPress={() => setShowTypeModal(false)}
+					/>
+					<View className="bg-white w-full py-8 px-[5%] rounded-t-2xl">
+						<Text className="text-2xl font-bold mb-5">Subscription Type</Text>
+						{types.map(type => (
+							<TouchableOpacity
+								key={type}
+								className="py-4 border-b border-[#F0F0F0]"
+								onPress={() => {
+									setFormData(prev => ({...prev, type}));
+									setShowTypeModal(false);
+								}}
+							>
+								<Text className="text-xl">{type}</Text>
+							</TouchableOpacity>
+						))}
+					</View>
+				</Modal>
+			)}
+
+			{/* Bottom Buy / Verify Button */}
+			<View className="px-[5%] pb-8 pt-3 bg-[#F5F5F5]">
+				{formData.plan_id && formData.account_name ? (
+					<View className="flex-row justify-between items-center mb-3">
+						<Text className="text-[#555] text-sm">Selected:</Text>
+						<Text className="font-semibold text-[#111] text-sm">
+							{formData.plan_name} — ₦{Number(formData.price).toLocaleString()}
+						</Text>
+					</View>
+				) : null}
+				{formData.account_name ? (
+					<Button title="Buy" onPress={() => handleBuy()} />
+				) : (
+					<Button title="Verify" onPress={handleVerify} />
+				)}
+			</View>
+
+			{showPin && (
+				<PinModal
+					showPin={showPin}
+					setShowPin={setShowPin}
+					handleContinue={handleBuy}
+				/>
+			)}
 		</KeyboardAvoidingView>
 	);
 };

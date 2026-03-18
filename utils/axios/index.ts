@@ -48,7 +48,7 @@ export class AxiosClient {
 		this._axiosClient.interceptors.request.use(async config => {
 			const tokenExists = __DEV__
 				? useGlobalStore.getState().accessToken ||
-				  (await this._storageClass.getItem(ACCESS_TOKEN_KEY))
+					(await this._storageClass.getItem(ACCESS_TOKEN_KEY))
 				: useGlobalStore.getState().accessToken;
 
 			if (tokenExists) {
@@ -72,7 +72,7 @@ export class AxiosClient {
 				}
 
 				return Promise.reject(error);
-			}
+			},
 		);
 
 		this._axiosClient.interceptors.request.use(config => {
@@ -86,7 +86,7 @@ export class AxiosClient {
 
 	get<R = unknown>(
 		url: string,
-		config?: AxiosRequestConfig
+		config?: AxiosRequestConfig,
 	): Promise<AxiosResponse<R, R>> {
 		return this.custom({method: 'get', url, ...config});
 	}
@@ -94,7 +94,7 @@ export class AxiosClient {
 	post<T, R = unknown>(
 		url: string,
 		data?: T,
-		config?: AxiosRequestConfig
+		config?: AxiosRequestConfig,
 	): Promise<AxiosResponse<R, R>> {
 		return this.custom({method: 'post', url, data, ...config});
 	}
@@ -102,7 +102,7 @@ export class AxiosClient {
 	put<T, R = unknown>(
 		url: string,
 		data?: T,
-		config?: AxiosRequestConfig
+		config?: AxiosRequestConfig,
 	): Promise<AxiosResponse<R, R>> {
 		return this.custom({method: 'put', url, data, ...config});
 	}
@@ -110,14 +110,14 @@ export class AxiosClient {
 	patch<T, R = unknown>(
 		url: string,
 		data?: T,
-		config?: AxiosRequestConfig
+		config?: AxiosRequestConfig,
 	): Promise<AxiosResponse<R, R>> {
 		return this.custom({method: 'patch', url, data, ...config});
 	}
 
 	delete<R = unknown>(
 		url: string,
-		config?: AxiosRequestConfig
+		config?: AxiosRequestConfig,
 	): Promise<AxiosResponse<R, R>> {
 		return this.custom({method: 'delete', url, ...config});
 	}

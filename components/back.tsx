@@ -1,19 +1,17 @@
+import NotificationIcon from '@/assets/icons/notification';
+import ProfileIcon from '@/assets/icons/profile';
+import {FC} from 'react';
 import {Pressable, TouchableOpacity, View} from 'react-native';
 import {Text} from './text';
-import {FC} from 'react';
-import ProfileIcon from '@/assets/icons/profile';
-import NotificationIcon from '@/assets/icons/notification';
 // import ModeIcon from '@/assets/icons/mode';
-import {router, useNavigation} from 'expo-router';
 import BackIcon from '@/assets/icons/back-icon';
-import {useGlobalStore} from '@/context/store';
+import {router, useNavigation} from 'expo-router';
 // import {colorScheme} from 'nativewind';
 // import {MemoryStorage} from '@/utils/storage';
 // import {APP_THEME} from '@/constants';
 
 const Back: FC<{title: string}> = ({title}) => {
 	const navigation = useNavigation();
-	const {darkMode, setDarkMode} = useGlobalStore();
 
 	// const handleMode = async () => {
 	// 	const storage = new MemoryStorage();
