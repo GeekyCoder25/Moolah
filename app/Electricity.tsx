@@ -24,13 +24,13 @@ const PROVIDER_IMAGES: Record<string, any> = {
 	EKEDC: require('@/assets/images/eko-electric.png'),
 	KEDCO: require('@/assets/images/kano-electric.png'),
 	PHEDC: require('@/assets/images/phedc-icon.png'),
-	JED: require('@/assets/images/jos-electric.png'),
+	JED: require('@/assets/images/jos-electric.jpg'),
 	IBEDC: require('@/assets/images/ibedc-icon.png'),
 	KEDC: require('@/assets/images/kedc-icon.png'),
 	AEDC: require('@/assets/images/abuja-electric.png'),
-	ENUGU: require('@/assets/images/enugu-electric.png'),
+	ENUGU: require('@/assets/images/enugu-electric.jpg'),
 	BENIN: require('@/assets/images/bedc-icon.png'),
-	YOLA: require('@/assets/images/yola-electric.png'),
+	YOLA: require('@/assets/images/yola-electric.jpg'),
 };
 
 const ProviderIcon = ({
