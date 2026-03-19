@@ -22,4 +22,5 @@ export interface TextProps {
 		| 700
 		| 800
 		| 900;
+	numberOfLines?: number;
 }

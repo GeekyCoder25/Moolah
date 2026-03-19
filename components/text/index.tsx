@@ -10,7 +10,7 @@ export function Text(props: TextProps) {
 				props.className +
 				(props.className?.includes('font-') ? '' : ' font-medium')
 			}
-			numberOfLines={props.noWrap ? 1 : undefined}
+			numberOfLines={props.noWrap ? 1 : props.numberOfLines}
 		>
 			{props.children}
 		</RnText>

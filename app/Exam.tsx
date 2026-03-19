@@ -283,7 +283,11 @@ const Exam = () => {
 				)}
 				{/* History Modal */}
 				{showHistory && (
-					<Modal transparent animationType="slide">
+					<Modal
+						transparent
+						animationType="slide"
+						onRequestClose={() => setShowHistory(false)}
+					>
 						<Pressable
 							className="flex-1 bg-black/40"
 							onPress={() => setShowHistory(false)}
@@ -356,6 +360,7 @@ const Exam = () => {
 											</Text>
 										</View>
 									))}
+									<View className="w-full h-32" />
 								</ScrollView>
 							)}
 						</View>

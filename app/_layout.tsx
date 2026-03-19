@@ -47,7 +47,7 @@ export default function RootLayout() {
 
 	useEffect(() => {
 		initialize(true, true, config);
-		checkSecurity();
+		// checkSecurity();
 	}, []);
 
 	const checkSecurity = async () => {

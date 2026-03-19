@@ -69,6 +69,35 @@ interface EPinPrintResponse {
 	};
 }
 
+interface EPinHistoryRecord {
+	id: number;
+	network: string;
+	amount: string;
+	pin_code: string;
+	serial_number: string;
+	status: string;
+	description: string;
+	created_at: string;
+	transaction_id: number;
+}
+
+interface EPinHistoryResponse {
+	status: number;
+	message: string;
+	data: {
+		current_page: number;
+		data: EPinHistoryRecord[];
+		last_page: number;
+		next_page_url: string | null;
+		prev_page_url: string | null;
+		total: number;
+	};
+}
+
+const getDialCode = (network: string, pin: string) => {
+	return `*311*${pin}#`;
+};
+
 const Printing = () => {
 	const {setLoading} = useGlobalStore();
 	const [showPin, setShowPin] = useState(false);
@@ -81,6 +110,28 @@ const Printing = () => {
 	const [showNetworkModal, setShowNetworkModal] = useState(false);
 	const [showAmountModal, setShowAmountModal] = useState(false);
 	const [ePinCards, setEPinCards] = useState<EPinCard[]>([]);
+	const [showHistory, setShowHistory] = useState(false);
+	const [historyLoading, setHistoryLoading] = useState(false);
+	const [history, setHistory] = useState<EPinHistoryRecord[]>([]);
+	const [selectedRecord, setSelectedRecord] =
+		useState<EPinHistoryRecord | null>(null);
+
+	const fetchHistory = async () => {
+		try {
+			setHistoryLoading(true);
+			const axiosClient = new AxiosClient();
+			const response = await axiosClient.get<EPinHistoryResponse>(
+				'/v1/nellobytes/epin/history',
+			);
+			if (response.status === 200) {
+				setHistory(response.data.data.data);
+			}
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setHistoryLoading(false);
+		}
+	};
 
 	const handleBuy = async (pin?: string) => {
 		try {
@@ -154,7 +205,7 @@ const Printing = () => {
 		queryFn: async () => {
 			const axiosClient = new AxiosClient();
 			const response = await axiosClient.get<EPinDiscountsResponse>(
-				'/v1/nellobytes/epin/discounts'
+				'/v1/nellobytes/epin/discounts',
 			);
 			return response.data;
 		},
@@ -165,6 +216,15 @@ const Printing = () => {
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<View className="px-[5%] pt-5 pb-10 gap-x-4 flex-1">
 					<Back title="Printing" />
+					<TouchableOpacity
+						className="self-end mt-2"
+						onPress={() => {
+							setShowHistory(true);
+							fetchHistory();
+						}}
+					>
+						<Text className="text-[#1A73E8] text-sm font-medium">History</Text>
+					</TouchableOpacity>
 					<View className="flex-1">
 						<View className="my-10">
 							<Text className="text-3xl font-semibold">
@@ -208,23 +268,34 @@ const Printing = () => {
 												<View className="my-5">
 													{ePinData?.data?.discounts.map(network => (
 														<TouchableOpacity
-															key={network.network}
+															key={network.network.replace(
+																'9Mobile',
+																'T2-Mobile',
+															)}
 															className="py-5 flex-row items-center gap-x-5"
 															onPress={() => {
 																setFormData(prev => ({
 																	...prev,
-																	network: network.network,
+																	network: network.network.replace(
+																		'9Mobile',
+																		'T2-Mobile',
+																	),
 																	id: network.network_id,
 																}));
 																setShowNetworkModal(false);
 															}}
 														>
 															{networkProvidersIcon(
-																network.network.toLowerCase()
+																network.network
+																	.replace('9Mobile', 'T2-Mobile')
+																	.toLowerCase(),
 															)}
 
 															<Text className="text-2xl">
-																{network.network}
+																{network.network.replace(
+																	'9Mobile',
+																	'T2-Mobile',
+																)}
 															</Text>
 														</TouchableOpacity>
 													))}
@@ -284,7 +355,11 @@ const Printing = () => {
 												<View className="my-5">
 													{ePinData?.data?.discounts
 														.find(
-															network => network.network === formData.network
+															network =>
+																network.network.replace(
+																	'9Mobile',
+																	'T2-Mobile',
+																) === formData.network,
 														)
 														?.prices.map(price => (
 															<TouchableOpacity
@@ -343,10 +418,14 @@ const Printing = () => {
 													₦
 													{ePinData?.data?.discounts
 														.find(
-															network => network.network === formData.network
+															network =>
+																network.network.replace(
+																	'9Mobile',
+																	'T2-Mobile',
+																) === formData.network,
 														)
 														?.prices.find(
-															price => price.amount === formData.amount
+															price => price.amount === formData.amount,
 														)?.payable || 0}
 												</Text>
 											</View>
@@ -360,10 +439,14 @@ const Printing = () => {
 														formData.amount * Number(formData.quantity) -
 														(ePinData?.data?.discounts
 															.find(
-																network => network.network === formData.network
+																network =>
+																	network.network.replace(
+																		'9Mobile',
+																		'T2-Mobile',
+																	) === formData.network,
 															)
 															?.prices.find(
-																price => price.amount === formData.amount
+																price => price.amount === formData.amount,
 															)?.payable || 0) *
 															Number(formData.quantity)
 													).toLocaleString()}
@@ -378,10 +461,14 @@ const Printing = () => {
 													{(
 														(ePinData?.data?.discounts
 															.find(
-																network => network.network === formData.network
+																network =>
+																	network.network.replace(
+																		'9Mobile',
+																		'T2-Mobile',
+																	) === formData.network,
 															)
 															?.prices.find(
-																price => price.amount === formData.amount
+																price => price.amount === formData.amount,
 															)?.payable || 0) * Number(formData.quantity)
 													).toLocaleString()}
 												</Text>
@@ -396,10 +483,14 @@ const Printing = () => {
 							formData.amount && formData.quantity
 								? `₦${(
 										(ePinData?.data?.discounts
-											.find(network => network.network === formData.network)
+											.find(
+												network =>
+													network.network.replace('9Mobile', 'T2-Mobile') ===
+													formData.network,
+											)
 											?.prices.find(price => price.amount === formData.amount)
 											?.payable || 0) * Number(formData.quantity)
-								  ).toLocaleString()}`
+									).toLocaleString()}`
 								: ''
 						}`}
 						onPress={() => handleBuy()}
@@ -482,6 +573,189 @@ const Printing = () => {
 				</View>
 				<Toast />
 			</Modal>
+
+			{/* History Modal */}
+			{showHistory && (
+				<Modal
+					transparent
+					animationType="slide"
+					onRequestClose={() => setShowHistory(false)}
+				>
+					<Pressable
+						className="flex-1 bg-black/40"
+						onPress={() => setShowHistory(false)}
+					/>
+					<View
+						className="bg-[#F5F5F5] w-full rounded-t-2xl"
+						style={{maxHeight: '80%'}}
+					>
+						<View className="px-[5%] pt-6 pb-4 bg-white rounded-t-2xl flex-row justify-between items-center">
+							<Text className="text-2xl font-bold">Purchase History</Text>
+							<TouchableOpacity onPress={() => setShowHistory(false)}>
+								<Text className="text-[#666] text-base">✕</Text>
+							</TouchableOpacity>
+						</View>
+						{historyLoading ? (
+							<View className="py-16 items-center">
+								<Text className="text-[#666] text-base">Loading...</Text>
+							</View>
+						) : history.length === 0 ? (
+							<View className="py-16 items-center">
+								<Text className="text-[#666] text-base">No history found</Text>
+							</View>
+						) : (
+							<ScrollView
+								className="px-[5%] py-4"
+								showsVerticalScrollIndicator={false}
+							>
+								{history.map(record => (
+									<TouchableOpacity
+										key={record.id}
+										className="bg-white rounded-xl px-4 py-4 mb-3"
+										onPress={() => setSelectedRecord(record)}
+									>
+										<View className="flex-row justify-between items-center mb-2">
+											<View className="flex-row items-center gap-x-2">
+												{networkProvidersIcon(record.network.toLowerCase())}
+												<Text className="font-bold text-base text-[#111]">
+													{record.network}
+												</Text>
+											</View>
+											<View>
+												<Text
+													className={`text-xs font-semibold ${record.status === 'unused' ? 'text-green-700' : 'text-gray-500'}`}
+												>
+													#{record.transaction_id}
+												</Text>
+											</View>
+										</View>
+										<Text className="font-semibold text-secondary text-sm mb-2">
+											₦{Number(record.amount).toLocaleString()}
+										</Text>
+										<View className="flex-row items-center justify-between bg-[#F5F6FA] rounded-lg px-3 py-2 mb-1">
+											<Text
+												className="text-[#1A73E8] text-sm font-medium flex-1"
+												numberOfLines={1}
+											>
+												{record.pin_code}
+											</Text>
+											<TouchableOpacity
+												onPress={() => handleCopy(record.pin_code)}
+												className="ml-2"
+											>
+												<FontAwesome5 name="copy" size={14} color="#1A73E8" />
+											</TouchableOpacity>
+										</View>
+										<Text className="text-[#999] text-xs mt-1">
+											{record.created_at.replace('T', ' ').slice(0, 19)}
+										</Text>
+									</TouchableOpacity>
+								))}
+								<View className="w-full h-32" />
+							</ScrollView>
+						)}
+					</View>
+				</Modal>
+			)}
+
+			{/* Voucher Detail Modal */}
+			{selectedRecord && (
+				<Modal transparent animationType="fade">
+					<Pressable
+						className="flex-1 bg-black/50"
+						onPress={() => setSelectedRecord(null)}
+					/>
+					<View className="absolute self-center w-[88%]" style={{top: '15%'}}>
+						<View className="bg-white rounded-2xl overflow-hidden">
+							{/* Header */}
+							<View className="flex-row justify-between items-center px-5 pt-5 pb-3">
+								<Text className="text-lg font-bold text-[#111]">
+									E-PIN Voucher
+								</Text>
+								<TouchableOpacity onPress={() => setSelectedRecord(null)}>
+									<Text className="text-[#999] text-xl">✕</Text>
+								</TouchableOpacity>
+							</View>
+							{/* Logos row */}
+							<View className="flex-row justify-between items-center px-5 pb-4">
+								<Text className="text-2xl font-bold text-[#ccc]">Paxi</Text>
+								<View style={{transform: [{scale: 1.5}]}}>
+									{networkProvidersIcon(selectedRecord.network.toLowerCase())}
+								</View>
+							</View>
+							{/* Dashed separator */}
+							<View
+								style={{
+									borderTopWidth: 1,
+									borderStyle: 'dashed',
+									borderColor: '#bbb',
+									marginHorizontal: 20,
+								}}
+							/>
+							{/* Details */}
+							<View className="px-5 py-4 gap-y-3">
+								<View className="flex-row justify-between items-center">
+									<Text className="text-[#666] text-sm">Price</Text>
+									<Text className="font-semibold text-[#111] text-sm">
+										₦{Number(selectedRecord.amount).toLocaleString()}
+									</Text>
+								</View>
+								<View className="flex-row justify-between items-center">
+									<Text className="text-[#666] text-sm">PIN</Text>
+									<Text className="font-bold text-[#111] text-base tracking-wider">
+										{selectedRecord.pin_code}
+									</Text>
+								</View>
+								<View className="flex-row justify-between items-center">
+									<Text className="text-[#666] text-sm">S/N</Text>
+									<Text className="text-[#444] text-sm">
+										{selectedRecord.serial_number}
+									</Text>
+								</View>
+							</View>
+							{/* Dashed separator */}
+							<View
+								style={{
+									borderTopWidth: 1,
+									borderStyle: 'dashed',
+									borderColor: '#bbb',
+									marginHorizontal: 20,
+								}}
+							/>
+							{/* Footer info */}
+							<View className="px-5 py-4">
+								<Text className="text-[#444] text-xs leading-5">
+									<Text className="font-bold">How to load: </Text>
+									Dial{' '}
+									{getDialCode(selectedRecord.network, selectedRecord.pin_code)}
+								</Text>
+								<Text className="text-[#444] text-xs mt-1">
+									Customer care: 08146382038. Powered by Paxi
+								</Text>
+							</View>
+							{/* Print button */}
+							<TouchableOpacity
+								className="mx-5 mb-5 bg-[#111] rounded-xl py-4 flex-row items-center justify-center gap-x-2"
+								onPress={() =>
+									Share.share({
+										message: [
+											`E-PIN Voucher — ${selectedRecord.network}`,
+											`Price: ₦${Number(selectedRecord.amount).toLocaleString()}`,
+											`PIN: ${selectedRecord.pin_code}`,
+											`S/N: ${selectedRecord.serial_number}`,
+											`How to load: Dial ${getDialCode(selectedRecord.network, selectedRecord.pin_code)}`,
+											`Customer care: 08146382038. Powered by Paxi`,
+										].join(''),
+									})
+								}
+							>
+								<FontAwesome5 name="print" size={16} color="white" />
+								<Text className="text-white font-bold text-base">Print</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</Modal>
+			)}
 		</>
 	);
 };

@@ -6,6 +6,7 @@ import {AxiosClient} from '@/utils/axios';
 import {router} from 'expo-router';
 import React, {useEffect, useState} from 'react';
 import {
+	Image,
 	KeyboardAvoidingView,
 	Modal,
 	Pressable,
@@ -17,6 +18,36 @@ import {
 import Toast from 'react-native-toast-message';
 import Button from './components/button';
 import PinModal from './components/PinModal';
+
+const PROVIDER_IMAGES: Record<string, any> = {
+	dstv: require('@/assets/images/dstv-icon.png'),
+	gotv: require('@/assets/images/gotv-icon.png'),
+	startimes: require('@/assets/images/startimes-logo.png'),
+};
+
+const ProviderIcon = ({name, size = 32}: {name: string; size?: number}) => {
+	const key = name.toLowerCase().replace(/[^a-z]/g, '');
+	const img = PROVIDER_IMAGES[key];
+	if (img) {
+		return (
+			<Image
+				source={img}
+				style={{width: size, height: size, borderRadius: 6}}
+				resizeMode="contain"
+			/>
+		);
+	}
+	return (
+		<View
+			style={{width: size, height: size}}
+			className="bg-[#1A73E8] rounded-md items-center justify-center"
+		>
+			<Text className="text-white font-bold text-sm">
+				{name ? name.charAt(0).toUpperCase() : '📺'}
+			</Text>
+		</View>
+	);
+};
 
 // Top-level API response
 export interface ApiResponse {
@@ -66,12 +97,6 @@ export interface VerifyApiResponse {
 
 const PLAN_TABS = ['HOT', 'Premium'] as const;
 type PlanTab = (typeof PLAN_TABS)[number];
-
-// Provider name → emoji/letter avatar for display
-const providerInitial = (name: string) => {
-	if (!name) return '📺';
-	return name.charAt(0).toUpperCase();
-};
 
 const TV = () => {
 	const {setLoading, user} = useGlobalStore();
@@ -226,12 +251,7 @@ const TV = () => {
 					className="mx-[5%] mt-4 mb-4 bg-white border border-[#E8E8E8] rounded-xl px-4 h-14 flex-row items-center justify-between"
 				>
 					<View className="flex-row items-center gap-x-3">
-						{/* Provider avatar */}
-						<View className="w-8 h-8 bg-[#1A73E8] rounded-md items-center justify-center">
-							<Text className="text-white font-bold text-sm">
-								{providerInitial(formData.name)}
-							</Text>
-						</View>
+						<ProviderIcon name={formData.name} />
 						<Text className="text-base font-medium text-[#111]">
 							{formData.name || 'Select Provider'}
 						</Text>
@@ -405,11 +425,7 @@ const TV = () => {
 										setShowProviderModal(false);
 									}}
 								>
-									<View className="w-8 h-8 bg-[#1A73E8] rounded-md items-center justify-center">
-										<Text className="text-white font-bold text-sm">
-											{providerInitial(provider.attributes.name)}
-										</Text>
-									</View>
+									<ProviderIcon name={provider.attributes.name} />
 									<Text className="text-xl">{provider.attributes.name}</Text>
 								</TouchableOpacity>
 							))}

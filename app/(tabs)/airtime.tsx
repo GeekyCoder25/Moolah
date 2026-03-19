@@ -282,6 +282,8 @@ export const networkProvidersIcon = (network: string) => {
 			return <AirtelIcon />;
 		case 't2-mobile':
 			return <NineMobileIcon />;
+		case '9mobile':
+			return <NineMobileIcon />;
 		default:
 			return null;
 	}

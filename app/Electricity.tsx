@@ -21,7 +21,7 @@ import PinModal from './components/PinModal';
 
 const PROVIDER_IMAGES: Record<string, any> = {
 	IE: require('@/assets/images/ikedc-icon.png'),
-	EKEDC: require('@/assets/images/eko-electric.png'),
+	EKEDC: require('@/assets/images/eko-electric.jpg'),
 	KEDCO: require('@/assets/images/kano-electric.png'),
 	PHEDC: require('@/assets/images/phedc-icon.png'),
 	JED: require('@/assets/images/jos-electric.jpg'),
@@ -522,11 +522,12 @@ const Electricity = () => {
 			)}
 			{/* History Modal */}
 			{showHistory && (
-				<Modal transparent animationType="slide">
-					<Pressable
-						className="flex-1 bg-black/40"
-						onPress={() => setShowHistory(false)}
-					/>
+				<Modal
+					transparent
+					animationType="slide"
+					onRequestClose={() => setShowHistory(false)}
+				>
+					<Pressable className="flex-1 bg-black/40" />
 					<View
 						className="bg-[#F5F5F5] w-full rounded-t-2xl"
 						style={{maxHeight: '80%'}}
@@ -589,6 +590,7 @@ const Electricity = () => {
 										<Text className="text-[#999] text-xs">{record.date}</Text>
 									</View>
 								))}
+								<View className="w-full h-32" />
 							</ScrollView>
 						)}
 					</View>
