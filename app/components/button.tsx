@@ -26,7 +26,7 @@ const Button: FC<ButtonProps> = props => {
 						disabled ? 'bg-[#313a66]' : 'bg-primary'
 					} p-6 rounded-xl justify-center items-center ${className}`}
 				>
-					<Text className="text-white text-center text-xl font-bold" noWrap>
+					<Text className="text-white text-center text-xl font-semibold" noWrap>
 						{title}
 					</Text>
 				</View>

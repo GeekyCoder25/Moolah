@@ -2,13 +2,53 @@ import WalletBgIcon from '@/assets/icons/wallet-bg';
 import Back from '@/components/back';
 import {Text} from '@/components/text';
 import {useGlobalStore} from '@/context/store';
+import {AxiosClient} from '@/utils/axios';
 import * as Clipboard from 'expo-clipboard';
-import React from 'react';
-import {TouchableOpacity, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {ScrollView, TouchableOpacity, View} from 'react-native';
 import Toast from 'react-native-toast-message';
+
+interface LeaderboardEntry {
+	rank: number;
+	name: string;
+	referrals: number;
+	commission: number;
+}
+
+interface LeaderboardResponse {
+	status: number;
+	message: string;
+	data: {
+		weekly: LeaderboardEntry[];
+		monthly: LeaderboardEntry[];
+	};
+}
 
 const Referral = () => {
 	const {user} = useGlobalStore();
+	const [tab, setTab] = useState<'weekly' | 'monthly'>('weekly');
+	const [leaderboard, setLeaderboard] = useState<{
+		weekly: LeaderboardEntry[];
+		monthly: LeaderboardEntry[];
+	}>({weekly: [], monthly: []});
+
+	useEffect(() => {
+		const fetch = async () => {
+			try {
+				const axiosClient = new AxiosClient();
+				const response = await axiosClient.get<LeaderboardResponse>(
+					'/referral-leaderboard',
+				);
+				if (response.status === 200) {
+					setLeaderboard(response.data.data);
+				}
+			} catch (error) {
+				console.log(error);
+			}
+		};
+		fetch();
+	}, []);
+
 	const handleCopy = async () => {
 		Toast.show({
 			type: 'success',
@@ -18,20 +58,27 @@ const Referral = () => {
 		Clipboard.setStringAsync(user?.referral_link || '');
 	};
 
+	const entries = leaderboard[tab];
+
+	const rankColor = (rank: number) => {
+		if (rank === 1) return '#FFD700';
+		if (rank === 2) return '#C0C0C0';
+		if (rank === 3) return '#CD7F32';
+		return '#E5E7EB';
+	};
+
 	return (
-		<View className="px-[5%] py-5 gap-x-4 flex-1">
+		<ScrollView className="flex-1 px-[5%] py-5">
 			<Back title="Referral" />
 			<View className="bg-primary mt-7 p-7 gap-y-2 rounded-bl-xl rounded-tr-xl overflow-hidden">
 				<View className="z-10 flex-row gap-x-10 justify-around">
-					<View className="bg-white rounded-xl gap-y-3 py-5 w-36  justify-center items-center">
+					<View className="bg-white rounded-xl gap-y-3 py-5 w-36 justify-center items-center">
 						<Text className="text-xl font-semibold">Referrals</Text>
-
-						<Text className="bg-bold text-4xl font-semibold">0</Text>
+						<Text className="text-4xl font-semibold">0</Text>
 					</View>
 					<View className="bg-white rounded-xl gap-y-3 py-5 w-36 justify-center items-center">
 						<Text className="text-xl font-semibold">Commission</Text>
-
-						<Text className="bg-bold text-4xl font-semibold">
+						<Text className="text-4xl font-semibold">
 							{user?.referral_wallet_balance.toLocaleString()}
 						</Text>
 					</View>
@@ -42,15 +89,13 @@ const Referral = () => {
 				<View className="bg-secondary w-12 h-12 rounded-full absolute -right-2 -bottom-2" />
 			</View>
 
-			<View className="bg-white rounded-lg my-10 px-5 py-10">
+			<View className="bg-white rounded-lg my-6 px-5 py-8">
 				<Text className="text-xl font-semibold">Referral link</Text>
-
-				<View className="border-[1px] border-[#C8C8C8] rounded-md mt-10 px-5 py-5">
+				<View className="border-[1px] border-[#C8C8C8] rounded-md mt-5 px-5 py-5">
 					<Text className="text-[#7D7D7D] font-semibold">
 						{user?.referral_link}
 					</Text>
 				</View>
-
 				<View className="flex-row gap-x-5 mt-5">
 					<TouchableOpacity
 						onPress={handleCopy}
@@ -66,10 +111,70 @@ const Referral = () => {
 					</TouchableOpacity>
 				</View>
 			</View>
-			<View className="bg-white rounded-lg mb-10 px-5 py-10">
-				<Text className="text-xl font-semibold">Commission list</Text>
+
+			{/* Leaderboard */}
+			<View className="bg-white rounded-lg mb-10 px-5 py-6">
+				<Text className="text-xl font-semibold mb-4">Commission list</Text>
+
+				{/* Tabs */}
+				<View className="flex-row bg-[#F5F5F5] rounded-xl p-1 mb-5">
+					{(['weekly', 'monthly'] as const).map(t => (
+						<TouchableOpacity
+							key={t}
+							onPress={() => setTab(t)}
+							className="flex-1 py-2 rounded-lg items-center"
+							style={tab === t ? {backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 4, elevation: 2} : undefined}
+						>
+							<Text
+								className="text-sm font-semibold capitalize"
+								style={{color: tab === t ? '#111' : '#999'}}
+							>
+								{t}
+							</Text>
+						</TouchableOpacity>
+					))}
+				</View>
+
+				{entries.length === 0 ? (
+					<View className="py-10 items-center gap-y-2">
+						<Text className="text-4xl">🏆</Text>
+						<Text className="text-[#666] text-base mt-2">No entries yet</Text>
+						<Text className="text-[#999] text-sm text-center">
+							Be the first to top the {tab} leaderboard!
+						</Text>
+					</View>
+				) : (
+					<View className="gap-y-3">
+						{entries.map(entry => (
+							<View
+								key={entry.rank}
+								className="flex-row items-center gap-x-3 py-3 border-b border-[#F0F0F0]"
+							>
+								<View
+									className="w-8 h-8 rounded-full items-center justify-center"
+									style={{backgroundColor: rankColor(entry.rank)}}
+								>
+									<Text className="font-bold text-sm text-[#111]">
+										{entry.rank}
+									</Text>
+								</View>
+								<Text className="flex-1 font-semibold text-base text-[#111]">
+									{entry.name}
+								</Text>
+								<View className="items-end">
+									<Text className="font-bold text-sm text-[#111]">
+										{entry.referrals} referrals
+									</Text>
+									<Text className="text-xs text-secondary">
+										₦{entry.commission.toLocaleString()}
+									</Text>
+								</View>
+							</View>
+						))}
+					</View>
+				)}
 			</View>
-		</View>
+		</ScrollView>
 	);
 };
 

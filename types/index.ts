@@ -38,5 +38,7 @@ export interface UserResponse {
 		id: number;
 		attributes: UserAttributes;
 		email_verified: boolean;
+		requires_device_verification: boolean;
+		verification_token: string | null;
 	};
 }
