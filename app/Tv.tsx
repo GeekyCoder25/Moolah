@@ -23,6 +23,7 @@ const PROVIDER_IMAGES: Record<string, any> = {
 	dstv: require('@/assets/images/dstv-icon.png'),
 	gotv: require('@/assets/images/gotv-icon.png'),
 	startimes: require('@/assets/images/startimes-logo.png'),
+	showmax: require('@/assets/images/showmax-logo.png'),
 };
 
 const ProviderIcon = ({name, size = 32}: {name: string; size?: number}) => {
@@ -126,7 +127,9 @@ const TV = () => {
 					setProviders(response.data.data.cableTv);
 					setTypes(response.data.data.subscription_type);
 				}
-			} catch (error) {}
+			} catch (error) {
+				console.log(error);
+			}
 		};
 		getProviders();
 	}, []);
