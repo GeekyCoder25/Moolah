@@ -8,14 +8,15 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import {useQuery} from '@tanstack/react-query';
 import * as Clipboard from 'expo-clipboard';
+import * as Print from 'expo-print';
 import {router} from 'expo-router';
+import * as Sharing from 'expo-sharing';
 import React, {useState} from 'react';
 import {
 	Keyboard,
 	Modal,
 	Pressable,
 	ScrollView,
-	Share,
 	TextInput,
 	TouchableOpacity,
 	TouchableWithoutFeedback,
@@ -25,6 +26,7 @@ import Toast from 'react-native-toast-message';
 import {networkProvidersIcon} from './(tabs)/airtime';
 import Button from './components/button';
 import PinModal from './components/PinModal';
+import {NETWORK_ICON_DATA_URIS} from './network-icons-data-uris';
 
 interface PriceDiscount {
 	amount: number;
@@ -190,6 +192,161 @@ const Printing = () => {
 		}
 	};
 
+	const networkBadge = (network: string) => {
+		const key = network.toLowerCase();
+		const iconKey =
+			key === '9mobile' ||
+			key === 't2-mobile' ||
+			key === 't2 mobile' ||
+			key === 't2mobile'
+				? 't2mobile'
+				: key;
+		const dataUri = NETWORK_ICON_DATA_URIS[iconKey];
+		if (dataUri) {
+			return `<img src="${dataUri}" alt="${network}" style="width:64px;height:64px;object-fit:contain;" />`;
+		}
+		return `<div style="width:64px;height:64px;border-radius:50%;background:#E5E7EB;color:#111;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;">${network}</div>`;
+	};
+
+	const buildVoucherHtml = (record: EPinHistoryRecord) => {
+		const dial = getDialCode(record.network, record.pin_code);
+		const price = Number(record.amount).toLocaleString();
+		return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 24px; color: #111; }
+.card { border: 1px solid #ddd; border-radius: 16px; padding: 24px; max-width: 420px; margin: 0 auto; }
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.title { font-size: 20px; font-weight: 700; margin: 0 0 12px; }
+.row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #ccc; }
+.row:last-of-type { border-bottom: none; }
+.label { color: #666; font-size: 13px; }
+.value { font-weight: 600; font-size: 14px; }
+.pin { font-size: 22px; font-weight: 800; letter-spacing: 2px; }
+.footer { margin-top: 16px; font-size: 12px; color: #444; line-height: 1.5; }
+.brand { font-size: 22px; font-weight: 800; color: #ccc; }
+</style>
+</head>
+<body>
+<div class="card">
+<div class="header">
+<div class="brand">Paxi</div>
+${networkBadge(record.network)}
+</div>
+<h1 class="title">E-PIN Voucher — ${record.network}</h1>
+<div class="row"><span class="label">Price</span><span class="value">&#8358;${price}</span></div>
+<div class="row"><span class="label">PIN</span><span class="value pin">${record.pin_code}</span></div>
+<div class="row"><span class="label">S/N</span><span class="value">${record.serial_number}</span></div>
+<div class="row"><span class="label">Date</span><span class="value">${record.created_at.replace('T', ' ').slice(0, 19)}</span></div>
+<div class="footer">
+<strong>How to load:</strong> Dial ${dial}<br/>
+Customer care: 08146382038. Powered by Paxi
+</div>
+</div>
+</body>
+</html>`;
+	};
+
+	const buildBatchVoucherHtml = (cards: EPinCard[]) => {
+		const cardHtml = cards
+			.map(card => {
+				const dial = getDialCode(card.mobilenetwork, card.pin);
+				const price = Number(card.amount).toLocaleString();
+				return `<div class="card">
+<div class="header">
+<div class="brand">Paxi</div>
+${networkBadge(card.mobilenetwork)}
+</div>
+<h1 class="title">E-PIN Voucher — ${card.mobilenetwork}</h1>
+<div class="row"><span class="label">Price</span><span class="value">&#8358;${price}</span></div>
+<div class="row"><span class="label">PIN</span><span class="value pin">${card.pin}</span></div>
+<div class="row"><span class="label">S/N</span><span class="value">${card.sno}</span></div>
+<div class="row"><span class="label">Batch</span><span class="value">${card.batchno}</span></div>
+<div class="row"><span class="label">Date</span><span class="value">${card.transactiondate}</span></div>
+<div class="footer">
+<strong>How to load:</strong> Dial ${dial}<br/>
+Customer care: 08146382038. Powered by Paxi
+</div>
+</div>`;
+			})
+			.join('<div style="height:16px;"></div>');
+		return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 24px; color: #111; }
+.card { border: 1px solid #ddd; border-radius: 16px; padding: 24px; max-width: 420px; margin: 0 auto; page-break-inside: avoid; }
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.title { font-size: 20px; font-weight: 700; margin: 0 0 12px; }
+.row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #ccc; }
+.row:last-of-type { border-bottom: none; }
+.label { color: #666; font-size: 13px; }
+.value { font-weight: 600; font-size: 14px; }
+.pin { font-size: 22px; font-weight: 800; letter-spacing: 2px; }
+.footer { margin-top: 16px; font-size: 12px; color: #444; line-height: 1.5; }
+.brand { font-size: 22px; font-weight: 800; color: #ccc; }
+</style>
+</head>
+<body>${cardHtml}</body>
+</html>`;
+	};
+
+	const handlePrintBatch = async (cards: EPinCard[]) => {
+		if (cards.length === 0) return;
+		try {
+			await Print.printAsync({html: buildBatchVoucherHtml(cards)});
+		} catch (error: any) {
+			Toast.show({
+				type: 'error',
+				text1: 'Print failed',
+				text2: error?.message || 'Could not open print dialog.',
+			});
+		}
+	};
+
+	const handlePrint = async (record: EPinHistoryRecord) => {
+		try {
+			await Print.printAsync({html: buildVoucherHtml(record)});
+		} catch (error: any) {
+			Toast.show({
+				type: 'error',
+				text1: 'Print failed',
+				text2: error?.message || 'Could not open print dialog.',
+			});
+		}
+	};
+
+	const handleDownload = async (record: EPinHistoryRecord) => {
+		try {
+			const {uri} = await Print.printToFileAsync({
+				html: buildVoucherHtml(record),
+			});
+			const canShare = await Sharing.isAvailableAsync();
+			if (canShare) {
+				await Sharing.shareAsync(uri, {
+					mimeType: 'application/pdf',
+					dialogTitle: 'Save E-PIN Voucher',
+					UTI: 'com.adobe.pdf',
+				});
+			} else {
+				Toast.show({
+					type: 'success',
+					text1: 'Saved',
+					text2: uri,
+				});
+			}
+		} catch (error: any) {
+			Toast.show({
+				type: 'error',
+				text1: 'Download failed',
+				text2: error?.message || 'Could not generate PDF.',
+			});
+		}
+	};
+
 	const handleCopy = (pin: string) => {
 		Keyboard.dismiss();
 		Clipboard.setStringAsync(pin);
@@ -270,7 +427,7 @@ const Printing = () => {
 														<TouchableOpacity
 															key={network.network.replace(
 																'9Mobile',
-																'T2-Mobile',
+																'T2mobile',
 															)}
 															className="py-5 flex-row items-center gap-x-5"
 															onPress={() => {
@@ -278,7 +435,7 @@ const Printing = () => {
 																	...prev,
 																	network: network.network.replace(
 																		'9Mobile',
-																		'T2-Mobile',
+																		'T2mobile',
 																	),
 																	id: network.network_id,
 																}));
@@ -287,15 +444,12 @@ const Printing = () => {
 														>
 															{networkProvidersIcon(
 																network.network
-																	.replace('9Mobile', 'T2-Mobile')
+																	.replace('9Mobile', 'T2mobile')
 																	.toLowerCase(),
 															)}
 
 															<Text className="text-2xl">
-																{network.network.replace(
-																	'9Mobile',
-																	'T2-Mobile',
-																)}
+																{network.network.replace('9Mobile', 'T2mobile')}
 															</Text>
 														</TouchableOpacity>
 													))}
@@ -358,7 +512,7 @@ const Printing = () => {
 															network =>
 																network.network.replace(
 																	'9Mobile',
-																	'T2-Mobile',
+																	'T2mobile',
 																) === formData.network,
 														)
 														?.prices.map(price => (
@@ -421,7 +575,7 @@ const Printing = () => {
 															network =>
 																network.network.replace(
 																	'9Mobile',
-																	'T2-Mobile',
+																	'T2mobile',
 																) === formData.network,
 														)
 														?.prices.find(
@@ -442,7 +596,7 @@ const Printing = () => {
 																network =>
 																	network.network.replace(
 																		'9Mobile',
-																		'T2-Mobile',
+																		'T2mobile',
 																	) === formData.network,
 															)
 															?.prices.find(
@@ -464,7 +618,7 @@ const Printing = () => {
 																network =>
 																	network.network.replace(
 																		'9Mobile',
-																		'T2-Mobile',
+																		'T2mobile',
 																	) === formData.network,
 															)
 															?.prices.find(
@@ -485,7 +639,7 @@ const Printing = () => {
 										(ePinData?.data?.discounts
 											.find(
 												network =>
-													network.network.replace('9Mobile', 'T2-Mobile') ===
+													network.network.replace('9Mobile', 'T2mobile') ===
 													formData.network,
 											)
 											?.prices.find(price => price.amount === formData.amount)
@@ -549,15 +703,12 @@ const Printing = () => {
 
 						<View className="flex-row w-full gap-5 mt-10">
 							<TouchableOpacity
-								onPress={() =>
-									Share.share({
-										message: ePinCards.map(card => card.pin).join('\n\n'),
-									})
-								}
-								className="bg-primary flex-1 rounded-lg overflow-hidden p-4"
+								onPress={() => handlePrintBatch(ePinCards)}
+								className="bg-primary flex-1 rounded-lg overflow-hidden p-4 flex-row items-center justify-center gap-x-2"
 							>
+								<FontAwesome5 name="print" size={18} color="white" />
 								<Text className=" text-white text-center text-xl font-bold">
-									Share
+									Print
 								</Text>
 							</TouchableOpacity>
 							<TouchableOpacity
@@ -733,25 +884,25 @@ const Printing = () => {
 									Customer care: 08146382038. Powered by Paxi
 								</Text>
 							</View>
-							{/* Print button */}
-							<TouchableOpacity
-								className="mx-5 mb-5 bg-[#111] rounded-xl py-4 flex-row items-center justify-center gap-x-2"
-								onPress={() =>
-									Share.share({
-										message: [
-											`E-PIN Voucher — ${selectedRecord.network}`,
-											`Price: ₦${Number(selectedRecord.amount).toLocaleString()}`,
-											`PIN: ${selectedRecord.pin_code}`,
-											`S/N: ${selectedRecord.serial_number}`,
-											`How to load: Dial ${getDialCode(selectedRecord.network, selectedRecord.pin_code)}`,
-											`Customer care: 08146382038. Powered by Paxi`,
-										].join(''),
-									})
-								}
-							>
-								<FontAwesome5 name="print" size={16} color="white" />
-								<Text className="text-white font-bold text-base">Print</Text>
-							</TouchableOpacity>
+							{/* Print + Download buttons */}
+							<View className="flex-row mx-5 mb-5 gap-x-3">
+								<TouchableOpacity
+									className="flex-1 bg-[#111] rounded-xl py-4 flex-row items-center justify-center gap-x-2"
+									onPress={() => handlePrint(selectedRecord)}
+								>
+									<FontAwesome5 name="print" size={16} color="white" />
+									<Text className="text-white font-bold text-base">Print</Text>
+								</TouchableOpacity>
+								<TouchableOpacity
+									className="flex-1 bg-secondary rounded-xl py-4 flex-row items-center justify-center gap-x-2"
+									onPress={() => handleDownload(selectedRecord)}
+								>
+									<FontAwesome5 name="download" size={16} color="white" />
+									<Text className="text-white font-bold text-base">
+										Download
+									</Text>
+								</TouchableOpacity>
+							</View>
 						</View>
 					</View>
 				</Modal>

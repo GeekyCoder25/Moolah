@@ -1,5 +1,5 @@
 import {Transaction} from '@/app/(tabs)';
-import {UserAttributes} from '@/types';
+import {Settings, UserAttributes} from '@/types';
 
 export interface GlobalState {
 	isLoggedIn: boolean;
@@ -18,4 +18,6 @@ export interface GlobalState {
 	setAccessToken: (token: string) => void;
 	nin: string;
 	setNin: (nin: string) => void;
+	settings: Settings | null;
+	setSettings: (settings: Settings | null) => void;
 }

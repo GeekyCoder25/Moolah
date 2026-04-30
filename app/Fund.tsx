@@ -1,11 +1,13 @@
 import Back from '@/components/back';
 import {useGlobalStore} from '@/context/store';
 import {AxiosClient} from '@/utils/axios';
+import Feather from '@expo/vector-icons/Feather';
 import * as Clipboard from 'expo-clipboard';
 import {router} from 'expo-router';
 import React, {useEffect, useRef, useState} from 'react';
 import {
 	ActivityIndicator,
+	Linking,
 	ScrollView,
 	Text,
 	TextInput,
@@ -25,7 +27,7 @@ interface BankTransferData {
 
 const Fund = () => {
 	const [activeTab, setActiveTab] = useState('bank');
-	const {user} = useGlobalStore();
+	const {user, settings} = useGlobalStore();
 
 	const [amount, setAmount] = useState('');
 	const [loading, setLoading] = useState(false);
@@ -153,6 +155,37 @@ const Fund = () => {
 		return Number(digits).toLocaleString('en-US');
 	};
 
+	const computeCheckoutFee = (value: number) => {
+		if (!settings || value <= 0) return 0;
+		const aboveCap = value >= settings.checkout_deposit_cap;
+		const feeType = aboveCap
+			? settings.checkout_above_cap_fee_type
+			: settings.checkout_below_cap_fee_type;
+		const feeValue = aboveCap
+			? settings.checkout_above_cap_fee
+			: settings.checkout_below_cap_fee;
+		return feeType === 'percent' ? (value * feeValue) / 100 : feeValue;
+	};
+
+	const amountNumeric = Number(amount.replace(/,/g, '')) || 0;
+	const checkoutFee = computeCheckoutFee(amountNumeric);
+	const checkoutTotal = amountNumeric + checkoutFee;
+
+	const openWhatsApp = () => {
+		const raw = settings?.whatsapp;
+		if (!raw) {
+			Toast.show({
+				type: 'error',
+				text1: 'Unavailable',
+				text2: 'Support contact not loaded yet.',
+			});
+			return;
+		}
+		const digits = raw.replace(/[^0-9]/g, '');
+		const intl = digits.startsWith('0') ? `234${digits.slice(1)}` : digits;
+		Linking.openURL(`https://wa.me/${intl}`);
+	};
+
 	const handleConfirmSend = async () => {
 		if (!transferData) return;
 		setConfirmLoading(true);
@@ -218,7 +251,7 @@ const Fund = () => {
 							activeTab === 'bank' ? 'text-secondary' : 'text-[#7D7D7D]'
 						} text-2xl`}
 					>
-						Bank
+						Wallet Account
 					</Text>
 				</TouchableOpacity>
 				<TouchableOpacity
@@ -234,7 +267,7 @@ const Fund = () => {
 							activeTab === 'transfer' ? 'text-secondary' : 'text-[#7D7D7D]'
 						} text-2xl`}
 					>
-						Transfer
+						Checkout Account
 					</Text>
 				</TouchableOpacity>
 			</View>
@@ -255,6 +288,15 @@ const Fund = () => {
 						</Text>
 					</View>
 
+					{settings?.wallet_deposit_message && (
+						<View className="bg-green-50 border border-green-200 rounded-lg p-4 mb-5 flex-row items-start gap-x-2">
+							<Feather name="info" size={16} color="#15803d" />
+							<Text className="text-green-700 text-sm flex-1">
+								{settings.wallet_deposit_message}
+							</Text>
+						</View>
+					)}
+
 					<View className="flex-row gap-x-5">
 						<TouchableOpacity
 							className="bg-secondary py-3 px-3 rounded-lg"
@@ -264,7 +306,10 @@ const Fund = () => {
 						>
 							<Text className="text-white">Copy Account No</Text>
 						</TouchableOpacity>
-						<TouchableOpacity className="bg-primary py-3 px-3 rounded-lg">
+						<TouchableOpacity
+							className="bg-primary py-3 px-3 rounded-lg"
+							onPress={openWhatsApp}
+						>
 							<Text className="text-white">Contact Admin</Text>
 						</TouchableOpacity>
 					</View>
@@ -286,6 +331,44 @@ const Fund = () => {
 								value={amount}
 								onChangeText={text => setAmount(formatAmount(text))}
 							/>
+
+							{settings?.checkout_deposit_message && (
+								<View className="bg-green-50 border border-green-200 rounded-lg p-3 flex-row items-start gap-x-2">
+									<Feather
+										name="info"
+										size={16}
+										color="#15803d"
+										style={{marginTop: 2}}
+									/>
+									<Text className="text-green-700 text-sm flex-1">
+										{settings.checkout_deposit_message}
+									</Text>
+								</View>
+							)}
+
+							{amountNumeric > 0 && settings && (
+								<View className="bg-[#F8F8F8] rounded-lg p-4 gap-y-2">
+									<View className="flex-row justify-between">
+										<Text className="text-[#7D7D7D]">Amount</Text>
+										<Text className="font-medium">
+											₦{amountNumeric.toLocaleString()}
+										</Text>
+									</View>
+									<View className="flex-row justify-between">
+										<Text className="text-[#7D7D7D]">Fee</Text>
+										<Text className="font-medium">
+											₦{checkoutFee.toLocaleString()}
+										</Text>
+									</View>
+									<View className="border-t border-[#EBEBEB] pt-2 flex-row justify-between">
+										<Text className="font-semibold">Total to send</Text>
+										<Text className="font-semibold text-secondary">
+											₦{checkoutTotal.toLocaleString()}
+										</Text>
+									</View>
+								</View>
+							)}
+
 							<TouchableOpacity
 								className="bg-secondary py-4 rounded-lg items-center"
 								onPress={handleInitiateTransfer}

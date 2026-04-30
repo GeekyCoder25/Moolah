@@ -84,7 +84,7 @@ const TAB_TO_TYPE: Record<DataTab, string[]> = {
 const networks = [
 	{label: 'MTN', id: 1},
 	{label: 'GLO', id: 2},
-	{label: 'T2-Mobile', id: 3},
+	{label: 'T2mobile', id: 3},
 	{label: 'Airtel', id: 4},
 ];
 

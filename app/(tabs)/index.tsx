@@ -32,7 +32,7 @@ import {
 	View,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
-import {UserResponse} from '../../types';
+import {SettingsResponse, UserResponse} from '../../types';
 import Button from '../components/button';
 import PinModal from '../components/PinModal';
 // Root API response interface
@@ -65,7 +65,7 @@ export interface TransactionAttributes {
 }
 
 export default function HomeScreen() {
-	const {user, setUser, transactions, setLoading, setTransactions} =
+	const {user, setUser, transactions, setLoading, setTransactions, setSettings} =
 		useGlobalStore();
 	const [refreshing, setRefreshing] = useState(false);
 	const [showBalance, setShowBalance] = useState(true);
@@ -119,9 +119,22 @@ export default function HomeScreen() {
 					console.log(error);
 				}
 			};
+			const getSettings = async () => {
+				try {
+					const axiosClient = new AxiosClient();
+					const response =
+						await axiosClient.get<SettingsResponse>('/settings');
+					if (response.status === 200) {
+						setSettings(response.data.data);
+					}
+				} catch (error) {
+					console.log(error);
+				}
+			};
 			getTransactions();
 			getUser();
-		}, [setTransactions, setUser]),
+			getSettings();
+		}, [setTransactions, setUser, setSettings]),
 	);
 
 	const handleUpgrade = async (pin?: string) => {

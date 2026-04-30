@@ -42,3 +42,39 @@ export interface UserResponse {
 		verification_token: string | null;
 	};
 }
+
+export type FeeType = 'percent' | 'fixed';
+
+export interface Settings {
+	facebook: string;
+	whatsapp: string;
+	twitter: string;
+	telegram: string;
+	instagram: string;
+	whatsapp_group: string;
+	email: string;
+	phone: string;
+	terms: string | null;
+	privacy: string | null;
+	about: string | null;
+	google_play_url: string;
+	apple_app_url: string;
+	checkout_deposit_message: string;
+	checkout_deposit_cap: number;
+	checkout_below_cap_fee_type: FeeType;
+	checkout_below_cap_fee: number;
+	checkout_above_cap_fee_type: FeeType;
+	checkout_above_cap_fee: number;
+	wallet_deposit_message: string;
+	wallet_deposit_cap: number;
+	wallet_below_cap_fee_type: FeeType;
+	wallet_below_cap_fee: number;
+	wallet_above_cap_fee_type: FeeType;
+	wallet_above_cap_fee: number;
+}
+
+export interface SettingsResponse {
+	status: number;
+	message: string;
+	data: Settings;
+}

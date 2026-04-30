@@ -115,7 +115,7 @@ const Signup = () => {
 				'0808',
 				'0812',
 
-				// 9mobile (common prefixes)
+				// T2mobile (formerly 9mobile, common prefixes)
 				'0909',
 				'0809',
 			];

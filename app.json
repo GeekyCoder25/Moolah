@@ -7,11 +7,11 @@
 		"icon": "./assets/images/icon.png",
 		"scheme": "paxi",
 		"userInterfaceStyle": "automatic",
-		"newArchEnabled": true,
 		"ios": {
 			"supportsTablet": true
 		},
 		"android": {
+			"versionCode": 2,
 			"adaptiveIcon": {
 				"foregroundImage": "./assets/images/adaptive-icon.png",
 				"backgroundColor": "#ffffff"
@@ -74,7 +74,7 @@
 				"projectId": "cb07485c-b359-43f9-930f-8f1d942c9a40"
 			}
 		},
-		"runtimeVersion": "1.0.0",
+		"runtimeVersion": "1.0.1",
 		"updates": {
 			"url": "https://u.expo.dev/cb07485c-b359-43f9-930f-8f1d942c9a40"
 		}

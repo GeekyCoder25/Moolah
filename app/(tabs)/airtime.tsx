@@ -35,7 +35,7 @@ const PRESET_AMOUNTS = [
 const networks = [
 	{label: 'MTN', id: 1},
 	{label: 'Glo', id: 2},
-	{label: 'T2-Mobile', id: 3},
+	{label: 'T2mobile', id: 3},
 	{label: 'Airtel', id: 4},
 ];
 
@@ -281,6 +281,8 @@ export const networkProvidersIcon = (network: string) => {
 		case 'airtel':
 			return <AirtelIcon />;
 		case 't2-mobile':
+		case 't2 mobile':
+		case 't2mobile':
 			return <NineMobileIcon />;
 		case '9mobile':
 			return <NineMobileIcon />;

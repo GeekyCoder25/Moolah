@@ -5,14 +5,17 @@ import {useGlobalStore} from '@/context/store';
 import {AxiosClient} from '@/utils/axios';
 import * as Clipboard from 'expo-clipboard';
 import React, {useEffect, useState} from 'react';
-import {ScrollView, TouchableOpacity, View} from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
+import {ActivityIndicator, ScrollView, TouchableOpacity, View} from 'react-native';
 import Toast from 'react-native-toast-message';
 
 interface LeaderboardEntry {
 	rank: number;
-	name: string;
-	referrals: number;
-	commission: number;
+	username: string;
+	email: string;
+	firstname: string;
+	lastname: string;
+	referral_count: number;
 }
 
 interface LeaderboardResponse {
@@ -27,6 +30,7 @@ interface LeaderboardResponse {
 const Referral = () => {
 	const {user} = useGlobalStore();
 	const [tab, setTab] = useState<'weekly' | 'monthly'>('weekly');
+	const [leaderboardLoading, setLeaderboardLoading] = useState(true);
 	const [leaderboard, setLeaderboard] = useState<{
 		weekly: LeaderboardEntry[];
 		monthly: LeaderboardEntry[];
@@ -35,6 +39,7 @@ const Referral = () => {
 	useEffect(() => {
 		const fetch = async () => {
 			try {
+				setLeaderboardLoading(true);
 				const axiosClient = new AxiosClient();
 				const response = await axiosClient.get<LeaderboardResponse>(
 					'/referral-leaderboard',
@@ -44,10 +49,16 @@ const Referral = () => {
 				}
 			} catch (error) {
 				console.log(error);
+			} finally {
+				setLeaderboardLoading(false);
 			}
 		};
 		fetch();
 	}, []);
+
+	const canWithdraw = (user?.referral_wallet_balance ?? 0) >= 5000;
+
+	const handleWithdraw = () => {};
 
 	const handleCopy = async () => {
 		Toast.show({
@@ -96,17 +107,28 @@ const Referral = () => {
 						{user?.referral_link}
 					</Text>
 				</View>
-				<View className="flex-row gap-x-5 mt-5">
+				<View className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-5 flex-row items-start gap-x-2">
+					<Feather name="info" size={16} color="#1d4ed8" style={{marginTop: 2}} />
+					<Text className="text-blue-700 text-sm flex-1">
+						Minimum withdrawal amount is ₦5,000.
+					</Text>
+				</View>
+				<View className="flex-row gap-x-5 mt-4">
 					<TouchableOpacity
 						onPress={handleCopy}
-						className="bg-secondary px-5 py-4 w-32 rounded-xl"
+						className="bg-secondary px-5 py-4 w-32 rounded-xl flex-row items-center justify-center gap-x-2"
 					>
+						<Feather name="copy" size={16} color="white" />
 						<Text className="text-white text-center">Copy link</Text>
 					</TouchableOpacity>
 					<TouchableOpacity
-						onPress={handleCopy}
-						className="bg-secondary px-5 py-4 w-32 rounded-xl"
+						onPress={handleWithdraw}
+						disabled={!canWithdraw}
+						className={`px-5 py-4 w-32 rounded-xl flex-row items-center justify-center gap-x-2 ${
+							canWithdraw ? 'bg-secondary' : 'bg-[#C8C8C8]'
+						}`}
 					>
+						<Feather name="download" size={16} color="white" />
 						<Text className="text-white text-center">Withdraw</Text>
 					</TouchableOpacity>
 				</View>
@@ -123,7 +145,17 @@ const Referral = () => {
 							key={t}
 							onPress={() => setTab(t)}
 							className="flex-1 py-2 rounded-lg items-center"
-							style={tab === t ? {backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 4, elevation: 2} : undefined}
+							style={
+								tab === t
+									? {
+											backgroundColor: '#fff',
+											shadowColor: '#000',
+											shadowOpacity: 0.08,
+											shadowRadius: 4,
+											elevation: 2,
+										}
+									: undefined
+							}
 						>
 							<Text
 								className="text-sm font-semibold capitalize"
@@ -135,7 +167,11 @@ const Referral = () => {
 					))}
 				</View>
 
-				{entries.length === 0 ? (
+				{leaderboardLoading ? (
+					<View className="py-10 items-center">
+						<ActivityIndicator size="large" color="#1A73E8" />
+					</View>
+				) : entries.length === 0 ? (
 					<View className="py-10 items-center gap-y-2">
 						<Text className="text-4xl">🏆</Text>
 						<Text className="text-[#666] text-base mt-2">No entries yet</Text>
@@ -158,15 +194,17 @@ const Referral = () => {
 										{entry.rank}
 									</Text>
 								</View>
-								<Text className="flex-1 font-semibold text-base text-[#111]">
-									{entry.name}
-								</Text>
+								<View className="flex-1">
+									<Text className="font-semibold text-base text-[#111]">
+										{entry.firstname} {entry.lastname}
+									</Text>
+									<Text className="text-xs text-[#999]">
+										@{entry.username}
+									</Text>
+								</View>
 								<View className="items-end">
 									<Text className="font-bold text-sm text-[#111]">
-										{entry.referrals} referrals
-									</Text>
-									<Text className="text-xs text-secondary">
-										₦{entry.commission.toLocaleString()}
+										{entry.referral_count} referrals
 									</Text>
 								</View>
 							</View>
