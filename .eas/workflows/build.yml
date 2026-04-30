@@ -12,4 +12,3 @@ jobs:
     type: build
     params:
       platform: android
-      profile: production
