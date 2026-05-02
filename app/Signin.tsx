@@ -63,8 +63,8 @@ const BOX_CLASS = (width: number) =>
 const Signin = () => {
 	const {setLoading, setUser, setAccessToken} = useGlobalStore();
 	const [formData, setFormData] = useState({
-		sPhone: __DEV__ ? '08027504524' : '',
-		password: __DEV__ ? 'PaPa@200' : '',
+		sPhone: __DEV__ ? '09073002599' : '',
+		password: __DEV__ ? 'Toyibe251101%' : '',
 	});
 	const [showPassword, setShowPassword] = useState(false);
 	const [deviceVerification, setDeviceVerification] = useState<{

@@ -26,7 +26,7 @@ import Toast from 'react-native-toast-message';
 import {networkProvidersIcon} from './(tabs)/airtime';
 import Button from './components/button';
 import PinModal from './components/PinModal';
-import {NETWORK_ICON_DATA_URIS} from './network-icons-data-uris';
+import {NETWORK_ICON_DATA_URIS} from '@/constants/network-icons-data-uris';
 
 interface PriceDiscount {
 	amount: number;
@@ -101,7 +101,9 @@ const getDialCode = (network: string, pin: string) => {
 };
 
 const Printing = () => {
-	const {setLoading} = useGlobalStore();
+	const {setLoading, user} = useGlobalStore();
+	const businessName = user?.epin_business_name?.trim() || 'Paxi';
+	const customerCare = user?.epin_customer_care?.trim() || '08146382038';
 	const [showPin, setShowPin] = useState(false);
 	const [formData, setFormData] = useState({
 		network: '',
@@ -242,7 +244,7 @@ ${networkBadge(record.network)}
 <div class="row"><span class="label">Date</span><span class="value">${record.created_at.replace('T', ' ').slice(0, 19)}</span></div>
 <div class="footer">
 <strong>How to load:</strong> Dial ${dial}<br/>
-Customer care: 08146382038. Powered by Paxi
+Customer care: ${customerCare}. Powered by ${businessName}
 </div>
 </div>
 </body>
@@ -267,7 +269,7 @@ ${networkBadge(card.mobilenetwork)}
 <div class="row"><span class="label">Date</span><span class="value">${card.transactiondate}</span></div>
 <div class="footer">
 <strong>How to load:</strong> Dial ${dial}<br/>
-Customer care: 08146382038. Powered by Paxi
+Customer care: ${customerCare}. Powered by ${businessName}
 </div>
 </div>`;
 			})
@@ -881,7 +883,7 @@ body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 24px; 
 									{getDialCode(selectedRecord.network, selectedRecord.pin_code)}
 								</Text>
 								<Text className="text-[#444] text-xs mt-1">
-									Customer care: 08146382038. Powered by Paxi
+									Customer care: {customerCare}. Powered by {businessName}
 								</Text>
 							</View>
 							{/* Print + Download buttons */}

@@ -27,6 +27,9 @@ type RoutePaths =
 const More = () => {
 	const {user, setAccessToken, settings} = useGlobalStore();
 	const name = `${user?.firstname} ${user?.lastname}`;
+	const profileSubText = user?.username
+		? `@${user.username}`
+		: 'View and edit your profile details';
 	const routes: {
 		title: string;
 		subText: string;
@@ -35,7 +38,7 @@ const More = () => {
 	}[] = [
 		{
 			title: name,
-			subText: 'View and edit your profile details',
+			subText: profileSubText,
 			icon: <FontAwesome name="user" size={24} color="white" />,
 			route: '/Profile',
 		},

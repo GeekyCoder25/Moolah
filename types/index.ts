@@ -8,12 +8,19 @@ export interface EmailVerificationResponse {
 interface BankDetails {
 	name: string;
 	account_no: string | null;
+	account_name?: string | null;
+}
+
+export interface ReferralCommission {
+	service: string;
+	bonus: number;
 }
 
 export interface UserAttributes {
 	apikey: string;
 	firstname: string;
 	lastname: string;
+	username: string | null;
 	email: string;
 	phone_number: string;
 	state: string | null;
@@ -24,10 +31,15 @@ export interface UserAttributes {
 	mobile_verified: boolean;
 	verification_status: boolean;
 	referral_link: string;
-	nin_status: string;
+	nin_status: string | null;
 	kyc_status: string;
+	epin_business_name: string;
+	epin_customer_care: string;
 	banks: BankDetails[];
 	created_at: string;
+	referral_count: number;
+	referral_commissions: ReferralCommission[];
+	auto_payout_threshold: number;
 }
 
 export interface UserResponse {

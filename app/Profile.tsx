@@ -31,7 +31,7 @@ const Profile = () => {
 	});
 
 	if (!user) return null;
-	const {email, firstname, lastname} = user;
+	const {email, firstname, lastname, username} = user;
 
 	const completionFields = [
 		!!user.firstname,
@@ -110,6 +110,9 @@ const Profile = () => {
 						<Text className="text-2xl font-semibold">
 							{firstname} {lastname}
 						</Text>
+						{username ? (
+							<Text className="text-base text-[#7D7D7D]">@{username}</Text>
+						) : null}
 						<Text className="text-xl">{email}</Text>
 					</View>
 

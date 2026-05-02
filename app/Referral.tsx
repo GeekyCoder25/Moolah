@@ -2,11 +2,17 @@ import WalletBgIcon from '@/assets/icons/wallet-bg';
 import Back from '@/components/back';
 import {Text} from '@/components/text';
 import {useGlobalStore} from '@/context/store';
+import {UserResponse} from '@/types';
 import {AxiosClient} from '@/utils/axios';
+import Feather from '@expo/vector-icons/Feather';
 import * as Clipboard from 'expo-clipboard';
 import React, {useEffect, useState} from 'react';
-import Feather from '@expo/vector-icons/Feather';
-import {ActivityIndicator, ScrollView, TouchableOpacity, View} from 'react-native';
+import {
+	ActivityIndicator,
+	ScrollView,
+	TouchableOpacity,
+	View,
+} from 'react-native';
 import Toast from 'react-native-toast-message';
 
 interface LeaderboardEntry {
@@ -28,9 +34,10 @@ interface LeaderboardResponse {
 }
 
 const Referral = () => {
-	const {user} = useGlobalStore();
+	const {user, setUser} = useGlobalStore();
 	const [tab, setTab] = useState<'weekly' | 'monthly'>('weekly');
 	const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+	const [withdrawLoading, setWithdrawLoading] = useState(false);
 	const [leaderboard, setLeaderboard] = useState<{
 		weekly: LeaderboardEntry[];
 		monthly: LeaderboardEntry[];
@@ -56,9 +63,44 @@ const Referral = () => {
 		fetch();
 	}, []);
 
-	const canWithdraw = (user?.referral_wallet_balance ?? 0) >= 5000;
+	const payoutThreshold = user?.auto_payout_threshold ?? 5000;
+	const canWithdraw = (user?.referral_wallet_balance ?? 0) >= payoutThreshold;
 
-	const handleWithdraw = () => {};
+	const handleWithdraw = async () => {
+		if (withdrawLoading) return;
+		setWithdrawLoading(true);
+		try {
+			const axiosClient = new AxiosClient();
+			const response = await axiosClient.post<
+				Record<string, never>,
+				{status: number; message: string}
+			>('/referral/payout', {});
+			if (response.status === 200) {
+				Toast.show({
+					type: 'success',
+					text1: 'Withdrawal initiated',
+					text2: response.data.message || 'Your payout is being processed.',
+				});
+				try {
+					const userRes = await axiosClient.get<UserResponse>('/user');
+					if (userRes.status === 200) {
+						setUser(userRes.data.data.attributes);
+					}
+				} catch {}
+			}
+		} catch (error: any) {
+			Toast.show({
+				type: 'error',
+				text1: 'Withdrawal failed',
+				text2:
+					error?.response?.data?.message ||
+					error?.message ||
+					'Could not process withdrawal.',
+			});
+		} finally {
+			setWithdrawLoading(false);
+		}
+	};
 
 	const handleCopy = async () => {
 		Toast.show({
@@ -85,7 +127,9 @@ const Referral = () => {
 				<View className="z-10 flex-row gap-x-10 justify-around">
 					<View className="bg-white rounded-xl gap-y-3 py-5 w-36 justify-center items-center">
 						<Text className="text-xl font-semibold">Referrals</Text>
-						<Text className="text-4xl font-semibold">0</Text>
+						<Text className="text-4xl font-semibold">
+							{user?.referral_count ?? 0}
+						</Text>
 					</View>
 					<View className="bg-white rounded-xl gap-y-3 py-5 w-36 justify-center items-center">
 						<Text className="text-xl font-semibold">Commission</Text>
@@ -108,9 +152,14 @@ const Referral = () => {
 					</Text>
 				</View>
 				<View className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-5 flex-row items-start gap-x-2">
-					<Feather name="info" size={16} color="#1d4ed8" style={{marginTop: 2}} />
+					<Feather
+						name="info"
+						size={16}
+						color="#1d4ed8"
+						style={{marginTop: 2}}
+					/>
 					<Text className="text-blue-700 text-sm flex-1">
-						Minimum withdrawal amount is ₦5,000.
+						Minimum withdrawal amount is ₦{payoutThreshold.toLocaleString()}.
 					</Text>
 				</View>
 				<View className="flex-row gap-x-5 mt-4">
@@ -123,13 +172,19 @@ const Referral = () => {
 					</TouchableOpacity>
 					<TouchableOpacity
 						onPress={handleWithdraw}
-						disabled={!canWithdraw}
+						disabled={!canWithdraw || withdrawLoading}
 						className={`px-5 py-4 w-32 rounded-xl flex-row items-center justify-center gap-x-2 ${
 							canWithdraw ? 'bg-secondary' : 'bg-[#C8C8C8]'
 						}`}
 					>
-						<Feather name="download" size={16} color="white" />
-						<Text className="text-white text-center">Withdraw</Text>
+						{withdrawLoading ? (
+							<ActivityIndicator color="white" />
+						) : (
+							<>
+								<Feather name="download" size={16} color="white" />
+								<Text className="text-white text-center">Withdraw</Text>
+							</>
+						)}
 					</TouchableOpacity>
 				</View>
 			</View>
@@ -198,9 +253,7 @@ const Referral = () => {
 									<Text className="font-semibold text-base text-[#111]">
 										{entry.firstname} {entry.lastname}
 									</Text>
-									<Text className="text-xs text-[#999]">
-										@{entry.username}
-									</Text>
+									<Text className="text-xs text-[#999]">@{entry.username}</Text>
 								</View>
 								<View className="items-end">
 									<Text className="font-bold text-sm text-[#111]">
