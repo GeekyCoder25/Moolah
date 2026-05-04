@@ -12,6 +12,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {
 	AppState,
 	AppStateStatus,
+	BackHandler,
 	Dimensions,
 	Keyboard,
 	ScrollView,
@@ -155,6 +156,22 @@ const Signin = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [deviceVerification.required, otpRetry, hasAutoPasted]);
 
+	const dismissDeviceVerification = () => {
+		setDeviceVerification({required: false, token: '', email: ''});
+		clearOTP();
+		setTimeLeft(60);
+	};
+
+	useEffect(() => {
+		if (!deviceVerification.required) return;
+		const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+			dismissDeviceVerification();
+			return true;
+		});
+		return () => sub.remove();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [deviceVerification.required]);
+
 	const clearOTP = () => {
 		setOtpCode1('');
 		setOtpCode2('');
@@ -209,6 +226,7 @@ const Signin = () => {
 						token: data.verification_token,
 						email: data.email,
 					});
+					setTimeLeft(60);
 				} else if ('token' in data) {
 					await finalizeLogin(data.token, data.user.email);
 				}
@@ -448,11 +466,7 @@ const Signin = () => {
 					<Button title="Verify" onPress={() => submitOtp()} />
 					<TouchableOpacity
 						className="mt-5 items-center"
-						onPress={() => {
-							setDeviceVerification({required: false, token: '', email: ''});
-							clearOTP();
-							setTimeLeft(60);
-						}}
+						onPress={dismissDeviceVerification}
 					>
 						<Text className="text-primary text-xl font-semibold">
 							← Back to Sign in
