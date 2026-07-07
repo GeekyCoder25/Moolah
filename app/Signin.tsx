@@ -192,7 +192,9 @@ const Signin = () => {
 		const storage = new MemoryStorage();
 		const axiosClient = new AxiosClient();
 		setAccessToken(authToken);
-		__DEV__ && (await storage.setItem(ACCESS_TOKEN_KEY, authToken));
+		// Persist the token (encrypted SecureStore) so the session survives app
+		// restarts, not just in dev. Session length is bounded by the backend token TTL.
+		await storage.setItem(ACCESS_TOKEN_KEY, authToken);
 
 		const userResponse = await axiosClient.get<UserResponse>('/user');
 		if (userResponse.status === 200) {

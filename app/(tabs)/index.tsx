@@ -65,8 +65,15 @@ export interface TransactionAttributes {
 }
 
 export default function HomeScreen() {
-	const {user, setUser, transactions, setLoading, setTransactions, setSettings} =
-		useGlobalStore();
+	const {
+		user,
+		settings,
+		setUser,
+		transactions,
+		setLoading,
+		setTransactions,
+		setSettings,
+	} = useGlobalStore();
 	const [refreshing, setRefreshing] = useState(false);
 	const [showBalance, setShowBalance] = useState(true);
 	const [showPin, setShowPin] = useState(false);
@@ -122,8 +129,7 @@ export default function HomeScreen() {
 			const getSettings = async () => {
 				try {
 					const axiosClient = new AxiosClient();
-					const response =
-						await axiosClient.get<SettingsResponse>('/settings');
+					const response = await axiosClient.get<SettingsResponse>('/settings');
 					if (response.status === 200) {
 						setSettings(response.data.data);
 					}
@@ -230,7 +236,7 @@ export default function HomeScreen() {
 								)}
 							</TouchableOpacity>
 						</View>
-						<View className="flex-row flex-wrap gap-5 mt-5">
+						<View className="flex-row flex-wrap gap-3 mt-5">
 							<TouchableOpacity
 								onPress={() => router.navigate('/Fund')}
 								className="bg-white py-3 px-5 rounded-md flex-row items-center gap-x-2"
@@ -249,7 +255,7 @@ export default function HomeScreen() {
 								className="bg-white py-3 px-5 rounded-md flex-row items-center gap-x-2"
 							>
 								<Text className="text-secondary text-xl font-semibold">
-									Wallet Transfer
+									Transfer
 								</Text>
 								<Entypo
 									name="wallet"
@@ -257,6 +263,22 @@ export default function HomeScreen() {
 									color={GlobalColors.secondary}
 								/>
 							</TouchableOpacity>
+							{user?.can_transfer_to_bank &&
+								settings?.enable_bank_transfer !== false && (
+									<TouchableOpacity
+										onPress={() => router.navigate('/Withdraw')}
+										className="bg-white py-3 px-5 rounded-md flex-row items-center gap-x-2"
+									>
+										<Text className="text-secondary text-xl font-semibold">
+											Withdraw
+										</Text>
+										<Entypo
+											name="export"
+											size={24}
+											color={GlobalColors.secondary}
+										/>
+									</TouchableOpacity>
+								)}
 						</View>
 					</View>
 					<View className="bg-secondary w-12 h-12 rounded-full absolute -left-2 -top-2">

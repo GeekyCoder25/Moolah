@@ -1,6 +1,7 @@
 import Back from '@/components/back';
 import {Text} from '@/components/text';
 import {useGlobalStore} from '@/context/store';
+import {formatNaira} from '@/utils';
 import {AxiosClient} from '@/utils/axios';
 import {router} from 'expo-router';
 import React, {useEffect, useState} from 'react';
@@ -55,30 +56,82 @@ export interface DataPlan {
 export interface DataPlanAttributes {
 	name: string;
 	price: string;
+	discounted_price?: number;
+	discount_percentage?: number;
 	type: string;
 	day: string;
 	network: string;
 }
 
-const DATA_TABS = ['DIRECT DATA', 'SME DATA', 'GIFTING', 'CORPORATE'] as const;
-type DataTab = (typeof DATA_TABS)[number];
-
-const PLAN_TABS = ['HOT', 'Daily', 'Weekly', 'Monthly'] as const;
+const PLAN_TABS = ['HOT', 'Daily', 'Weekly', 'Monthly', 'Yearly'] as const;
 type PlanTab = (typeof PLAN_TABS)[number];
 
-// Maps UI tab label to the `type` values from the API
-const TAB_TO_TYPE: Record<DataTab, string[]> = {
-	'DIRECT DATA': [
-		'Direct-Data',
-		'direct-data',
-		'Direct',
-		'direct',
-		'VTU',
-		'vtu',
-	],
-	'SME DATA': ['SME', 'sme'],
-	GIFTING: ['Gifting', 'gifting', 'gift'],
-	CORPORATE: ['Corporate', 'corporate'],
+// Data plan category chips.
+//
+// Two kinds of chip:
+// - Product chips: a plan belongs to one when its `type` matches one of `types`
+//   (normalized) OR its `name` contains one of `keywords`.
+// - Delivery-type chips (SME / Gifting / Corporate): not plan types at all —
+//   they set how the data is delivered. They show only when the network's
+//   `statusFlag` is 'On', list the standard Direct-Data plans, and send
+//   `deliveryType` as `data_type` on purchase.
+//
+// `Others` is a catch-all for plans that match no product chip, so no plan is
+// ever hidden.
+type NetworkStatusFlag = 'smeStatus' | 'giftingStatus' | 'corporateStatus';
+
+interface DataCategory {
+	label: string;
+	types?: string[];
+	keywords?: string[];
+	deliveryType?: string;
+	statusFlag?: NetworkStatusFlag;
+}
+
+const OTHERS_CATEGORY = 'Others';
+const DIRECT_DATA_CATEGORY = 'Direct Data';
+
+const DATA_CATEGORIES: DataCategory[] = [
+	{label: DIRECT_DATA_CATEGORY, types: ['Direct-Data', 'Direct', 'VTU']},
+	{label: 'SME Data', deliveryType: 'SME', statusFlag: 'smeStatus'},
+	{label: 'Gifting', deliveryType: 'Gifting', statusFlag: 'giftingStatus'},
+	{
+		label: 'Corporate Data',
+		deliveryType: 'Corporate',
+		statusFlag: 'corporateStatus',
+	},
+	{
+		label: 'Router Data',
+		types: ['Router', 'Router-Data'],
+		keywords: ['router'],
+	},
+	{label: 'Mifi Data', types: ['Mifi', 'Mifi-Data'], keywords: ['mifi']},
+	{label: 'Broadband', types: ['Broadband']},
+	{label: 'YouTube', keywords: ['youtube']},
+	{label: 'Mega', types: ['Mega']},
+	{label: 'TV', types: ['TV']},
+	{label: 'Social', types: ['Social'], keywords: ['social']},
+	{label: 'Weekend', types: ['Weekend'], keywords: ['weekend']},
+	{label: 'Extra Value', types: ['Extra-Value']},
+	{label: 'HypernetFlex', types: ['HypernetFlex']},
+	{label: 'Special', types: ['Special']},
+	{label: 'Glo MyG', types: ['Glo-MyG']},
+	{label: 'Campus', types: ['Campus']},
+	{label: 'Night', types: ['Night'], keywords: ['night']},
+	{label: 'Hourly', types: ['Hourly'], keywords: ['hour']},
+	{label: OTHERS_CATEGORY},
+];
+
+const normalizeType = (value?: string) =>
+	(value ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+// Does a plan match a specific (non-Others) category?
+const planMatchesCategory = (plan: DataPlan, category: DataCategory) => {
+	const type = normalizeType(plan.attributes.type);
+	const name = plan.attributes.name?.toLowerCase() ?? '';
+	const typeMatch = (category.types ?? []).some(t => normalizeType(t) === type);
+	const keywordMatch = (category.keywords ?? []).some(k => name.includes(k));
+	return typeMatch || keywordMatch;
 };
 
 const networks = [
@@ -96,12 +149,15 @@ const Data = () => {
 		plan: '',
 		plan_id: 0,
 		price: '',
+		discounted_price: 0,
 		phone_number: user?.phone_number ?? '',
 		type: '',
 	});
 	const [showPin, setShowPin] = useState(false);
 	const [showNetworkModal, setShowNetworkModal] = useState(false);
-	const [activeDataTab, setActiveDataTab] = useState<DataTab>('DIRECT DATA');
+	const [activeCategory, setActiveCategory] = useState<string>(
+		DATA_CATEGORIES[0].label,
+	);
 	const [activePlanTab, setActivePlanTab] = useState<PlanTab>('HOT');
 	const [plans, setPlans] = useState<NetworkData[]>([]);
 
@@ -120,14 +176,59 @@ const Data = () => {
 		getDataPlans();
 	}, []);
 
-	const currentNetworkPlans =
-		plans
-			.find(p => p.id === formData.id)
-			?.attributes.dataplans.filter(p =>
-				TAB_TO_TYPE[activeDataTab].some(
-					t => t.toLowerCase() === p.attributes.type?.toLowerCase(),
-				),
-			) ?? [];
+	const networkAttributes = plans.find(p => p.id === formData.id)?.attributes;
+	const networkPlans = networkAttributes?.dataplans ?? [];
+
+	const directDataCategory = DATA_CATEGORIES.find(
+		c => c.label === DIRECT_DATA_CATEGORY,
+	);
+
+	// A plan is "Other" when it matches no product category.
+	const isOtherPlan = (plan: DataPlan) =>
+		!DATA_CATEGORIES.some(
+			c =>
+				c.label !== OTHERS_CATEGORY &&
+				!c.deliveryType &&
+				planMatchesCategory(plan, c),
+		);
+
+	// Delivery chips (SME/Gifting/Corporate) list the standard Direct-Data plans;
+	// product chips filter by their own matcher; Others catches the rest.
+	const plansForCategory = (plan: DataPlan, category?: DataCategory) => {
+		if (!category) return true;
+		if (category.label === OTHERS_CATEGORY) return isOtherPlan(plan);
+		if (category.deliveryType)
+			return directDataCategory
+				? planMatchesCategory(plan, directDataCategory)
+				: true;
+		return planMatchesCategory(plan, category);
+	};
+
+	// A chip is visible when: a delivery chip whose network status flag is 'On',
+	// Others when the network has unmatched plans, or a product chip the network
+	// actually has plans for.
+	const visibleCategories = DATA_CATEGORIES.filter(category => {
+		if (category.statusFlag)
+			return networkAttributes?.[category.statusFlag] === 'On';
+		if (category.label === OTHERS_CATEGORY)
+			return networkPlans.some(isOtherPlan);
+		return networkPlans.some(plan => planMatchesCategory(plan, category));
+	});
+
+	// Fall back to the first available chip when the active one isn't offered by
+	// the selected network (e.g. after switching from GLO to MTN).
+	const effectiveCategory = visibleCategories.some(
+		c => c.label === activeCategory,
+	)
+		? activeCategory
+		: (visibleCategories[0]?.label ?? activeCategory);
+
+	const activeCategoryDef = DATA_CATEGORIES.find(
+		c => c.label === effectiveCategory,
+	);
+	const currentNetworkPlans = networkPlans.filter(plan =>
+		plansForCategory(plan, activeCategoryDef),
+	);
 
 	// HOT = all plans; others filter by validity window
 	const filteredPlans = currentNetworkPlans.filter(plan => {
@@ -135,7 +236,8 @@ const Data = () => {
 		if (activePlanTab === 'HOT') return true;
 		if (activePlanTab === 'Daily') return day <= 2;
 		if (activePlanTab === 'Weekly') return day >= 3 && day <= 13;
-		if (activePlanTab === 'Monthly') return day >= 14;
+		if (activePlanTab === 'Monthly') return day >= 14 && day < 300;
+		if (activePlanTab === 'Yearly') return day >= 300;
 		return true;
 	});
 
@@ -180,6 +282,7 @@ const Data = () => {
 					plan: '',
 					plan_id: 0,
 					price: '',
+					discounted_price: 0,
 					phone_number: '',
 					type: '',
 				});
@@ -255,38 +358,41 @@ const Data = () => {
 					<Text className="text-[#1A73E8] text-sm">Data for all Network</Text>
 				</View>
 
-				{/* Data Type Tabs (SME DATA, DIRECT DATA, GIFTING, CORPORATE) */}
+				{/* Data plan category chips */}
 				<ScrollView
 					horizontal
 					showsHorizontalScrollIndicator={false}
 					className="px-[5%] mb-1"
 					contentContainerStyle={{gap: 8, paddingRight: 50}}
 				>
-					{DATA_TABS.map(tab => (
+					{visibleCategories.map(category => (
 						<TouchableOpacity
-							key={tab}
+							key={category.label}
 							onPress={() => {
-								setActiveDataTab(tab);
+								setActiveCategory(category.label);
 								setFormData(prev => ({
 									...prev,
 									plan: '',
 									plan_id: 0,
 									price: '',
+									discounted_price: 0,
 									type: '',
 								}));
 							}}
 							className={`px-4 py-2 rounded-full border ${
-								activeDataTab === tab
+								effectiveCategory === category.label
 									? 'bg-secondary border-secondary'
 									: 'bg-white border-[#D0D0D0]'
 							}`}
 						>
 							<Text
 								className={`text-sm font-semibold ${
-									activeDataTab === tab ? 'text-white' : 'text-[#555]'
+									effectiveCategory === category.label
+										? 'text-white'
+										: 'text-[#555]'
 								}`}
 							>
-								{tab}
+								{category.label}
 							</Text>
 						</TouchableOpacity>
 					))}
@@ -325,6 +431,10 @@ const Data = () => {
 					<View className="px-[5%] flex-row flex-wrap gap-3 mb-6">
 						{filteredPlans.map(plan => {
 							const isSelected = formData.plan_id === plan.id;
+							const originalPrice = Number(plan.attributes.price);
+							const discountedPrice =
+								plan.attributes.discounted_price ?? originalPrice;
+							const hasDiscount = discountedPrice < originalPrice;
 							return (
 								<TouchableOpacity
 									key={plan.id}
@@ -333,7 +443,11 @@ const Data = () => {
 											...prev,
 											plan: plan.attributes.name,
 											price: plan.attributes.price,
-											type: plan.attributes.type,
+											discounted_price: discountedPrice,
+											// Delivery chips send their delivery type as data_type;
+											// product chips send the plan's own type (unchanged).
+											type:
+												activeCategoryDef?.deliveryType ?? plan.attributes.type,
 											plan_id: plan.id,
 										}))
 									}
@@ -354,9 +468,19 @@ const Data = () => {
 										{plan.attributes.name}
 									</Text>
 
-									<Text className="text-[#1A73E8] font-semibold mt-1">
-										₦{Number(plan.attributes.price).toLocaleString()}
+									{hasDiscount && (
+										<Text className="text-[#888] text-xs line-through mt-1">
+											{formatNaira(originalPrice)}
+										</Text>
+									)}
+									<Text className="text-[#1A73E8] font-semibold mt-0.5">
+										{formatNaira(discountedPrice)}
 									</Text>
+									{hasDiscount && (
+										<Text className="text-[#1F9254] text-xs mt-0.5">
+											Save {formatNaira(originalPrice - discountedPrice)}
+										</Text>
+									)}
 								</TouchableOpacity>
 							);
 						})}
@@ -364,7 +488,9 @@ const Data = () => {
 				) : (
 					/* Fallback placeholder grid when no API data yet */
 					<View className="px-[5%] flex-row flex-wrap gap-3 mb-6 justify-center items-center my-20">
-						<Text>No {activeDataTab.toLowerCase()} data plans available</Text>
+						<Text>
+							No {effectiveCategory.toLowerCase()} data plans available
+						</Text>
 					</View>
 				)}
 			</ScrollView>
@@ -409,7 +535,7 @@ const Data = () => {
 					<View className="flex-row justify-between items-center mb-3">
 						<Text className="text-[#555]">Selected:</Text>
 						<Text className="font-semibold text-[#111]">
-							{formData.plan} — ₦{Number(formData.price).toLocaleString()}
+							{formData.plan} — {formatNaira(formData.discounted_price)}
 						</Text>
 					</View>
 				) : null}

@@ -1,4 +1,4 @@
-import {IS_LOGGED_IN} from '@/constants';
+import {ACCESS_TOKEN_KEY, IS_LOGGED_IN} from '@/constants';
 import {useGlobalStore} from '@/context/store';
 import {GlobalColors} from '@/styles';
 import {UserResponse} from '@/types';
@@ -14,9 +14,9 @@ const Splash = () => {
 
 	useFocusEffect(() => {
 		const checkLoginStatus = async () => {
+			const storage = new MemoryStorage();
 			try {
-				const storage = new MemoryStorage();
-				const isLoggedIn = __DEV__ ? await storage.getItem(IS_LOGGED_IN) : null;
+				const isLoggedIn = await storage.getItem(IS_LOGGED_IN);
 				if (isLoggedIn === 'true') {
 					const axiosClient = new AxiosClient();
 
@@ -34,6 +34,9 @@ const Splash = () => {
 				}
 			} catch (error: any) {
 				if (error.response?.status === 401) {
+					// Session no longer valid — clear the persisted session and re-auth.
+					await storage.removeItem(IS_LOGGED_IN);
+					await storage.removeItem(ACCESS_TOKEN_KEY);
 					router.replace('/Signin');
 				} else {
 					Toast.show({

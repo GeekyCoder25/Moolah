@@ -2,6 +2,7 @@ import InfoIcon from '@/assets/icons/info-icon';
 import Back from '@/components/back';
 import {Text} from '@/components/text';
 import {useGlobalStore} from '@/context/store';
+import {formatNaira, pctDiscount} from '@/utils';
 import {AxiosClient} from '@/utils/axios';
 import {router} from 'expo-router';
 import React, {useEffect, useState} from 'react';
@@ -64,10 +65,19 @@ const ProviderIcon = ({
 	);
 };
 
+export interface Discount {
+	type: string;
+	value: number;
+	min_amount: number | null;
+	max_amount: number | null;
+	has_discount: boolean;
+}
+
 export interface ProviderAttributes {
 	provider: string;
 	abbreviation: string;
 	providerStatus: string;
+	discount?: Discount;
 }
 
 export interface Provider {
@@ -139,6 +149,19 @@ const Electricity = () => {
 	const [history, setHistory] = useState<ElectricityHistoryRecord[]>([]);
 	const [providers, setProviders] = useState<Provider[]>([]);
 	const [meters, setMeters] = useState<string[]>([]);
+
+	const selectedProvider = providers.find(p => p.id === formData.provider_id);
+	const discount = selectedProvider?.attributes.discount;
+
+	// Returns {pay, save} when the selected provider's percentage discount applies
+	// to `amount` (respecting its min/max bounds); otherwise null.
+	const discountFor = (amount: number) => {
+		if (!discount?.has_discount || !amount) return null;
+		const min = discount.min_amount ?? 0;
+		const max = discount.max_amount ?? Infinity;
+		if (amount < min || amount > max) return null;
+		return pctDiscount(amount, discount.value);
+	};
 
 	useEffect(() => {
 		const getProviders = async () => {
@@ -390,6 +413,18 @@ const Electricity = () => {
 						placeholder="Enter an amount"
 						placeholderTextColor={'#999'}
 					/>
+					{/* Live discount summary for the entered amount */}
+					{(() => {
+						const d = discountFor(Number(formData.amount));
+						if (!d) return null;
+						return (
+							<Text className="text-xs text-[#1F9254] mt-2">
+								You&apos;ll pay{' '}
+								<Text className="font-semibold">{formatNaira(d.pay)}</Text> · Save{' '}
+								{formatNaira(d.save)}
+							</Text>
+						);
+					})()}
 				</View>
 
 				{/* Pay for your Electricity preset grid */}
@@ -397,9 +432,21 @@ const Electricity = () => {
 					<Text className="text-xl font-bold text-[#111] mb-4">
 						Pay for your Electricity
 					</Text>
+
+					{/* Discount banner */}
+					{discount?.has_discount && (
+						<View className="mb-4 rounded-xl border border-[#CDECD9] bg-[#F1FBF5] px-4 py-3">
+							<Text className="text-[#1F9254] text-sm font-medium">
+								Discount Available:{' '}
+								<Text className="font-bold">{discount.value}% OFF</Text>
+							</Text>
+						</View>
+					)}
+
 					<View className="flex-row flex-wrap gap-5">
 						{PRESET_AMOUNTS.map(amount => {
 							const isSelected = formData.amount === String(amount);
+							const d = discountFor(amount);
 							return (
 								<TouchableOpacity
 									key={amount}
@@ -414,8 +461,18 @@ const Electricity = () => {
 									}`}
 								>
 									<Text className="text-xl font-bold text-[#111] text-center">
-										₦{amount.toLocaleString()}
+										{formatNaira(d ? d.pay : amount)}
 									</Text>
+									{d && (
+										<>
+											<Text className="text-xs text-[#888] text-center line-through mt-0.5">
+												{formatNaira(amount)}
+											</Text>
+											<Text className="text-xs text-[#1F9254] text-center mt-0.5">
+												Save {formatNaira(d.save)}
+											</Text>
+										</>
+									)}
 								</TouchableOpacity>
 							);
 						})}

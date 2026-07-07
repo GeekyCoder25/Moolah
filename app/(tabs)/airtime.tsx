@@ -6,9 +6,10 @@ import ProfileCardIcon from '@/assets/icons/profile-card';
 import Back from '@/components/back';
 import {Text} from '@/components/text';
 import {useGlobalStore} from '@/context/store';
+import {formatNaira, pctDiscount} from '@/utils';
 import {AxiosClient} from '@/utils/axios';
 import {router} from 'expo-router';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
 	KeyboardAvoidingView,
 	Modal,
@@ -22,7 +23,37 @@ import Toast from 'react-native-toast-message';
 import Button from '../components/button';
 import PinModal from '../components/PinModal';
 
-// Preset airtime amounts: { face value, discounted pay price }
+interface NetworkDiscount {
+	type: string;
+	value: number;
+	min_amount: number | null;
+	max_amount: number | null;
+	has_discount: boolean;
+}
+
+interface AirtimeNetwork {
+	type: string;
+	id: number;
+	attributes: {
+		network: string;
+		discount?: NetworkDiscount;
+	};
+}
+
+interface AirtimeNetworksResponse {
+	status: number;
+	message: string;
+	data: {
+		types: string[];
+		networks: AirtimeNetwork[];
+	};
+}
+
+// Normalize network names for matching (e.g. "T2-MOBILE" <-> "T2mobile")
+const normalizeNetwork = (name: string) =>
+	name.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+// Preset airtime face values
 const PRESET_AMOUNTS = [
 	{face: 100},
 	{face: 200},
@@ -49,6 +80,32 @@ const Airtime = () => {
 	});
 	const [showPin, setShowPin] = useState(false);
 	const [showNetworkModal, setShowNetworkModal] = useState(false);
+	const [apiNetworks, setApiNetworks] = useState<AirtimeNetwork[]>([]);
+
+	useEffect(() => {
+		const getNetworks = async () => {
+			try {
+				const axiosClient = new AxiosClient();
+				const response =
+					await axiosClient.get<AirtimeNetworksResponse>('/airtime');
+				if (response.status === 200) {
+					setApiNetworks(response.data.data.networks);
+				}
+			} catch (error) {
+				console.log(error);
+			}
+		};
+		getNetworks();
+	}, []);
+
+	// Discount (percent-units) for the currently selected network, from GET /airtime.
+	// 0 when the network has no discount or hasn't loaded yet.
+	const selectedDiscount = apiNetworks.find(
+		n => normalizeNetwork(n.attributes.network) === normalizeNetwork(formData.network),
+	)?.attributes.discount;
+	const discountPercent = selectedDiscount?.has_discount
+		? selectedDiscount.value
+		: 0;
 
 	const handleBuy = async (pin?: string) => {
 		try {
@@ -176,10 +233,22 @@ const Airtime = () => {
 						Buy Airtime
 					</Text>
 
+					{/* Discount banner */}
+					{discountPercent > 0 && (
+						<View className="mb-4 rounded-xl border border-[#CDECD9] bg-[#F1FBF5] px-4 py-3">
+							<Text className="text-[#1F9254] text-sm font-medium">
+								Discount Available:{' '}
+								<Text className="font-bold">{discountPercent}% OFF</Text>
+							</Text>
+						</View>
+					)}
+
 					{/* 3-column preset grid */}
 					<View className="flex-row flex-wrap gap-3">
 						{PRESET_AMOUNTS.map(item => {
 							const isSelected = formData.amount === String(item.face);
+							const hasDiscount = discountPercent > 0;
+							const {pay, save} = pctDiscount(item.face, discountPercent);
 							return (
 								<TouchableOpacity
 									key={item.face}
@@ -193,10 +262,22 @@ const Airtime = () => {
 											: 'bg-[#F5F6FA]'
 									}`}
 								>
-									{/* Face value with strikethrough */}
+									{/* Discounted pay price (or face value when no discount) */}
 									<Text className="text-xl font-bold text-[#111] text-center">
-										₦{item.face.toLocaleString()}
+										{formatNaira(hasDiscount ? pay : item.face)}
 									</Text>
+									{hasDiscount && (
+										<>
+											{/* Face value with strikethrough */}
+											<Text className="text-xs text-[#888] text-center line-through mt-0.5">
+												{formatNaira(item.face)}
+											</Text>
+											{/* Savings */}
+											<Text className="text-xs text-[#1F9254] text-center mt-0.5">
+												Save {formatNaira(save)}
+											</Text>
+										</>
+									)}
 								</TouchableOpacity>
 							);
 						})}
@@ -221,6 +302,21 @@ const Airtime = () => {
 						placeholder="Enter an amount"
 						placeholderTextColor={'#999'}
 					/>
+					{/* Live discount summary for the entered amount */}
+					{Number(formData.amount) > 0 && discountPercent > 0 && (
+						<Text className="text-xs text-[#1F9254] mt-2">
+							You&apos;ll pay{' '}
+							<Text className="font-semibold">
+								{formatNaira(
+									pctDiscount(Number(formData.amount), discountPercent).pay,
+								)}
+							</Text>{' '}
+							· Save{' '}
+							{formatNaira(
+								pctDiscount(Number(formData.amount), discountPercent).save,
+							)}
+						</Text>
+					)}
 				</View>
 			</ScrollView>
 

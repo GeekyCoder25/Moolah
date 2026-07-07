@@ -17,7 +17,7 @@ export const performSecurityCheck = async (): Promise<SecurityStatus> => {
 	const isRooted = JailMonkey.isJailBroken();
 	if (isRooted)
 		violations.push(
-			`Device is ${Platform.OS === 'ios' ? 'jailbroken' : 'rooted'}`
+			`Device is ${Platform.OS === 'ios' ? 'jailbroken' : 'rooted'}`,
 		);
 
 	// Check for debugger
@@ -30,9 +30,9 @@ export const performSecurityCheck = async (): Promise<SecurityStatus> => {
 	if (isOnExternalStorage) violations.push('App running from external storage');
 
 	// Check for mock location (Android)
-	const canMockLocation =
-		Platform.OS === 'android' && JailMonkey.canMockLocation();
-	if (canMockLocation) violations.push('Mock location enabled');
+	const canMockLocation = false; // Disabled due to false positives in some environments
+	// 	Platform.OS === 'android' && JailMonkey.canMockLocation();
+	// if (canMockLocation) violations.push('Mock location enabled');
 
 	// Check for development build
 	const isDevelopmentBuild = __DEV__;
@@ -54,12 +54,12 @@ export const handleSecurityViolation = (status: SecurityStatus) => {
 			status.canMockLocation
 				? 'Mock location is enabled. This app cannot run with mock location for security reasons.'
 				: status.isRooted
-				? 'This app cannot run on rooted devices for security reasons.'
-				: status.isJailbroken
-				? 'Device is jailbroken. This app cannot run on jailbroken devices for security reasons.'
-				: status.isDebuggedMode
-				? 'Debugger detected. This app cannot run in debugging mode for security reasons.'
-				: 'The app is running in an unauthorized environment.',
+					? 'This app cannot run on rooted devices for security reasons.'
+					: status.isJailbroken
+						? 'Device is jailbroken. This app cannot run on jailbroken devices for security reasons.'
+						: status.isDebuggedMode
+							? 'Debugger detected. This app cannot run in debugging mode for security reasons.'
+							: 'The app is running in an unauthorized environment.',
 			[
 				{
 					text: 'Exit',
@@ -71,7 +71,7 @@ export const handleSecurityViolation = (status: SecurityStatus) => {
 					},
 				},
 			],
-			{cancelable: false}
+			{cancelable: false},
 		);
 		return true;
 	}

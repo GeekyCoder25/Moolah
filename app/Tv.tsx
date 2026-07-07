@@ -2,6 +2,7 @@ import InfoIcon from '@/assets/icons/info-icon';
 import Back from '@/components/back';
 import {Text} from '@/components/text';
 import {useGlobalStore} from '@/context/store';
+import {formatNaira} from '@/utils';
 import {AxiosClient} from '@/utils/axios';
 import {router} from 'expo-router';
 import React, {useEffect, useState} from 'react';
@@ -80,6 +81,9 @@ export interface CableTvPlan {
 	attributes: {
 		name: string;
 		price: string;
+		original_price?: string;
+		discount_rate?: number;
+		discount_applied?: boolean;
 		day: string;
 	};
 }
@@ -347,6 +351,13 @@ const TV = () => {
 							<View className="flex-row flex-wrap gap-3">
 								{filteredPlans.map(plan => {
 									const isSelected = formData.plan_id === plan.id;
+									const discountedPrice = Number(plan.attributes.price);
+									const originalPrice = plan.attributes.original_price
+										? Number(plan.attributes.original_price)
+										: discountedPrice;
+									const hasDiscount =
+										!!plan.attributes.discount_applied &&
+										originalPrice > discountedPrice;
 									return (
 										<TouchableOpacity
 											key={plan.id}
@@ -375,9 +386,19 @@ const TV = () => {
 											>
 												{plan.attributes.name}
 											</Text>
-											<Text className="text-[#1A73E8] font-semibold mt-1 text-sm">
-												₦{Number(plan.attributes.price).toLocaleString()}
+											{hasDiscount && (
+												<Text className="text-[#888] text-xs line-through mt-1">
+													{formatNaira(originalPrice)}
+												</Text>
+											)}
+											<Text className="text-[#1A73E8] font-semibold mt-0.5 text-sm">
+												{formatNaira(discountedPrice)}
 											</Text>
+											{hasDiscount && (
+												<Text className="text-[#1F9254] text-xs mt-0.5">
+													Save {formatNaira(originalPrice - discountedPrice)}
+												</Text>
+											)}
 										</TouchableOpacity>
 									);
 								})}
@@ -468,7 +489,7 @@ const TV = () => {
 					<View className="flex-row justify-between items-center mb-3">
 						<Text className="text-[#555] text-sm">Selected:</Text>
 						<Text className="font-semibold text-[#111] text-sm">
-							{formData.plan_name} — ₦{Number(formData.price).toLocaleString()}
+							{formData.plan_name} — {formatNaira(Number(formData.price))}
 						</Text>
 					</View>
 				) : null}
