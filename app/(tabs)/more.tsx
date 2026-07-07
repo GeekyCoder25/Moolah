@@ -22,6 +22,7 @@ type RoutePaths =
 	| '/Referral'
 	| '/Contact'
 	| '/Card'
+	| '/BankAccounts'
 	| '/';
 
 const More = () => {
@@ -73,6 +74,12 @@ const More = () => {
 			route: '/Card',
 		},
 		{
+			title: 'Bank accounts',
+			subText: 'Add and manage your payout accounts',
+			icon: <FontAwesome name="bank" size={22} color="white" />,
+			route: '/BankAccounts',
+		},
+		{
 			title: 'Log out',
 			subText: 'Sign out of your account',
 			icon: <AntDesign name="logout" size={24} color="white" />,
@@ -112,19 +119,24 @@ const More = () => {
 		router.replace('/Signin');
 	};
 
+	// The Bank accounts section is only shown when the user can add bank accounts.
+	const visibleRoutes = routes.filter(
+		route => route.route !== '/BankAccounts' || !!user?.can_add_bank_account,
+	);
+
 	return (
 		<ScrollView className="px-[5%] py-5 gap-x-4 flex-1">
 			<Back title="More" />
 
 			<View className="gap-y-5 mt-20">
-				{routes.map((route, index) => (
+				{visibleRoutes.map((route, index) => (
 					<TouchableOpacity
 						key={route.title}
 						className={`bg-white px-3 py-5 flex-row items-center gap-x-5 rounded-xl ${
 							index ? '' : 'mb-7'
 						}`}
 						onPress={() =>
-							index === routes.length - 1
+							index === visibleRoutes.length - 1
 								? handleLogout()
 								: router.navigate(route.route)
 						}

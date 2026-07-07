@@ -26,7 +26,6 @@ import Toast from 'react-native-toast-message';
 import {networkProvidersIcon} from './(tabs)/airtime';
 import Button from './components/button';
 import PinModal from './components/PinModal';
-import {NETWORK_ICON_DATA_URIS} from '@/constants/network-icons-data-uris';
 
 interface PriceDiscount {
 	amount: number;
@@ -194,22 +193,6 @@ const Printing = () => {
 		}
 	};
 
-	const networkBadge = (network: string) => {
-		const key = network.toLowerCase();
-		const iconKey =
-			key === '9mobile' ||
-			key === 't2-mobile' ||
-			key === 't2 mobile' ||
-			key === 't2mobile'
-				? 't2mobile'
-				: key;
-		const dataUri = NETWORK_ICON_DATA_URIS[iconKey];
-		if (dataUri) {
-			return `<img src="${dataUri}" alt="${network}" style="width:64px;height:64px;object-fit:contain;" />`;
-		}
-		return `<div style="width:64px;height:64px;border-radius:50%;background:#E5E7EB;color:#111;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;">${network}</div>`;
-	};
-
 	const buildVoucherHtml = (record: EPinHistoryRecord) => {
 		const dial = getDialCode(record.network, record.pin_code);
 		const price = Number(record.amount).toLocaleString();
@@ -235,7 +218,6 @@ body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 24px; 
 <div class="card">
 <div class="header">
 <div class="brand">Paxi</div>
-${networkBadge(record.network)}
 </div>
 <h1 class="title">E-PIN Voucher — ${record.network}</h1>
 <div class="row"><span class="label">Price</span><span class="value">&#8358;${price}</span></div>
@@ -259,7 +241,6 @@ Customer care: ${customerCare}. Powered by ${businessName}
 				return `<div class="card">
 <div class="header">
 <div class="brand">Paxi</div>
-${networkBadge(card.mobilenetwork)}
 </div>
 <h1 class="title">E-PIN Voucher — ${card.mobilenetwork}</h1>
 <div class="row"><span class="label">Price</span><span class="value">&#8358;${price}</span></div>

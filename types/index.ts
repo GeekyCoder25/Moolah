@@ -11,6 +11,42 @@ interface BankDetails {
 	account_name?: string | null;
 }
 
+// A saved, verified payout bank account (used for transfer-to-bank / withdrawals)
+export interface BankAccount {
+	id: number;
+	bank_code: string;
+	bank_name: string;
+	account_number: string;
+	account_name: string;
+	is_default: boolean;
+}
+
+// A selectable bank from GET /banks
+export interface Bank {
+	bankCode: string;
+	bankName: string;
+	bankUrl: string;
+	bgUrl: string;
+}
+
+export interface BanksResponse {
+	status: number;
+	message: string;
+	data: Bank[];
+}
+
+export interface VerifyAccountResponse {
+	status: number;
+	message: string;
+	data: {account_name: string};
+}
+
+export interface BankAccountResponse {
+	status: number;
+	message: string;
+	data: BankAccount;
+}
+
 export interface ReferralCommission {
 	service: string;
 	bonus: number;
@@ -35,6 +71,10 @@ export interface UserAttributes {
 	kyc_status: string;
 	epin_business_name: string;
 	epin_customer_care: string;
+	pnd_active: boolean;
+	can_add_bank_account: boolean;
+	can_transfer_to_bank: boolean;
+	bank_accounts: BankAccount[];
 	banks: BankDetails[];
 	created_at: string;
 	referral_count: number;
@@ -83,6 +123,21 @@ export interface Settings {
 	wallet_below_cap_fee: number;
 	wallet_above_cap_fee_type: FeeType;
 	wallet_above_cap_fee: number;
+	enable_bank_transfer: boolean;
+	bank_transfer_fee: number;
+}
+
+export interface WithdrawResponse {
+	status: number;
+	message: string;
+	data: {
+		transaction_ref: string;
+		amount: number;
+		fee: number;
+		total_debit: number;
+		balance: number;
+		status: string;
+	};
 }
 
 export interface SettingsResponse {

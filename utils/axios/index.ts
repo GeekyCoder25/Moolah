@@ -46,10 +46,11 @@ export class AxiosClient {
 
 	private async mountInterceptors() {
 		this._axiosClient.interceptors.request.use(async config => {
-			const tokenExists = __DEV__
-				? useGlobalStore.getState().accessToken ||
-					(await this._storageClass.getItem(ACCESS_TOKEN_KEY))
-				: useGlobalStore.getState().accessToken;
+			// Prefer the in-memory token, falling back to the persisted (SecureStore)
+			// token so requests are authenticated after an app restart in production.
+			const tokenExists =
+				useGlobalStore.getState().accessToken ||
+				(await this._storageClass.getItem(ACCESS_TOKEN_KEY));
 
 			if (tokenExists) {
 				config.headers.Authorization = `Bearer ${tokenExists}`;
