@@ -1,8 +1,8 @@
 import * as React from 'react';
-import Svg, {Path} from 'react-native-svg';
 import type {SvgProps} from 'react-native-svg';
+import Svg, {Path} from 'react-native-svg';
 const AirtelIcon = (props: SvgProps) => (
-	<Svg width={50} height={50} fill="none" {...props}>
+	<Svg width={50} height={50} fill="none" {...props} viewBox="0 0 50 50">
 		<Path
 			fill="#FFECEE"
 			d="M50 25c0 13.807-11.193 25-25 25S0 38.807 0 25 11.193 0 25 0s25 11.193 25 25"

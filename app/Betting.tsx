@@ -30,22 +30,26 @@ const PROVIDER_IMAGES: Record<string, any> = {
 	betland: require('@/assets/images/bet-land.png'),
 	supabet: require('@/assets/images/supabet.jpeg'),
 	bangbet: require('@/assets/images/bangbet-logo.jpg'),
+	betking: require('@/assets/images/betking-logo.png'),
 	'1xbet': require('@/assets/images/1xbet-logo.png'),
 	betway: require('@/assets/images/betway-logo.png'),
 	merrybet: require('@/assets/images/merry-bet.jpg'),
 	mlotto: require('@/assets/images/m-lotto.png'),
+	'western-lotto': require('@/assets/images/westernlotto-logo.png'),
 	hallabet: require('@/assets/images/halla-bet.png'),
+	'green-lotto': require('@/assets/images/greenlotto-logo.png'),
 	betbiga: require('@/assets/images/betbiga-logo.jpg'),
 	sportybet: require('@/assets/images/sportybet.png'),
 	melbet: require('@/assets/images/melbet-logo.png'),
 	livescorebet: require('@/assets/images/livescorebet-logo.png'),
+	'naira-million': require('@/assets/images/nairamillion-logo.png'),
 	cloudbet: require('@/assets/images/cloudbet-logo.png'),
 	paripesa: require('@/assets/images/paripesa-logo.png'),
 	mylottohub: require('@/assets/images/mylottohub-logo.png'),
 };
 
 const ProviderIcon = ({code, size = 32}: {code: string; size?: number}) => {
-	const img = PROVIDER_IMAGES[code];
+	const img = PROVIDER_IMAGES[code.toLowerCase()];
 	if (img) {
 		return (
 			<Image

@@ -32,6 +32,7 @@ const PROVIDER_IMAGES: Record<string, any> = {
 	ENUGU: require('@/assets/images/enugu-electric.jpg'),
 	BENIN: require('@/assets/images/bedc-icon.png'),
 	YOLA: require('@/assets/images/yola-electric.jpg'),
+	ABEDC: require('@/assets/images/aba-electric.png'),
 };
 
 const ProviderIcon = ({
@@ -420,8 +421,8 @@ const Electricity = () => {
 						return (
 							<Text className="text-xs text-[#1F9254] mt-2">
 								You&apos;ll pay{' '}
-								<Text className="font-semibold">{formatNaira(d.pay)}</Text> · Save{' '}
-								{formatNaira(d.save)}
+								<Text className="font-semibold">{formatNaira(d.pay)}</Text> ·
+								Save {formatNaira(d.save)}
 							</Text>
 						);
 					})()}

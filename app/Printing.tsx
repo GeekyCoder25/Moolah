@@ -118,6 +118,28 @@ const Printing = () => {
 	const [history, setHistory] = useState<EPinHistoryRecord[]>([]);
 	const [selectedRecord, setSelectedRecord] =
 		useState<EPinHistoryRecord | null>(null);
+	// Multi-select mode for printing several history vouchers at once.
+	const [selectMode, setSelectMode] = useState(false);
+	const [selectedIds, setSelectedIds] = useState<number[]>([]);
+
+	const selectedRecords = history.filter(r => selectedIds.includes(r.id));
+	const allSelected =
+		history.length > 0 && selectedIds.length === history.length;
+
+	const toggleSelectId = (id: number) =>
+		setSelectedIds(prev =>
+			prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id],
+		);
+	const toggleSelectAll = () =>
+		setSelectedIds(allSelected ? [] : history.map(r => r.id));
+	const exitSelectMode = () => {
+		setSelectMode(false);
+		setSelectedIds([]);
+	};
+	const closeHistory = () => {
+		setShowHistory(false);
+		exitSelectMode();
+	};
 
 	const fetchHistory = async () => {
 		try {
@@ -193,45 +215,51 @@ const Printing = () => {
 		}
 	};
 
-	const buildVoucherHtml = (record: EPinHistoryRecord) => {
+	// Compact vouchers so batch printing fits many per page. Cards tile two per
+	// row and keep tight spacing to save paper.
+	const VOUCHER_STYLE = `
+body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 8px; margin: 0; color: #111; font-size: 0; }
+.card { display: inline-block; box-sizing: border-box; width: 49%; vertical-align: top; border: 1px solid #ddd; border-radius: 10px; padding: 10px 12px; margin: 0 0 6px; page-break-inside: avoid; }
+.card:nth-child(odd) { margin-right: 1%; }
+.header { display: flex; align-items: center; justify-content: space-between; }
+.title { font-size: 13px; font-weight: 700; margin: 2px 0 6px; }
+.row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed #ddd; }
+.row:last-of-type { border-bottom: none; }
+.label { color: #666; font-size: 10px; }
+.value { font-weight: 600; font-size: 11px; }
+.pin { font-size: 15px; font-weight: 800; letter-spacing: 1px; }
+.footer { margin-top: 6px; font-size: 9px; color: #555; line-height: 1.35; }
+.brand { font-size: 13px; font-weight: 800; color: #ccc; }`;
+
+	// Single voucher card fragment, shared by single and batch documents.
+	const recordCardHtml = (record: EPinHistoryRecord) => {
 		const dial = getDialCode(record.network, record.pin_code);
 		const price = Number(record.amount).toLocaleString();
-		return `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8" />
-<style>
-body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 24px; color: #111; }
-.card { border: 1px solid #ddd; border-radius: 16px; padding: 24px; max-width: 420px; margin: 0 auto; }
-.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.title { font-size: 20px; font-weight: 700; margin: 0 0 12px; }
-.row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #ccc; }
-.row:last-of-type { border-bottom: none; }
-.label { color: #666; font-size: 13px; }
-.value { font-weight: 600; font-size: 14px; }
-.pin { font-size: 22px; font-weight: 800; letter-spacing: 2px; }
-.footer { margin-top: 16px; font-size: 12px; color: #444; line-height: 1.5; }
-.brand { font-size: 22px; font-weight: 800; color: #ccc; }
-</style>
-</head>
-<body>
-<div class="card">
+		return `<div class="card">
 <div class="header">
-<div class="brand">Paxi</div>
+<div class="brand">${businessName}</div>
+<span class="label">${record.created_at.replace('T', ' ').slice(0, 10)}</span>
 </div>
-<h1 class="title">E-PIN Voucher — ${record.network}</h1>
+<h1 class="title">${record.network}</h1>
 <div class="row"><span class="label">Price</span><span class="value">&#8358;${price}</span></div>
 <div class="row"><span class="label">PIN</span><span class="value pin">${record.pin_code}</span></div>
 <div class="row"><span class="label">S/N</span><span class="value">${record.serial_number}</span></div>
-<div class="row"><span class="label">Date</span><span class="value">${record.created_at.replace('T', ' ').slice(0, 19)}</span></div>
 <div class="footer">
-<strong>How to load:</strong> Dial ${dial}<br/>
-Customer care: ${customerCare}. Powered by ${businessName}
+<strong>Load:</strong> Dial ${dial}<br/>
+Care: ${customerCare} · ${businessName}
 </div>
-</div>
-</body>
-</html>`;
+</div>`;
 	};
+
+	// One printable document holding one or more vouchers.
+	const buildRecordsHtml = (records: EPinHistoryRecord[]) => `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>${VOUCHER_STYLE}</style>
+</head>
+<body>${records.map(recordCardHtml).join('')}</body>
+</html>`;
 
 	const buildBatchVoucherHtml = (cards: EPinCard[]) => {
 		const cardHtml = cards
@@ -240,13 +268,12 @@ Customer care: ${customerCare}. Powered by ${businessName}
 				const price = Number(card.amount).toLocaleString();
 				return `<div class="card">
 <div class="header">
-<div class="brand">Paxi</div>
+<div class="brand">${businessName}</div>
 </div>
-<h1 class="title">E-PIN Voucher — ${card.mobilenetwork}</h1>
+<h1 class="title">${card.mobilenetwork}</h1>
 <div class="row"><span class="label">Price</span><span class="value">&#8358;${price}</span></div>
 <div class="row"><span class="label">PIN</span><span class="value pin">${card.pin}</span></div>
 <div class="row"><span class="label">S/N</span><span class="value">${card.sno}</span></div>
-<div class="row"><span class="label">Batch</span><span class="value">${card.batchno}</span></div>
 <div class="row"><span class="label">Date</span><span class="value">${card.transactiondate}</span></div>
 <div class="footer">
 <strong>How to load:</strong> Dial ${dial}<br/>
@@ -290,9 +317,10 @@ body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 24px; 
 		}
 	};
 
-	const handlePrint = async (record: EPinHistoryRecord) => {
+	const handlePrintRecords = async (records: EPinHistoryRecord[]) => {
+		if (records.length === 0) return;
 		try {
-			await Print.printAsync({html: buildVoucherHtml(record)});
+			await Print.printAsync({html: buildRecordsHtml(records)});
 		} catch (error: any) {
 			Toast.show({
 				type: 'error',
@@ -302,16 +330,18 @@ body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 24px; 
 		}
 	};
 
-	const handleDownload = async (record: EPinHistoryRecord) => {
+	const handleDownloadRecords = async (records: EPinHistoryRecord[]) => {
+		if (records.length === 0) return;
 		try {
 			const {uri} = await Print.printToFileAsync({
-				html: buildVoucherHtml(record),
+				html: buildRecordsHtml(records),
 			});
 			const canShare = await Sharing.isAvailableAsync();
 			if (canShare) {
 				await Sharing.shareAsync(uri, {
 					mimeType: 'application/pdf',
-					dialogTitle: 'Save E-PIN Voucher',
+					dialogTitle:
+						records.length > 1 ? 'Save E-PIN Vouchers' : 'Save E-PIN Voucher',
 					UTI: 'com.adobe.pdf',
 				});
 			} else {
@@ -329,6 +359,11 @@ body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 24px; 
 			});
 		}
 	};
+
+	const handlePrint = (record: EPinHistoryRecord) =>
+		handlePrintRecords([record]);
+	const handleDownload = (record: EPinHistoryRecord) =>
+		handleDownloadRecords([record]);
 
 	const handleCopy = (pin: string) => {
 		Keyboard.dismiss();
@@ -710,25 +745,57 @@ body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 24px; 
 
 			{/* History Modal */}
 			{showHistory && (
-				<Modal
-					transparent
-					animationType="slide"
-					onRequestClose={() => setShowHistory(false)}
-				>
+				<Modal transparent animationType="slide" onRequestClose={closeHistory}>
 					<Pressable
-						className="flex-1 bg-black/40"
-						onPress={() => setShowHistory(false)}
+						className="bg-black/40"
+						onPress={closeHistory}
+						style={{height: '6%'}}
 					/>
-					<View
-						className="bg-[#F5F5F5] w-full rounded-t-2xl"
-						style={{maxHeight: '80%'}}
-					>
+					<View className="bg-[#F5F5F5] w-full rounded-t-2xl flex-1">
+						<Pressable
+							onPress={closeHistory}
+							className="items-center pt-2 pb-1"
+						>
+							<View className="w-10 h-1 rounded-full bg-[#D0D0D0]" />
+						</Pressable>
+						{/* Header */}
 						<View className="px-[5%] pt-6 pb-4 bg-white rounded-t-2xl flex-row justify-between items-center">
 							<Text className="text-2xl font-bold">Purchase History</Text>
-							<TouchableOpacity onPress={() => setShowHistory(false)}>
-								<Text className="text-[#666] text-base">✕</Text>
-							</TouchableOpacity>
+							<View className="flex-row items-center gap-x-4">
+								{history.length > 0 && (
+									<TouchableOpacity
+										onPress={() =>
+											selectMode ? exitSelectMode() : setSelectMode(true)
+										}
+									>
+										<Text className="text-[#1A73E8] text-base font-semibold">
+											{selectMode ? 'Cancel' : 'Select'}
+										</Text>
+									</TouchableOpacity>
+								)}
+								<TouchableOpacity onPress={closeHistory}>
+									<Text className="text-[#666] text-base">✕</Text>
+								</TouchableOpacity>
+							</View>
 						</View>
+
+						{/* Select-all bar */}
+						{selectMode && history.length > 0 && (
+							<TouchableOpacity
+								onPress={toggleSelectAll}
+								className="px-[5%] py-3 bg-white border-t border-[#F0F0F0] flex-row items-center justify-between"
+							>
+								<Text className="text-[#111] text-sm font-medium">
+									{selectedIds.length > 0
+										? `${selectedIds.length} selected`
+										: 'Select vouchers to print'}
+								</Text>
+								<Text className="text-[#1A73E8] text-sm font-semibold">
+									{allSelected ? 'Clear all' : 'Select all'}
+								</Text>
+							</TouchableOpacity>
+						)}
+
 						{historyLoading ? (
 							<View className="py-16 items-center">
 								<Text className="text-[#666] text-base">Loading...</Text>
@@ -739,54 +806,125 @@ body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 24px; 
 							</View>
 						) : (
 							<ScrollView
-								className="px-[5%] py-4"
+								className="flex-1 px-[5%] py-4"
 								showsVerticalScrollIndicator={false}
 							>
-								{history.map(record => (
-									<TouchableOpacity
-										key={record.id}
-										className="bg-white rounded-xl px-4 py-4 mb-3"
-										onPress={() => setSelectedRecord(record)}
-									>
-										<View className="flex-row justify-between items-center mb-2">
-											<View className="flex-row items-center gap-x-2">
-												{networkProvidersIcon(record.network.toLowerCase())}
-												<Text className="font-bold text-base text-[#111]">
-													{record.network}
-												</Text>
-											</View>
-											<View>
-												<Text
-													className={`text-xs font-semibold ${record.status === 'unused' ? 'text-green-700' : 'text-gray-500'}`}
+								{history.map(record => {
+									const isChecked = selectedIds.includes(record.id);
+									return (
+										<TouchableOpacity
+											key={record.id}
+											className={`bg-white rounded-xl px-3 py-2.5 mb-2 flex-row items-center ${
+												selectMode && isChecked
+													? 'border-2 border-secondary'
+													: 'border-2 border-transparent'
+											}`}
+											onPress={() =>
+												selectMode
+													? toggleSelectId(record.id)
+													: setSelectedRecord(record)
+											}
+											onLongPress={() => {
+												if (!selectMode) {
+													setSelectMode(true);
+													setSelectedIds([record.id]);
+												}
+											}}
+										>
+											{selectMode && (
+												<View
+													className={`w-6 h-6 rounded-md border-2 items-center justify-center mr-3 ${
+														isChecked
+															? 'bg-secondary border-secondary'
+															: 'border-[#CBD2E0]'
+													}`}
 												>
-													#{record.transaction_id}
-												</Text>
+													{isChecked && (
+														<Entypo name="check" size={14} color="white" />
+													)}
+												</View>
+											)}
+											<View className="flex-1">
+												<View className="flex-row justify-between items-center mb-1.5">
+													<View className="flex-row items-center gap-x-2">
+														{networkProvidersIcon(
+															record.network.toLowerCase(),
+															21,
+														)}
+														<Text className="font-bold text-sm text-[#111]">
+															{record.network}
+														</Text>
+													</View>
+													<Text className="font-semibold text-secondary text-sm">
+														₦{Number(record.amount).toLocaleString()}
+													</Text>
+												</View>
+												<View className="flex-row items-center justify-between bg-[#F5F6FA] rounded-lg px-3 py-1.5">
+													<Text
+														className="text-[#1A73E8] text-sm font-medium flex-1"
+														numberOfLines={1}
+													>
+														{record.pin_code}
+													</Text>
+													{!selectMode && (
+														<TouchableOpacity
+															onPress={() => handleCopy(record.pin_code)}
+															className="ml-2"
+														>
+															<FontAwesome5
+																name="copy"
+																size={14}
+																color="#1A73E8"
+															/>
+														</TouchableOpacity>
+													)}
+												</View>
+												<View className="flex-row justify-between items-center mt-1">
+													<Text className="text-[#999] text-[11px]">
+														{record.created_at.replace('T', ' ').slice(0, 19)}
+													</Text>
+													<Text
+														className={`text-[11px] font-semibold ${record.status === 'unused' ? 'text-green-700' : 'text-gray-500'}`}
+													>
+														#{record.transaction_id}
+													</Text>
+												</View>
 											</View>
-										</View>
-										<Text className="font-semibold text-secondary text-sm mb-2">
-											₦{Number(record.amount).toLocaleString()}
-										</Text>
-										<View className="flex-row items-center justify-between bg-[#F5F6FA] rounded-lg px-3 py-2 mb-1">
-											<Text
-												className="text-[#1A73E8] text-sm font-medium flex-1"
-												numberOfLines={1}
-											>
-												{record.pin_code}
-											</Text>
-											<TouchableOpacity
-												onPress={() => handleCopy(record.pin_code)}
-												className="ml-2"
-											>
-												<FontAwesome5 name="copy" size={14} color="#1A73E8" />
-											</TouchableOpacity>
-										</View>
-										<Text className="text-[#999] text-xs mt-1">
-											{record.created_at.replace('T', ' ').slice(0, 19)}
-										</Text>
-									</TouchableOpacity>
-								))}
-								<View className="w-full h-32" />
+										</TouchableOpacity>
+									);
+								})}
+								<View className="w-full h-6" />
 							</ScrollView>
+						)}
+
+						{/* Batch action bar */}
+						{selectMode && (
+							<View className="px-[5%] pt-3 pb-8 bg-white border-t border-[#EEE] flex-row gap-x-3">
+								<TouchableOpacity
+									disabled={selectedIds.length === 0}
+									onPress={() => handlePrintRecords(selectedRecords)}
+									className={`flex-1 rounded-xl py-4 flex-row items-center justify-center gap-x-2 ${
+										selectedIds.length === 0 ? 'bg-[#BFC5D2]' : 'bg-[#111]'
+									}`}
+								>
+									<FontAwesome5 name="print" size={16} color="white" />
+									<Text className="text-white font-bold text-base">
+										Print{selectedIds.length ? ` (${selectedIds.length})` : ''}
+									</Text>
+								</TouchableOpacity>
+								<TouchableOpacity
+									disabled={selectedIds.length === 0}
+									onPress={() => handleDownloadRecords(selectedRecords)}
+									className={`flex-1 rounded-xl py-4 flex-row items-center justify-center gap-x-2 ${
+										selectedIds.length === 0 ? 'bg-[#BFC5D2]' : 'bg-secondary'
+									}`}
+								>
+									<FontAwesome5 name="download" size={16} color="white" />
+									<Text className="text-white font-bold text-base">
+										Download
+									</Text>
+								</TouchableOpacity>
+							</View>
 						)}
 					</View>
 				</Modal>
@@ -812,7 +950,9 @@ body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 24px; 
 							</View>
 							{/* Logos row */}
 							<View className="flex-row justify-between items-center px-5 pb-4">
-								<Text className="text-2xl font-bold text-[#ccc]">Paxi</Text>
+								<Text className="text-2xl font-bold text-[#ccc]">
+									{businessName}
+								</Text>
 								<View style={{transform: [{scale: 1.5}]}}>
 									{networkProvidersIcon(selectedRecord.network.toLowerCase())}
 								</View>

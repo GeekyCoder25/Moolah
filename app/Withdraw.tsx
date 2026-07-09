@@ -134,11 +134,13 @@ const Withdraw = () => {
 								className="text-base font-semibold text-[#111]"
 								numberOfLines={1}
 							>
-								{selectedAccount?.bank_name}
+								{selectedAccount?.account_name}
 							</Text>
-							<Text className="text-[#666] text-sm">
+							<Text className="text-[#666] text-sm" numberOfLines={1}>
 								{selectedAccount
-									? maskAccountNumber(selectedAccount.account_number)
+									? `${selectedAccount.bank_name} · ${maskAccountNumber(
+											selectedAccount.account_number,
+									  )}`
 									: ''}
 							</Text>
 						</View>

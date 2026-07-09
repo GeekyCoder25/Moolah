@@ -101,7 +101,9 @@ const Airtime = () => {
 	// Discount (percent-units) for the currently selected network, from GET /airtime.
 	// 0 when the network has no discount or hasn't loaded yet.
 	const selectedDiscount = apiNetworks.find(
-		n => normalizeNetwork(n.attributes.network) === normalizeNetwork(formData.network),
+		n =>
+			normalizeNetwork(n.attributes.network) ===
+			normalizeNetwork(formData.network),
 	)?.attributes.discount;
 	const discountPercent = selectedDiscount?.has_discount
 		? selectedDiscount.value
@@ -368,20 +370,20 @@ const Airtime = () => {
 
 export default Airtime;
 
-export const networkProvidersIcon = (network: string) => {
+export const networkProvidersIcon = (network: string, size?: number) => {
 	switch (network) {
 		case 'glo':
-			return <GloIcon />;
+			return <GloIcon width={size} height={size} />;
 		case 'mtn':
-			return <MTNIcon />;
+			return <MTNIcon width={size} height={size} />;
 		case 'airtel':
-			return <AirtelIcon />;
+			return <AirtelIcon width={size} height={size} />;
 		case 't2-mobile':
 		case 't2 mobile':
 		case 't2mobile':
-			return <NineMobileIcon />;
+			return <NineMobileIcon width={size} height={size} />;
 		case '9mobile':
-			return <NineMobileIcon />;
+			return <NineMobileIcon width={size} height={size} />;
 		default:
 			return null;
 	}

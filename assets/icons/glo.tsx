@@ -9,7 +9,7 @@ import Svg, {
 } from 'react-native-svg';
 import type {SvgProps} from 'react-native-svg';
 const GloIcon = (props: SvgProps) => (
-	<Svg width={50} height={50} fill="none" {...props}>
+	<Svg width={50} height={50} fill="none" {...props} viewBox="0 0 50 50">
 		<Circle cx={25} cy={25} r={25} fill="#D5FFD5" />
 		<Path
 			fill="#50B651"

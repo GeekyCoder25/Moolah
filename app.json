@@ -8,7 +8,8 @@
 		"scheme": "paxi",
 		"userInterfaceStyle": "automatic",
 		"ios": {
-			"supportsTablet": true
+			"supportsTablet": true,
+			"bundleIdentifier": "com.paxing"
 		},
 		"android": {
 			"versionCode": 2,
@@ -17,7 +18,11 @@
 				"backgroundColor": "#ffffff"
 			},
 			"package": "com.paxing",
-			"allowBackup": false
+			"allowBackup": false,
+			"permissions": [
+				"android.permission.CAMERA",
+				"android.permission.RECORD_AUDIO"
+			]
 		},
 		"web": {
 			"bundler": "metro",
@@ -61,7 +66,8 @@
 				}
 			],
 			"./plugins/withMlKitConflict.js",
-			"./plugins/withSmileIdPackagingFix"
+			"./plugins/withSmileIdPackagingFix",
+			"./plugins/withSmileIdSwiftInterfaceFix"
 		],
 		"experiments": {
 			"typedRoutes": true

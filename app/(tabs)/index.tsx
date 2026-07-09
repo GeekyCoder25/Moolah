@@ -12,6 +12,7 @@ import ProfileIcon from '@/assets/icons/profile';
 import ProfileCardIcon from '@/assets/icons/profile-card';
 import WalletBgIcon from '@/assets/icons/wallet-bg';
 import WifiIcon from '@/assets/icons/wifi';
+import AdBanner from '@/components/ad-banner';
 import {Text} from '@/components/text';
 import {useGlobalStore} from '@/context/store';
 import {GlobalColors} from '@/styles';
@@ -287,6 +288,8 @@ export default function HomeScreen() {
 					<View className="bg-secondary w-12 h-12 rounded-full absolute -right-2 -bottom-2" />
 				</View>
 			</View>
+
+			<AdBanner className="mt-5" />
 
 			<View className="bg-white px-10 py-10 mt-5 rounded-xl gap-10c mb-10">
 				<View className="flex-row justify-around flex-wrap gap-10 ">

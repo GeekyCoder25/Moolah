@@ -1,8 +1,8 @@
 import * as React from 'react';
-import Svg, {Circle, Ellipse, Path} from 'react-native-svg';
 import type {SvgProps} from 'react-native-svg';
+import Svg, {Circle, Ellipse, Path} from 'react-native-svg';
 const MTNIcon = (props: SvgProps) => (
-	<Svg width={50} height={50} fill="none" {...props}>
+	<Svg width={50} height={50} fill="none" {...props} viewBox="0 0 50 50">
 		<Circle cx={25} cy={25} r={25} fill="#FFF7DD" />
 		<Circle cx={25} cy={25} r={15} fill="#FFD54F" />
 		<Ellipse cx={25} cy={25.5} fill="#0E153A" rx={15} ry={8.5} />

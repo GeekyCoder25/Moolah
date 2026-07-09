@@ -68,24 +68,15 @@ type PlanTab = (typeof PLAN_TABS)[number];
 
 // Data plan category chips.
 //
-// Two kinds of chip:
-// - Product chips: a plan belongs to one when its `type` matches one of `types`
-//   (normalized) OR its `name` contains one of `keywords`.
-// - Delivery-type chips (SME / Gifting / Corporate): not plan types at all —
-//   they set how the data is delivered. They show only when the network's
-//   `statusFlag` is 'On', list the standard Direct-Data plans, and send
-//   `deliveryType` as `data_type` on purchase.
+// A plan belongs to a product chip when its `type` matches one of `types`
+// (normalized) OR its `name` contains one of `keywords`.
 //
 // `Others` is a catch-all for plans that match no product chip, so no plan is
 // ever hidden.
-type NetworkStatusFlag = 'smeStatus' | 'giftingStatus' | 'corporateStatus';
-
 interface DataCategory {
 	label: string;
 	types?: string[];
 	keywords?: string[];
-	deliveryType?: string;
-	statusFlag?: NetworkStatusFlag;
 }
 
 const OTHERS_CATEGORY = 'Others';
@@ -93,13 +84,6 @@ const DIRECT_DATA_CATEGORY = 'Direct Data';
 
 const DATA_CATEGORIES: DataCategory[] = [
 	{label: DIRECT_DATA_CATEGORY, types: ['Direct-Data', 'Direct', 'VTU']},
-	{label: 'SME Data', deliveryType: 'SME', statusFlag: 'smeStatus'},
-	{label: 'Gifting', deliveryType: 'Gifting', statusFlag: 'giftingStatus'},
-	{
-		label: 'Corporate Data',
-		deliveryType: 'Corporate',
-		statusFlag: 'corporateStatus',
-	},
 	{
 		label: 'Router Data',
 		types: ['Router', 'Router-Data'],
@@ -179,37 +163,22 @@ const Data = () => {
 	const networkAttributes = plans.find(p => p.id === formData.id)?.attributes;
 	const networkPlans = networkAttributes?.dataplans ?? [];
 
-	const directDataCategory = DATA_CATEGORIES.find(
-		c => c.label === DIRECT_DATA_CATEGORY,
-	);
-
 	// A plan is "Other" when it matches no product category.
 	const isOtherPlan = (plan: DataPlan) =>
 		!DATA_CATEGORIES.some(
-			c =>
-				c.label !== OTHERS_CATEGORY &&
-				!c.deliveryType &&
-				planMatchesCategory(plan, c),
+			c => c.label !== OTHERS_CATEGORY && planMatchesCategory(plan, c),
 		);
 
-	// Delivery chips (SME/Gifting/Corporate) list the standard Direct-Data plans;
-	// product chips filter by their own matcher; Others catches the rest.
+	// Product chips filter by their own matcher; Others catches the rest.
 	const plansForCategory = (plan: DataPlan, category?: DataCategory) => {
 		if (!category) return true;
 		if (category.label === OTHERS_CATEGORY) return isOtherPlan(plan);
-		if (category.deliveryType)
-			return directDataCategory
-				? planMatchesCategory(plan, directDataCategory)
-				: true;
 		return planMatchesCategory(plan, category);
 	};
 
-	// A chip is visible when: a delivery chip whose network status flag is 'On',
-	// Others when the network has unmatched plans, or a product chip the network
-	// actually has plans for.
+	// A chip is visible when it's Others and the network has unmatched plans, or
+	// a product chip the network actually has plans for.
 	const visibleCategories = DATA_CATEGORIES.filter(category => {
-		if (category.statusFlag)
-			return networkAttributes?.[category.statusFlag] === 'On';
 		if (category.label === OTHERS_CATEGORY)
 			return networkPlans.some(isOtherPlan);
 		return networkPlans.some(plan => planMatchesCategory(plan, category));
@@ -444,10 +413,7 @@ const Data = () => {
 											plan: plan.attributes.name,
 											price: plan.attributes.price,
 											discounted_price: discountedPrice,
-											// Delivery chips send their delivery type as data_type;
-											// product chips send the plan's own type (unchanged).
-											type:
-												activeCategoryDef?.deliveryType ?? plan.attributes.type,
+											type: plan.attributes.type,
 											plan_id: plan.id,
 										}))
 									}
