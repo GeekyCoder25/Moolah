@@ -370,7 +370,7 @@ const Airtime = () => {
 
 export default Airtime;
 
-export const networkProvidersIcon = (network: string, size?: number) => {
+export const networkProvidersIcon = (network: string, size = 40) => {
 	switch (network) {
 		case 'glo':
 			return <GloIcon width={size} height={size} />;
