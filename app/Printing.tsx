@@ -215,12 +215,15 @@ const Printing = () => {
 		}
 	};
 
-	// Compact vouchers so batch printing fits many per page. Cards tile two per
-	// row and keep tight spacing to save paper.
+	// Vouchers flow in a responsive grid so they adapt to the paper width:
+	// equal columns two-plus wide on A4, and a single full-width column on narrow
+	// thermal rolls (58/80mm). Columns stay equal width, so an odd last voucher
+	// keeps its column width instead of stretching across the row. The min(...,
+	// 100%) guard stops the 280px track from overflowing very narrow rolls.
 	const VOUCHER_STYLE = `
-body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 8px; margin: 0; color: #111; font-size: 0; }
-.card { display: inline-block; box-sizing: border-box; width: 49%; vertical-align: top; border: 1px solid #ddd; border-radius: 10px; padding: 10px 12px; margin: 0 0 6px; page-break-inside: avoid; }
-.card:nth-child(odd) { margin-right: 1%; }
+body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 8px; margin: 0; color: #111; }
+.wrap { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 6px; align-items: start; }
+.card { box-sizing: border-box; border: 1px solid #ddd; border-radius: 10px; padding: 10px 12px; page-break-inside: avoid; }
 .header { display: flex; align-items: center; justify-content: space-between; }
 .title { font-size: 13px; font-weight: 700; margin: 2px 0 6px; }
 .row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed #ddd; }
@@ -258,7 +261,7 @@ Care: ${customerCare} · ${businessName}
 <meta charset="utf-8" />
 <style>${VOUCHER_STYLE}</style>
 </head>
-<body>${records.map(recordCardHtml).join('')}</body>
+<body><div class="wrap">${records.map(recordCardHtml).join('')}</div></body>
 </html>`;
 
 	const buildBatchVoucherHtml = (cards: EPinCard[]) => {

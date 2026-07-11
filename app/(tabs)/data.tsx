@@ -324,7 +324,9 @@ const Data = () => {
 				{/* Buy Data heading + subtitle */}
 				<View className="px-[5%] flex-row justify-between items-center mb-4">
 					<Text className="text-xl font-bold text-[#111]">Buy Data</Text>
-					<Text className="text-[#1A73E8] text-sm">Data for all Network</Text>
+					{!formData.network && (
+						<Text className="text-[#1A73E8] text-sm">Data for all Network</Text>
+					)}
 				</View>
 
 				{/* Data plan category chips */}
