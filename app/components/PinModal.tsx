@@ -71,23 +71,26 @@ const PinModal: FC<PinModalProps> = props => {
 									textAlign="center"
 									value={otpCode1.replace(/[<>"'&/]/g, '')}
 									autoFocus
-									className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1W font-bold ${
+									style={{fontSize: 36}}
+									className={`border-[1px] w-20 h-20 rounded-2xl p-1W font-bold ${
 										isError1 ? 'text-red-500' : ''
 									} ${
 										focusedBox === 1
 											? 'border-secondary'
 											: isError1
-											? 'border-red-500'
-											: 'border-[#C8C8C8]'
+												? 'border-red-500'
+												: 'border-[#C8C8C8]'
 									}`}
 								/>
 							</TouchableOpacity>
 							<TouchableOpacity onPress={() => inputRef2.current?.focus()}>
 								<TextInput
 									onChangeText={text => {
-										text
-											? inputRef3.current?.focus()
-											: inputRef.current?.focus();
+										if (text) {
+											inputRef3.current?.focus();
+										} else {
+											inputRef.current?.focus();
+										}
 										setOtpCode2(text.replace(/[<>"'&/]/g, ''));
 										setIsError2(false);
 									}}
@@ -97,24 +100,27 @@ const PinModal: FC<PinModalProps> = props => {
 									maxLength={1}
 									textAlign="center"
 									value={otpCode2.replace(/[<>"'&/]/g, '')}
-									className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1 font-bold ${
+									style={{fontSize: 36}}
+									className={`border-[1px] w-20 h-20 rounded-2xl p-1 font-bold ${
 										isError2 ? 'text-red-500' : ''
 									} ${
 										focusedBox === 2
 											? 'border-secondary'
 											: isError2
-											? 'border-red-500'
-											: 'border-[#C8C8C8]'
+												? 'border-red-500'
+												: 'border-[#C8C8C8]'
 									}`}
 								/>
 							</TouchableOpacity>
 							<TouchableOpacity onPress={() => inputRef3.current?.focus()}>
 								<TextInput
 									onChangeText={text => {
-										text
-											? inputRef4.current?.focus()
-											: inputRef2.current?.focus();
-										setOtpCode3(text.replace(/[<>"'&/]/g, ''));
+										if (text) {
+											inputRef4.current?.focus();
+										} else {
+											inputRef2.current?.focus();
+										}
+										setOtpCode3(text.replace(/[<>\"'&/]/g, ''));
 										setIsError3(false);
 									}}
 									onFocus={() => setFocusedBox(3)}
@@ -123,14 +129,15 @@ const PinModal: FC<PinModalProps> = props => {
 									maxLength={1}
 									textAlign="center"
 									value={otpCode3.replace(/[<>"'&/]/g, '')}
-									className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1 font-bold ${
+									style={{fontSize: 36}}
+									className={`border-[1px] w-20 h-20 rounded-2xl p-1 font-bold ${
 										isError3 ? 'text-red-500' : ''
 									} ${
 										focusedBox === 3
 											? 'border-secondary'
 											: isError3
-											? 'border-red-500'
-											: 'border-[#C8C8C8]'
+												? 'border-red-500'
+												: 'border-[#C8C8C8]'
 									}`}
 								/>
 							</TouchableOpacity>
@@ -151,14 +158,15 @@ const PinModal: FC<PinModalProps> = props => {
 									maxLength={1}
 									textAlign="center"
 									value={otpCode4.replace(/[<>"'&/]/g, '')}
-									className={`border-[1px] w-20 h-20 rounded-2xl text-5xl p-1 font-bold ${
+									style={{fontSize: 36}}
+									className={`border-[1px] w-20 h-20 rounded-2xl p-1 font-bold ${
 										isError4 ? 'text-red-500' : ''
 									} ${
 										focusedBox === 4
 											? 'border-secondary'
 											: isError4
-											? 'border-red-500'
-											: 'border-[#C8C8C8]'
+												? 'border-red-500'
+												: 'border-[#C8C8C8]'
 									}`}
 								/>
 							</TouchableOpacity>

@@ -82,8 +82,8 @@ const Profile = () => {
 	};
 
 	return (
-		<View className="flex-1 px-[5%] py-5">
-			<ScrollView className="gap-x-4 flex-1">
+		<View className="flex-1 py-5">
+			<ScrollView className="gap-x-4 flex-1 px-[5%] ">
 				<Back title="Profile" />
 
 				{/* Dismissable info banner */}
@@ -263,7 +263,7 @@ const Profile = () => {
 				</View>
 			</ScrollView>
 
-			<Button title="Update" onPress={handleUpdate} />
+			<Button title="Update" onPress={handleUpdate} className="mx-[5%] mb-5" />
 		</View>
 	);
 };

@@ -10,6 +10,7 @@ import {
 	Keyboard,
 	KeyboardAvoidingView,
 	Modal,
+	Platform,
 	Pressable,
 	ScrollView,
 	TextInput,
@@ -17,6 +18,7 @@ import {
 	TouchableWithoutFeedback,
 	View,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import PinModal from './components/PinModal';
 import Button from './components/button';
@@ -99,6 +101,7 @@ const PRESET_AMOUNTS = [500, 1000, 2000, 5000, 10000, 20000];
 
 const Betting = () => {
 	const {setLoading} = useGlobalStore();
+	const insets = useSafeAreaInsets();
 	const [showPin, setShowPin] = useState(false);
 	const [showProviderModal, setShowProviderModal] = useState(false);
 	const [formData, setFormData] = useState({
@@ -204,8 +207,8 @@ const Betting = () => {
 	return (
 		<KeyboardAvoidingView
 			className="flex-1 bg-[#F5F5F5]"
-			behavior="padding"
-			keyboardVerticalOffset={20}
+			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+			keyboardVerticalOffset={insets.top}
 		>
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<View className="flex-1">
@@ -241,7 +244,8 @@ const Betting = () => {
 							</View>
 
 							<TextInput
-								className="border-b border-[#E0E0E0] py-2 text-base text-[#111]"
+								className="border-b border-[#E0E0E0] py-2 text-[#111]"
+								style={{fontSize: 16}}
 								inputMode="tel"
 								value={formData.id.replace(/[<>"'&/]/g, '')}
 								onChangeText={text =>
@@ -294,7 +298,8 @@ const Betting = () => {
 								Enter an amount
 							</Text>
 							<TextInput
-								className="border-b border-[#E0E0E0] py-2 text-base text-[#111]"
+								className="border-b border-[#E0E0E0] py-2 text-[#111]"
+								style={{fontSize: 16}}
 								inputMode="numeric"
 								value={formData.amount}
 								onChangeText={text =>

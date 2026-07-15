@@ -162,7 +162,8 @@ const AddBankAccount = () => {
 						Account number
 					</Text>
 					<TextInput
-						className="bg-white border border-[#E8E8E8] rounded-xl px-4 h-14 text-base text-[#111]"
+						className="bg-white border border-[#E8E8E8] rounded-xl px-4 h-14 text-[#111]"
+						style={{fontSize: 16}}
 						inputMode="numeric"
 						maxLength={10}
 						value={accountNumber}
@@ -212,7 +213,8 @@ const AddBankAccount = () => {
 						<View className="px-[5%] pt-6 pb-3">
 							<Text className="text-2xl font-bold mb-4">Select bank</Text>
 							<TextInput
-								className="bg-[#F5F6FA] rounded-xl px-4 h-12 text-base text-[#111]"
+								className="bg-[#F5F6FA] rounded-xl px-4 h-12 text-[#111]"
+								style={{fontSize: 16}}
 								value={search}
 								onChangeText={setSearch}
 								placeholder="Search banks"

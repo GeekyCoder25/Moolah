@@ -13,12 +13,14 @@ import React, {useEffect, useState} from 'react';
 import {
 	KeyboardAvoidingView,
 	Modal,
+	Platform,
 	Pressable,
 	ScrollView,
 	TextInput,
 	TouchableOpacity,
 	View,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import Button from '../components/button';
 import PinModal from '../components/PinModal';
@@ -72,6 +74,7 @@ const networks = [
 
 const Airtime = () => {
 	const {setLoading, user} = useGlobalStore();
+	const insets = useSafeAreaInsets();
 	const [formData, setFormData] = useState({
 		network: 'MTN',
 		phone_number: user?.phone_number ?? '',
@@ -163,12 +166,22 @@ const Airtime = () => {
 	return (
 		<KeyboardAvoidingView
 			className="flex-1 bg-[#F5F5F5]"
-			behavior="padding"
-			keyboardVerticalOffset={20}
+			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+			keyboardVerticalOffset={insets.top}
 		>
 			{/* Header */}
 			<View className="px-[5%] pt-5 bg-[#F5F5F5]">
 				<Back title="Airtime" />
+				<View className="flex-row justify-end mt-3">
+					<TouchableOpacity
+						onPress={() => router.navigate('/InternationalAirtime')}
+						className="bg-white border border-[#E8E8E8] rounded-full px-4 py-2"
+					>
+						<Text className="text-secondary text-xs font-semibold">
+							🌍 International
+						</Text>
+					</TouchableOpacity>
+				</View>
 			</View>
 
 			<ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -177,7 +190,8 @@ const Airtime = () => {
 					<View className="flex-row items-center gap-x-3 flex-1">
 						<Text className="text-[#888] text-base">Number:</Text>
 						<TextInput
-							className="flex-1 text-base text-[#111] font-medium"
+							className="flex-1 text-[#111] font-medium"
+							style={{fontSize: 16}}
 							inputMode="tel"
 							maxLength={11}
 							value={formData.phone_number.replace(/[<>"'&/]/g, '')}
@@ -292,7 +306,8 @@ const Airtime = () => {
 						Enter an amount
 					</Text>
 					<TextInput
-						className="border-b border-[#E0E0E0] py-2 text-base text-[#111]"
+						className="border-b border-[#E0E0E0] py-2 text-[#111]"
+						style={{fontSize: 16}}
 						inputMode="numeric"
 						value={formData.amount}
 						onChangeText={text =>

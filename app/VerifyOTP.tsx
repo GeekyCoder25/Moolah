@@ -319,12 +319,13 @@ const VerifyOTP = () => {
 								textAlign="center"
 								value={otpCode1.replace(/[<>"'&/]/g, '')}
 								autoFocus
+								style={{fontSize: Dimensions.get('window').width < 450 ? 30 : 48}}
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 450
-										? 'w-14 h-14 text-3xl rounded-xl'
+										? 'w-14 h-14 rounded-xl'
 										: Dimensions.get('window').width < 450
-										? 'w-16 h-16 text-5xl rounded-2xl'
-										: 'w-20 h-20 text-5xl rounded-2xl'
+										? 'w-16 h-16 rounded-2xl'
+										: 'w-20 h-20 rounded-2xl'
 								} p-1 font-bold ${isError1 ? 'text-red-500' : ''} ${
 									focusedBox === 1
 										? 'border-secondary'
@@ -348,12 +349,13 @@ const VerifyOTP = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCode2.replace(/[<>"'&/]/g, '')}
+								style={{fontSize: Dimensions.get('window').width < 450 ? 30 : 48}}
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 450
-										? 'w-14 h-14 text-3xl rounded-xl'
+										? 'w-14 h-14 rounded-xl'
 										: Dimensions.get('window').width < 450
-										? 'w-16 h-16 text-5xl rounded-2xl'
-										: 'w-20 h-20 text-5xl rounded-2xl'
+										? 'w-16 h-16 rounded-2xl'
+										: 'w-20 h-20 rounded-2xl'
 								} p-1 font-bold ${isError2 ? 'text-red-500' : ''} ${
 									focusedBox === 2
 										? 'border-secondary'
@@ -377,12 +379,13 @@ const VerifyOTP = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCode3.replace(/[<>"'&/]/g, '')}
+								style={{fontSize: Dimensions.get('window').width < 450 ? 30 : 48}}
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 450
-										? 'w-14 h-14 text-3xl rounded-xl'
+										? 'w-14 h-14 rounded-xl'
 										: Dimensions.get('window').width < 450
-										? 'w-16 h-16 text-5xl rounded-2xl'
-										: 'w-20 h-20 text-5xl rounded-2xl'
+										? 'w-16 h-16 rounded-2xl'
+										: 'w-20 h-20 rounded-2xl'
 								} p-1 font-bold ${isError3 ? 'text-red-500' : ''} ${
 									focusedBox === 3
 										? 'border-secondary'
@@ -406,12 +409,13 @@ const VerifyOTP = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCode4}
+								style={{fontSize: Dimensions.get('window').width < 450 ? 30 : 48}}
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 450
-										? 'w-14 h-14 text-3xl rounded-xl'
+										? 'w-14 h-14 rounded-xl'
 										: Dimensions.get('window').width < 450
-										? 'w-16 h-16 text-5xl rounded-2xl'
-										: 'w-20 h-20 text-5xl rounded-2xl'
+										? 'w-16 h-16 rounded-2xl'
+										: 'w-20 h-20 rounded-2xl'
 								} p-1 font-bold ${isError4 ? 'text-red-500' : ''} ${
 									focusedBox === 4
 										? 'border-secondary'
@@ -435,12 +439,13 @@ const VerifyOTP = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCode5}
+								style={{fontSize: Dimensions.get('window').width < 450 ? 30 : 48}}
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 450
-										? 'w-14 h-14 text-3xl rounded-xl'
+										? 'w-14 h-14 rounded-xl'
 										: Dimensions.get('window').width < 450
-										? 'w-16 h-16 text-5xl rounded-2xl'
-										: 'w-20 h-20 text-5xl rounded-2xl'
+										? 'w-16 h-16 rounded-2xl'
+										: 'w-20 h-20 rounded-2xl'
 								} p-1 font-bold ${isError5 ? 'text-red-500' : ''} ${
 									focusedBox === 5
 										? 'border-secondary'
@@ -467,12 +472,13 @@ const VerifyOTP = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCode6}
+								style={{fontSize: Dimensions.get('window').width < 450 ? 30 : 48}}
 								className={`border-[1px] ${
 									Dimensions.get('window').width < 450
-										? 'w-14 h-14 text-3xl rounded-xl'
+										? 'w-14 h-14 rounded-xl'
 										: Dimensions.get('window').width < 450
-										? 'w-16 h-16 text-5xl rounded-2xl'
-										: 'w-20 h-20 text-5xl rounded-2xl'
+										? 'w-16 h-16 rounded-2xl'
+										: 'w-20 h-20 rounded-2xl'
 								} p-1 font-bold ${isError6 ? 'text-red-500' : ''} ${
 									focusedBox === 6
 										? 'border-secondary'

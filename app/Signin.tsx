@@ -56,10 +56,15 @@ interface VerifyDeviceResponse {
 
 const BOX_CLASS = (width: number) =>
 	width < 400
-		? 'w-12 h-12 text-2xl rounded-xl'
+		? 'w-12 h-12 rounded-xl'
 		: width < 450
-			? 'w-14 h-14 text-3xl rounded-xl'
-			: 'w-16 h-16 text-4xl rounded-2xl';
+			? 'w-14 h-14 rounded-xl'
+			: 'w-16 h-16 rounded-2xl';
+
+// Font size matching BOX_CLASS (text-2xl/3xl/4xl) set via style so no
+// line-height is applied — avoids iOS vertical-misalignment of the digit.
+const BOX_FONT_SIZE = (width: number) =>
+	width < 400 ? 24 : width < 450 ? 30 : 36;
 
 const Signin = () => {
 	const {setLoading, setUser, setAccessToken} = useGlobalStore();
@@ -319,6 +324,7 @@ const Signin = () => {
 
 	const w = Dimensions.get('window').width;
 	const boxClass = BOX_CLASS(w);
+	const boxFontSize = BOX_FONT_SIZE(w);
 
 	if (deviceVerification.required) {
 		return (
@@ -353,6 +359,7 @@ const Signin = () => {
 									textAlign="center"
 									autoFocus
 									className={`border-[1px] ${boxClass} p-1 font-bold ${isError1 ? 'text-red-500' : ''} ${focusedBox === 1 ? 'border-secondary' : isError1 ? 'border-red-500' : 'border-[#C8C8C8]'}`}
+									style={{fontSize: boxFontSize}}
 								/>
 							</TouchableOpacity>
 							{/* Box 2 */}
@@ -371,6 +378,7 @@ const Signin = () => {
 									maxLength={1}
 									textAlign="center"
 									className={`border-[1px] ${boxClass} p-1 font-bold ${isError2 ? 'text-red-500' : ''} ${focusedBox === 2 ? 'border-secondary' : isError2 ? 'border-red-500' : 'border-[#C8C8C8]'}`}
+									style={{fontSize: boxFontSize}}
 								/>
 							</TouchableOpacity>
 							{/* Box 3 */}
@@ -389,6 +397,7 @@ const Signin = () => {
 									maxLength={1}
 									textAlign="center"
 									className={`border-[1px] ${boxClass} p-1 font-bold ${isError3 ? 'text-red-500' : ''} ${focusedBox === 3 ? 'border-secondary' : isError3 ? 'border-red-500' : 'border-[#C8C8C8]'}`}
+									style={{fontSize: boxFontSize}}
 								/>
 							</TouchableOpacity>
 							{/* Box 4 */}
@@ -407,6 +416,7 @@ const Signin = () => {
 									maxLength={1}
 									textAlign="center"
 									className={`border-[1px] ${boxClass} p-1 font-bold ${isError4 ? 'text-red-500' : ''} ${focusedBox === 4 ? 'border-secondary' : isError4 ? 'border-red-500' : 'border-[#C8C8C8]'}`}
+									style={{fontSize: boxFontSize}}
 								/>
 							</TouchableOpacity>
 							{/* Box 5 */}
@@ -425,6 +435,7 @@ const Signin = () => {
 									maxLength={1}
 									textAlign="center"
 									className={`border-[1px] ${boxClass} p-1 font-bold ${isError5 ? 'text-red-500' : ''} ${focusedBox === 5 ? 'border-secondary' : isError5 ? 'border-red-500' : 'border-[#C8C8C8]'}`}
+									style={{fontSize: boxFontSize}}
 								/>
 							</TouchableOpacity>
 							{/* Box 6 */}
@@ -446,6 +457,7 @@ const Signin = () => {
 									maxLength={1}
 									textAlign="center"
 									className={`border-[1px] ${boxClass} p-1 font-bold ${isError6 ? 'text-red-500' : ''} ${focusedBox === 6 ? 'border-secondary' : isError6 ? 'border-red-500' : 'border-[#C8C8C8]'}`}
+									style={{fontSize: boxFontSize}}
 								/>
 							</TouchableOpacity>
 						</View>
@@ -536,7 +548,7 @@ const Signin = () => {
 			</View>
 			<View>
 				<Button title="Log in" onPress={handleSubmit} />
-				<View className="flex-row justify-center items-center mt-5">
+				<View className="flex-row flex-wrap justify-center items-center mt-5">
 					<Text className="text-xl">Already have an existing account? </Text>
 					<TouchableOpacity onPress={() => router.navigate('/Signup')}>
 						<Text className="text-primary text-2xl font-bold">Sign up </Text>

@@ -103,7 +103,7 @@ const Transfer = () => {
 						placeholderTextColor={'#7D7D7D'}
 					/>
 				</View>
-				<View className="my-10 bg-[#dee8f6] px-10 py-5 rounded-xl gap-y-5">
+				<View className="my-10 bg-[#dee8f6] px-8 py-5 rounded-xl gap-y-5">
 					<View className="flex-row items-center">
 						<Text className="text-secondary">Note </Text>
 						<View>

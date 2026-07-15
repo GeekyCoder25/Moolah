@@ -10,12 +10,14 @@ import {
 	Image,
 	KeyboardAvoidingView,
 	Modal,
+	Platform,
 	Pressable,
 	ScrollView,
 	TextInput,
 	TouchableOpacity,
 	View,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import Button from './components/button';
 import PinModal from './components/PinModal';
@@ -105,6 +107,7 @@ type PlanTab = (typeof PLAN_TABS)[number];
 
 const TV = () => {
 	const {setLoading, user} = useGlobalStore();
+	const insets = useSafeAreaInsets();
 	const [showPin, setShowPin] = useState(false);
 	const [formData, setFormData] = useState({
 		provider: 0,
@@ -243,8 +246,8 @@ const TV = () => {
 	return (
 		<KeyboardAvoidingView
 			className="flex-1 bg-[#F5F5F5]"
-			behavior="padding"
-			keyboardVerticalOffset={20}
+			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+			keyboardVerticalOffset={insets.top}
 		>
 			{/* Header */}
 			<View className="px-[5%] pt-5 bg-[#F5F5F5]">
@@ -279,7 +282,8 @@ const TV = () => {
 
 					{/* Underline-style input */}
 					<TextInput
-						className="border-b border-[#E0E0E0] py-2 text-base text-[#111]"
+						className="border-b border-[#E0E0E0] py-2 text-[#111]"
+						style={{fontSize: 16}}
 						inputMode="numeric"
 						value={formData.iuc_no.replace(/[<>"'&/]/g, '')}
 						onChangeText={text =>

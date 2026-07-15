@@ -8,12 +8,14 @@ import React, {useEffect, useState} from 'react';
 import {
 	KeyboardAvoidingView,
 	Modal,
+	Platform,
 	Pressable,
 	ScrollView,
 	TextInput,
 	TouchableOpacity,
 	View,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import Button from '../components/button';
 import PinModal from '../components/PinModal';
@@ -127,6 +129,7 @@ const networks = [
 
 const Data = () => {
 	const {setLoading, user} = useGlobalStore();
+	const insets = useSafeAreaInsets();
 	const [formData, setFormData] = useState({
 		network: '',
 		id: 1,
@@ -274,8 +277,8 @@ const Data = () => {
 	return (
 		<KeyboardAvoidingView
 			className="flex-1 bg-white"
-			behavior="padding"
-			keyboardVerticalOffset={20}
+			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+			keyboardVerticalOffset={insets.top}
 		>
 			{/* Header */}
 			<View className="px-[5%] pt-5">
@@ -288,7 +291,8 @@ const Data = () => {
 					<View className="flex-row items-center gap-x-3 flex-1">
 						<Text className="text-[#888] text-base">Number:</Text>
 						<TextInput
-							className="flex-1 text-base text-[#111] font-medium"
+							className="flex-1 text-[#111] font-medium"
+							style={{fontSize: 16}}
 							inputMode="tel"
 							maxLength={11}
 							value={formData.phone_number.replace(/[<>"'&/]/g, '')}

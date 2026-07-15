@@ -188,7 +188,8 @@ const SetPin = () => {
 								textAlign="center"
 								value={otpCode1}
 								autoFocus
-								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+								style={{fontSize: 36}}
+								className={`border-[1px] w-20 h-20 rounded-2xl p-1 font-semibold ${
 									isError1 ? 'text-red-500' : ''
 								} ${
 									focusedBox === 1
@@ -213,7 +214,8 @@ const SetPin = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCode2}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+								style={{fontSize: 36}}
+								className={`border-[1px] w-20 h-20 rounded-2xl p-1 font-semibold ${
 									isError2 ? 'text-red-500' : ''
 								} ${
 									focusedBox === 2
@@ -238,7 +240,8 @@ const SetPin = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCode3}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+								style={{fontSize: 36}}
+								className={`border-[1px] w-20 h-20 rounded-2xl p-1 font-semibold ${
 									isError3 ? 'text-red-500' : ''
 								} ${
 									focusedBox === 3
@@ -266,7 +269,8 @@ const SetPin = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCode4}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+								style={{fontSize: 36}}
+								className={`border-[1px] w-20 h-20 rounded-2xl p-1 font-semibold ${
 									isError4 ? 'text-red-500' : ''
 								} ${
 									focusedBox === 4
@@ -294,7 +298,8 @@ const SetPin = () => {
 								// style={isError1 ? styles.otpInputError : styles.otpInput}
 								textAlign="center"
 								value={otpCodeConfirm1}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+								style={{fontSize: 36}}
+								className={`border-[1px] w-20 h-20 rounded-2xl p-1 font-semibold ${
 									isErrorConfirm1 ? 'text-red-500' : ''
 								} ${
 									focusedBox === 5
@@ -319,7 +324,8 @@ const SetPin = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCodeConfirm2}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+								style={{fontSize: 36}}
+								className={`border-[1px] w-20 h-20 rounded-2xl p-1 font-semibold ${
 									isErrorConfirm2 ? 'text-red-500' : ''
 								} ${
 									focusedBox === 6
@@ -344,7 +350,8 @@ const SetPin = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCodeConfirm3}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+								style={{fontSize: 36}}
+								className={`border-[1px] w-20 h-20 rounded-2xl p-1 font-semibold ${
 									isErrorConfirm3 ? 'text-red-500' : ''
 								} ${
 									focusedBox === 7
@@ -372,7 +379,8 @@ const SetPin = () => {
 								maxLength={1}
 								textAlign="center"
 								value={otpCodeConfirm4}
-								className={`border-[1px] w-20 h-20 rounded-2xl text-4xl p-1 font-semibold ${
+								style={{fontSize: 36}}
+								className={`border-[1px] w-20 h-20 rounded-2xl p-1 font-semibold ${
 									isErrorConfirm4 ? 'text-red-500' : ''
 								} ${
 									focusedBox === 8

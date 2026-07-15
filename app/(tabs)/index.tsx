@@ -65,6 +65,23 @@ export interface TransactionAttributes {
 	updated_at: string | null;
 }
 
+// Home quick-actions grid. Rendered as an even 4-column grid so rows align and
+// labels sit below each tile with room to wrap cleanly.
+const SERVICES: {
+	label: string;
+	Icon: React.ComponentType;
+	route: string;
+}[] = [
+	{label: 'Data', Icon: WifiIcon, route: '/(tabs)/data'},
+	{label: 'Airtime', Icon: CallIcon, route: '/(tabs)/airtime'},
+	{label: 'Electricity', Icon: ElectricityIcon, route: '/Electricity'},
+	{label: 'TV', Icon: MonitorIcon, route: '/Tv'},
+	{label: 'Exam card', Icon: GraduationCapIcon, route: '/Exam'},
+	{label: 'Broadband', Icon: BroadBandIcon, route: '/Broadband'},
+	{label: 'Betting', Icon: BallIcon, route: '/Betting'},
+	{label: 'Promote', Icon: CameraIcon, route: '/'},
+];
+
 export default function HomeScreen() {
 	const {
 		user,
@@ -289,79 +306,27 @@ export default function HomeScreen() {
 				</View>
 			</View>
 
-			<AdBanner className="mt-5" />
+			<AdBanner />
 
-			<View className="bg-white px-10 py-10 mt-5 rounded-xl gap-10c mb-10">
-				<View className="flex-row justify-around flex-wrap gap-10 ">
-					<Pressable
-						onPress={() => router.navigate('/(tabs)/data')}
-						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
-					>
-						<WifiIcon />
-						<Text className="text-[#7D7D7D] text-sm font-semibold">Data</Text>
-					</Pressable>
-					<Pressable
-						onPress={() => router.navigate('/(tabs)/airtime')}
-						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
-					>
-						<CallIcon />
-						<Text className="text-[#7D7D7D] text-sm font-semibold">
-							Airtime
-						</Text>
-					</Pressable>
-					<Pressable
-						onPress={() => router.navigate('/Electricity')}
-						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
-					>
-						<ElectricityIcon />
-						<Text className="text-[#7D7D7D] text-sm font-semibold">
-							Electricity
-						</Text>
-					</Pressable>
-					<Pressable
-						onPress={() => router.navigate('/Tv')}
-						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
-					>
-						<MonitorIcon />
-						<Text className="text-[#7D7D7D] text-sm font-semibold">TV</Text>
-					</Pressable>
-					<Pressable
-						onPress={() => router.navigate('/Exam')}
-						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
-					>
-						<GraduationCapIcon />
-						<Text className="text-[#7D7D7D] text-sm font-semibold">
-							Exam card
-						</Text>
-					</Pressable>
-
-					<Pressable
-						onPress={() => router.navigate('/Broadband')}
-						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
-					>
-						<BroadBandIcon />
-						<Text className="text-[#7D7D7D] text-sm font-semibold">
-							Broadband
-						</Text>
-					</Pressable>
-					<Pressable
-						onPress={() => router.navigate('/Betting')}
-						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
-					>
-						<BallIcon />
-						<Text className="text-[#7D7D7D] text-sm font-semibold">
-							Betting
-						</Text>
-					</Pressable>
-					<Pressable
-						onPress={() => router.navigate('/')}
-						className="bg-[#e7f0ff] w-20 h-20 justify-center items-center rounded-xl gap-y-2"
-					>
-						<CameraIcon />
-						<Text className="text-[#7D7D7D] text-sm font-semibold">
-							Promote
-						</Text>
-					</Pressable>
+			<View className="bg-white px-2 py-6 mt-5 rounded-2xl mb-10">
+				<View className="flex-row flex-wrap">
+					{SERVICES.map(({label, Icon, route}) => (
+						<Pressable
+							key={label}
+							onPress={() => router.navigate(route as never)}
+							className="w-1/4 items-center mb-5 active:opacity-70"
+						>
+							<View className="w-16 h-16 bg-[#EAF1FF] rounded-2xl items-center justify-center">
+								<Icon />
+							</View>
+							<Text
+								className="text-[#4A4A4A] text-xs font-medium text-center mt-2"
+								numberOfLines={2}
+							>
+								{label}
+							</Text>
+						</Pressable>
+					))}
 				</View>
 			</View>
 

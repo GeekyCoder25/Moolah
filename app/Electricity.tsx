@@ -10,12 +10,14 @@ import {
 	Image,
 	KeyboardAvoidingView,
 	Modal,
+	Platform,
 	Pressable,
 	ScrollView,
 	TextInput,
 	TouchableOpacity,
 	View,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import Button from './components/button';
 import PinModal from './components/PinModal';
@@ -133,6 +135,7 @@ const PRESET_AMOUNTS = [1000, 2000, 3000, 5000, 10000, 20000];
 
 const Electricity = () => {
 	const {setLoading} = useGlobalStore();
+	const insets = useSafeAreaInsets();
 	const [showPin, setShowPin] = useState(false);
 	const [formData, setFormData] = useState({
 		provider_id: 0,
@@ -286,8 +289,8 @@ const Electricity = () => {
 	return (
 		<KeyboardAvoidingView
 			className="flex-1 bg-[#F5F5F5]"
-			behavior="padding"
-			keyboardVerticalOffset={20}
+			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+			keyboardVerticalOffset={insets.top}
 		>
 			{/* Header */}
 			<View className="px-[5%] pt-5 pb-2 bg-[#F5F5F5]">
@@ -346,7 +349,8 @@ const Electricity = () => {
 					</View>
 
 					<TextInput
-						className="border-b border-[#E0E0E0] py-2 text-base text-[#111]"
+						className="border-b border-[#E0E0E0] py-2 text-[#111]"
+						style={{fontSize: 16}}
 						inputMode="tel"
 						value={formData.meter_no.replace(/[<>"'&/]/g, '')}
 						onChangeText={text =>
@@ -402,7 +406,8 @@ const Electricity = () => {
 						Enter an amount
 					</Text>
 					<TextInput
-						className="border-b border-[#E0E0E0] py-2 text-base text-[#111]"
+						className="border-b border-[#E0E0E0] py-2 text-[#111]"
+						style={{fontSize: 16}}
 						inputMode="numeric"
 						value={formData.amount}
 						onChangeText={text =>

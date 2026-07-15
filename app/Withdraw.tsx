@@ -152,7 +152,8 @@ const Withdraw = () => {
 				<View className="mt-5 gap-y-2">
 					<Text className="text-base font-semibold text-[#111]">Amount</Text>
 					<TextInput
-						className="bg-white border border-[#E8E8E8] rounded-xl px-4 h-14 text-base text-[#111]"
+						className="bg-white border border-[#E8E8E8] rounded-xl px-4 h-14 text-[#111]"
+						style={{fontSize: 16}}
 						inputMode="numeric"
 						value={amount}
 						onChangeText={text => setAmount(text.replace(/[^0-9]/g, ''))}

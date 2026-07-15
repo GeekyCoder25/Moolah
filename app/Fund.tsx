@@ -324,7 +324,8 @@ const Fund = () => {
 								Enter amount to fund your wallet
 							</Text>
 							<TextInput
-								className="border border-[#EBEBEB] rounded-lg px-4 py-3 text-xl"
+								className="border border-[#EBEBEB] rounded-lg px-4 py-3"
+								style={{fontSize: 20}}
 								placeholder="Amount (NGN)"
 								placeholderTextColor={'grey'}
 								keyboardType="numeric"

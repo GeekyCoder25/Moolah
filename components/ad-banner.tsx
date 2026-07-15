@@ -21,15 +21,14 @@ const AdBanner = ({className = ''}: {className?: string}) => {
 		queryKey: ['ad-banner'],
 		queryFn: async () => {
 			const axiosClient = new AxiosClient();
-			const response =
-				await axiosClient.get<AdBannerResponse>('/ad-banner');
+			const response = await axiosClient.get<AdBannerResponse>('/ad-banner');
 			return response.data;
 		},
 	});
 
 	const banner = data?.data;
 	// Default to a wide banner ratio until the real image size loads.
-	const [aspectRatio, setAspectRatio] = useState(3);
+	const [aspectRatio, setAspectRatio] = useState(0);
 
 	useEffect(() => {
 		if (!banner?.image_url) return;
