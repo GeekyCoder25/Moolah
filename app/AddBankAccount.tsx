@@ -9,17 +9,23 @@ import {router} from 'expo-router';
 import React, {useEffect, useState} from 'react';
 import {
 	FlatList,
+	Keyboard,
+	KeyboardAvoidingView,
 	Modal,
+	Platform,
 	Pressable,
 	TextInput,
 	TouchableOpacity,
+	TouchableWithoutFeedback,
 	View,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import Button from './components/button';
 
 const AddBankAccount = () => {
 	const {setUser, setLoading} = useGlobalStore();
+	const insets = useSafeAreaInsets();
 	const [showBankModal, setShowBankModal] = useState(false);
 	const [search, setSearch] = useState('');
 	const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
@@ -122,70 +128,78 @@ const AddBankAccount = () => {
 	};
 
 	return (
-		<View className="flex-1 bg-[#F5F5F5]">
-			<View className="px-[5%] pt-5">
-				<Back title="Add bank account" />
-			</View>
+		<KeyboardAvoidingView
+			className="flex-1 bg-[#F5F5F5]"
+			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+			keyboardVerticalOffset={insets.top}
+		>
+			<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+				<View className="flex-1">
+					<View className="px-[5%] pt-5">
+						<Back title="Add bank account" />
+					</View>
 
-			<View className="flex-1 px-[5%] mt-6 gap-y-5">
-				{/* Bank selector */}
-				<View className="gap-y-2">
-					<Text className="text-base font-semibold text-[#111]">Bank</Text>
-					<TouchableOpacity
-						onPress={() => setShowBankModal(true)}
-						className="bg-white border border-[#E8E8E8] rounded-xl px-4 h-14 flex-row items-center justify-between"
-					>
-						{selectedBank ? (
-							<View className="flex-row items-center gap-x-3 flex-1">
-								<Image
-									source={{uri: selectedBank.bankUrl}}
-									style={{width: 28, height: 28, borderRadius: 6}}
-									contentFit="contain"
-								/>
-								<Text
-									className="text-base text-[#111] flex-1"
-									numberOfLines={1}
-								>
-									{selectedBank.bankName}
-								</Text>
-							</View>
-						) : (
-							<Text className="text-base text-[#999]">Select bank</Text>
-						)}
-						<Text className="text-[#7D7D7D] text-xs ml-2">▼</Text>
-					</TouchableOpacity>
-				</View>
-
-				{/* Account number */}
-				<View className="gap-y-2">
-					<Text className="text-base font-semibold text-[#111]">
-						Account number
-					</Text>
-					<TextInput
-						className="bg-white border border-[#E8E8E8] rounded-xl px-4 h-14 text-[#111]"
-						style={{fontSize: 16}}
-						inputMode="numeric"
-						maxLength={10}
-						value={accountNumber}
-						onChangeText={text => {
-							setAccountNumber(text.replace(/[^0-9]/g, ''));
-							setAccountName('');
-						}}
-						placeholder="0123456789"
-						placeholderTextColor={'#999'}
-					/>
-					{verifying && (
-						<Text className="text-[#666] text-sm">Verifying…</Text>
-					)}
-					{accountName ? (
-						<View className="bg-[#E7F1FF] rounded-lg px-4 py-3 mt-1">
-							<Text className="text-secondary font-semibold">
-								{accountName}
-							</Text>
+					<View className="flex-1 px-[5%] mt-6 gap-y-5">
+						{/* Bank selector */}
+						<View className="gap-y-2">
+							<Text className="text-base font-semibold text-[#111]">Bank</Text>
+							<TouchableOpacity
+								onPress={() => setShowBankModal(true)}
+								className="bg-white border border-[#E8E8E8] rounded-xl px-4 h-14 flex-row items-center justify-between"
+							>
+								{selectedBank ? (
+									<View className="flex-row items-center gap-x-3 flex-1">
+										<Image
+											source={{uri: selectedBank.bankUrl}}
+											style={{width: 28, height: 28, borderRadius: 6}}
+											contentFit="contain"
+										/>
+										<Text
+											className="text-base text-[#111] flex-1"
+											numberOfLines={1}
+										>
+											{selectedBank.bankName}
+										</Text>
+									</View>
+								) : (
+									<Text className="text-base text-[#999]">Select bank</Text>
+								)}
+								<Text className="text-[#7D7D7D] text-xs ml-2">▼</Text>
+							</TouchableOpacity>
 						</View>
-					) : null}
+
+						{/* Account number */}
+						<View className="gap-y-2">
+							<Text className="text-base font-semibold text-[#111]">
+								Account number
+							</Text>
+							<TextInput
+								className="bg-white border border-[#E8E8E8] rounded-xl px-4 h-14 text-[#111]"
+								style={{fontSize: 16}}
+								inputMode="numeric"
+								maxLength={10}
+								value={accountNumber}
+								onChangeText={text => {
+									setAccountNumber(text.replace(/[^0-9]/g, ''));
+									setAccountName('');
+								}}
+								placeholder="0123456789"
+								placeholderTextColor={'#999'}
+							/>
+							{verifying && (
+								<Text className="text-[#666] text-sm">Verifying…</Text>
+							)}
+							{accountName ? (
+								<View className="bg-[#E7F1FF] rounded-lg px-4 py-3 mt-1">
+									<Text className="text-secondary font-semibold">
+										{accountName}
+									</Text>
+								</View>
+							) : null}
+						</View>
+					</View>
 				</View>
-			</View>
+			</TouchableWithoutFeedback>
 
 			<View className="px-[5%] pb-8 pt-3">
 				<Button
@@ -257,7 +271,7 @@ const AddBankAccount = () => {
 					</View>
 				</Modal>
 			)}
-		</View>
+		</KeyboardAvoidingView>
 	);
 };
 

@@ -28,9 +28,7 @@ const BankAccounts = () => {
 			type: 'error',
 			text1: 'Error',
 			text2:
-				error.response?.data?.message ||
-				error.response?.data ||
-				error.message,
+				error.response?.data?.message || error.response?.data || error.message,
 		});
 	};
 

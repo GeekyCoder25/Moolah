@@ -2,13 +2,13 @@
 	"expo": {
 		"name": "Paxi",
 		"slug": "paxi",
-		"version": "1.0.0",
+		"version": "1.0.1",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
 		"scheme": "paxi",
 		"userInterfaceStyle": "automatic",
 		"ios": {
-			"buildNumber": "1",
+			"buildNumber": "2",
 			"supportsTablet": true,
 			"bundleIdentifier": "com.paxing",
 			"infoPlist": {

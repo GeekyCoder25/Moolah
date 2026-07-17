@@ -1,12 +1,11 @@
-import {TouchableOpacity, View} from 'react-native';
-import React from 'react';
-import {Text} from '@/components/text';
-import Back from '@/components/back';
-import {router} from 'expo-router';
 import BackIcon from '@/assets/icons/back-icon';
 import LockIcon from '@/assets/icons/lock';
 import LockChangeIcon from '@/assets/icons/lock-change';
-import LockSlashIcon from '@/assets/icons/lock-slash';
+import Back from '@/components/back';
+import {Text} from '@/components/text';
+import {router} from 'expo-router';
+import React from 'react';
+import {TouchableOpacity, View} from 'react-native';
 
 const AccountSettings = () => {
 	type RoutePaths = '/ChangePassword' | '/ChangePin' | '/DisablePin';
@@ -28,12 +27,12 @@ const AccountSettings = () => {
 			icon: <LockChangeIcon />,
 			route: '/ChangePin',
 		},
-		{
-			title: 'Disable pin',
-			subText: 'Temporarily disable your PIN security',
-			icon: <LockSlashIcon />,
-			route: '/DisablePin',
-		},
+		// {
+		// 	title: 'Disable pin',
+		// 	subText: 'Temporarily disable your PIN security',
+		// 	icon: <LockSlashIcon />,
+		// 	route: '/DisablePin',
+		// },
 	];
 
 	return (

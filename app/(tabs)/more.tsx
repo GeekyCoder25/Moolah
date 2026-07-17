@@ -3,15 +3,21 @@ import Back from '@/components/back';
 import {Text} from '@/components/text';
 import {useGlobalStore} from '@/context/store';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import {router} from 'expo-router';
 import React from 'react';
-import {Linking, Platform, ScrollView, TouchableOpacity, View} from 'react-native';
+import {
+	Linking,
+	Platform,
+	ScrollView,
+	TouchableOpacity,
+	View,
+} from 'react-native';
 
 import {ACCESS_TOKEN_KEY, IS_LOGGED_IN} from '@/constants';
 import {MemoryStorage} from '@/utils/storage';
@@ -104,7 +110,9 @@ const More = () => {
 
 	const openStore = () => {
 		const url =
-			Platform.OS === 'ios' ? settings?.apple_app_url : settings?.google_play_url;
+			Platform.OS === 'ios'
+				? settings?.apple_app_url
+				: settings?.google_play_url;
 		openExternal(url);
 	};
 
@@ -190,7 +198,8 @@ const More = () => {
 					onPress={openStore}
 				>
 					<Text className="text-white text-base font-semibold">
-						Rate Paxi on the {Platform.OS === 'ios' ? 'App Store' : 'Play Store'}
+						Rate Paxi on the{' '}
+						{Platform.OS === 'ios' ? 'App Store' : 'Play Store'}
 					</Text>
 				</TouchableOpacity>
 			) : null}
@@ -206,11 +215,7 @@ const More = () => {
 								onPress={() => openExternal(url)}
 								className="w-12 h-12 rounded-full bg-secondary items-center justify-center"
 							>
-								<FontAwesome6
-									name={s.icon as any}
-									size={20}
-									color="white"
-								/>
+								<FontAwesome6 name={s.icon as any} size={20} color="white" />
 							</TouchableOpacity>
 						);
 					})}

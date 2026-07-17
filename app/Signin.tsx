@@ -69,8 +69,10 @@ const BOX_FONT_SIZE = (width: number) =>
 const Signin = () => {
 	const {setLoading, setUser, setAccessToken} = useGlobalStore();
 	const [formData, setFormData] = useState({
-		sPhone: __DEV__ ? '09073002599' : '',
-		password: __DEV__ ? 'Toyibe251101%' : '',
+		sPhone: __DEV__ ? '08027504524' : '',
+		password: __DEV__ ? 'PaPa@200' : '',
+		// sPhone: __DEV__ ? '09073002599' : '',
+		// password: __DEV__ ? 'Toyibe251101%' : '',
 	});
 	const [showPassword, setShowPassword] = useState(false);
 	const [deviceVerification, setDeviceVerification] = useState<{
@@ -373,6 +375,11 @@ const Signin = () => {
 										setOtpCode2(text);
 										setIsError2(false);
 									}}
+									onKeyPress={e => {
+										if (e.nativeEvent.key === 'Backspace' && otpCode2 === '') {
+											inputRef1.current?.focus();
+										}
+									}}
 									onFocus={() => setFocusedBox(2)}
 									inputMode="numeric"
 									maxLength={1}
@@ -391,6 +398,11 @@ const Signin = () => {
 										else inputRef2.current?.focus();
 										setOtpCode3(text);
 										setIsError3(false);
+									}}
+									onKeyPress={e => {
+										if (e.nativeEvent.key === 'Backspace' && otpCode3 === '') {
+											inputRef2.current?.focus();
+										}
 									}}
 									onFocus={() => setFocusedBox(3)}
 									inputMode="numeric"
@@ -411,6 +423,11 @@ const Signin = () => {
 										setOtpCode4(text);
 										setIsError4(false);
 									}}
+									onKeyPress={e => {
+										if (e.nativeEvent.key === 'Backspace' && otpCode4 === '') {
+											inputRef3.current?.focus();
+										}
+									}}
 									onFocus={() => setFocusedBox(4)}
 									inputMode="numeric"
 									maxLength={1}
@@ -429,6 +446,11 @@ const Signin = () => {
 										else inputRef4.current?.focus();
 										setOtpCode5(text);
 										setIsError5(false);
+									}}
+									onKeyPress={e => {
+										if (e.nativeEvent.key === 'Backspace' && otpCode5 === '') {
+											inputRef4.current?.focus();
+										}
 									}}
 									onFocus={() => setFocusedBox(5)}
 									inputMode="numeric"
@@ -451,6 +473,11 @@ const Signin = () => {
 										}
 										Keyboard.dismiss();
 										setFocusedBox(0);
+									}}
+									onKeyPress={e => {
+										if (e.nativeEvent.key === 'Backspace' && otpCode6 === '') {
+											inputRef5.current?.focus();
+										}
 									}}
 									onFocus={() => setFocusedBox(6)}
 									inputMode="numeric"
