@@ -150,7 +150,7 @@ const TV = () => {
 			? allPlans.filter(p => Number(p.attributes.price) <= 5000)
 			: allPlans.filter(p => Number(p.attributes.price) > 5000);
 
-	const handleVerify = async () => {
+	const handleVerify = async (iuc?: string) => {
 		setLoading(true);
 		try {
 			if (!formData.provider) throw new Error('Please select a provider');
@@ -162,7 +162,7 @@ const TV = () => {
 				VerifyApiResponse
 			>('/cable/verify', {
 				provider_id: formData.provider,
-				iuc_no: formData.iuc_no,
+				iuc_no: iuc || formData.iuc_no,
 			});
 
 			if (response.status === 200) {
@@ -212,7 +212,7 @@ const TV = () => {
 			}>('/cable', {
 				provider_id: formData.provider,
 				plan_id: formData.plan_id,
-				price: Number(formData.price),
+				price: Math.ceil(Number(formData.price)),
 				type: formData.type,
 				customer_no: user?.phone_number || '',
 				iuc_no: formData.iuc_no,
@@ -231,11 +231,13 @@ const TV = () => {
 			Toast.show({
 				type: 'error',
 				text1: 'Error',
-				text2:
+				text2: String(
 					error.response?.data?.message?.msg ||
-					error.response?.data?.message ||
-					error.response?.data ||
-					error.message,
+						error.response?.data?.error ||
+						error.response?.data?.message ||
+						error.response?.data ||
+						error.message,
+				),
 			});
 		} finally {
 			if (pin) setShowPin(false);
@@ -286,18 +288,16 @@ const TV = () => {
 						style={{fontSize: 16}}
 						inputMode="numeric"
 						value={formData.iuc_no.replace(/[<>"'&/]/g, '')}
-						onChangeText={text =>
+						onChangeText={text => {
 							setFormData(prev => ({
 								...prev,
 								iuc_no: text.replace(/[<>"'&/]/g, ''),
 								account_name: '',
-							}))
-						}
+							}));
+							if (formData.provider && text.length === 10) handleVerify(text);
+						}}
 						placeholder="Enter your number"
 						placeholderTextColor={'#999'}
-						onEndEditing={() => {
-							if (formData.provider && formData.iuc_no) handleVerify();
-						}}
 					/>
 
 					{/* Verified account name */}
