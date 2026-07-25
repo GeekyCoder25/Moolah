@@ -5,6 +5,7 @@ import {useGlobalStore} from '@/context/store';
 import {errorFormat} from '@/utils';
 import {AxiosClient} from '@/utils/axios';
 import {MemoryStorage} from '@/utils/storage';
+import {getDeviceId, getTrustToken, setTrustToken} from '@/utils/trust-token';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import * as Clipboard from 'expo-clipboard';
 import {router} from 'expo-router';
@@ -28,6 +29,9 @@ import Button from './components/button';
 interface SigninRequest {
 	sPhone: string;
 	password: string;
+	remember_me?: boolean;
+	trust_token?: string | null;
+	device_id?: string;
 }
 
 interface SigninResponse {
@@ -42,6 +46,7 @@ interface SigninResponse {
 		| {
 				token: string;
 				user: {name: string; email: string};
+				trust_token?: string;
 		  };
 }
 
@@ -51,6 +56,7 @@ interface VerifyDeviceResponse {
 	data: {
 		token: string;
 		user: {name: string; email: string};
+		trust_token?: string;
 	};
 }
 
@@ -69,12 +75,11 @@ const BOX_FONT_SIZE = (width: number) =>
 const Signin = () => {
 	const {setLoading, setUser, setAccessToken} = useGlobalStore();
 	const [formData, setFormData] = useState({
-		sPhone: __DEV__ ? '08027504524' : '',
-		password: __DEV__ ? 'PaPa@200' : '',
-		// sPhone: __DEV__ ? '09073002599' : '',
-		// password: __DEV__ ? 'Toyibe251101%' : '',
+		sPhone: '',
+		password: '',
 	});
 	const [showPassword, setShowPassword] = useState(false);
+	const [rememberMe, setRememberMe] = useState(true);
 	const [deviceVerification, setDeviceVerification] = useState<{
 		required: boolean;
 		token: string;
@@ -220,9 +225,18 @@ const Signin = () => {
 		const axiosClient = new AxiosClient();
 		try {
 			setLoading(true);
+			const [trustToken, deviceId] = await Promise.all([
+				getTrustToken(),
+				getDeviceId(),
+			]);
 			const response = await axiosClient.post<SigninRequest, SigninResponse>(
 				'/login',
-				formData,
+				{
+					...formData,
+					remember_me: rememberMe,
+					trust_token: trustToken,
+					device_id: deviceId,
+				},
 			);
 			if (response.status === 200) {
 				const data = response.data.data;
@@ -237,6 +251,7 @@ const Signin = () => {
 					});
 					setTimeLeft(60);
 				} else if ('token' in data) {
+					if (data.trust_token) await setTrustToken(data.trust_token);
 					await finalizeLogin(data.token, data.user.email);
 				}
 			}
@@ -286,14 +301,25 @@ const Signin = () => {
 		const axiosClient = new AxiosClient();
 		try {
 			setLoading(true);
+			const deviceId = await getDeviceId();
 			const response = await axiosClient.post<
-				{verification_token: string; otp_code: string},
+				{
+					verification_token: string;
+					otp_code: string;
+					remember_me: boolean;
+					device_id: string;
+				},
 				VerifyDeviceResponse
 			>('/login/verify-device', {
 				verification_token: deviceVerification.token,
 				otp_code: otp,
+				remember_me: rememberMe,
+				device_id: deviceId,
 			});
 			if (response.status === 200) {
+				if (response.data.data.trust_token) {
+					await setTrustToken(response.data.data.trust_token);
+				}
 				await finalizeLogin(
 					response.data.data.token,
 					response.data.data.user.email,
@@ -572,6 +598,21 @@ const Signin = () => {
 						</Text>
 					</TouchableOpacity>
 				</View>
+
+				<TouchableOpacity
+					className="flex-row items-center gap-x-2"
+					onPress={() => setRememberMe(prev => !prev)}
+					activeOpacity={0.7}
+				>
+					<View
+						className={`w-5 h-5 rounded-md border-2 items-center justify-center ${
+							rememberMe ? 'bg-secondary border-secondary' : 'border-[#C8C8C8]'
+						}`}
+					>
+						{rememberMe && <AntDesign name="check" size={12} color="white" />}
+					</View>
+					<Text className="text-base text-[#222] flex-1">Remember me</Text>
+				</TouchableOpacity>
 			</View>
 			<View>
 				<Button title="Log in" onPress={handleSubmit} />

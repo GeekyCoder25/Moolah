@@ -21,6 +21,7 @@ import {
 
 import {ACCESS_TOKEN_KEY, IS_LOGGED_IN} from '@/constants';
 import {MemoryStorage} from '@/utils/storage';
+import {clearTrustToken} from '@/utils/trust-token';
 
 type RoutePaths =
 	| '/Profile'
@@ -123,6 +124,8 @@ const More = () => {
 		const storage = new MemoryStorage();
 		await storage.removeItem(IS_LOGGED_IN);
 		await storage.removeItem(ACCESS_TOKEN_KEY);
+		// Drop the trust token so this device requires OTP on next login.
+		await clearTrustToken();
 		setAccessToken('');
 		router.replace('/Signin');
 	};

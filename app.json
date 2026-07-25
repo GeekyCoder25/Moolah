@@ -8,7 +8,7 @@
 		"scheme": "paxi",
 		"userInterfaceStyle": "automatic",
 		"ios": {
-			"buildNumber": "2",
+			"buildNumber": "3",
 			"supportsTablet": true,
 			"bundleIdentifier": "com.paxing",
 			"infoPlist": {
@@ -16,7 +16,7 @@
 			}
 		},
 		"android": {
-			"versionCode": 3,
+			"versionCode": 4,
 			"adaptiveIcon": {
 				"foregroundImage": "./assets/images/adaptive-icon.png",
 				"backgroundColor": "#ffffff"
