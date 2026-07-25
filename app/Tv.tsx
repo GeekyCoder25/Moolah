@@ -212,7 +212,7 @@ const TV = () => {
 			}>('/cable', {
 				provider_id: formData.provider,
 				plan_id: formData.plan_id,
-				price: Math.ceil(Number(formData.price)),
+				price: Number(formData.price),
 				type: formData.type,
 				customer_no: user?.phone_number || '',
 				iuc_no: formData.iuc_no,
