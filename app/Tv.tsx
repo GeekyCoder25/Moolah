@@ -169,7 +169,10 @@ const TV = () => {
 				if (response.data.data.status === 'success') {
 					setFormData(prev => ({
 						...prev,
-						account_name: response.data.data.name,
+						account_name:
+							response.data.data.name ||
+							response.data.data.Customer_Name ||
+							response.data.data.msg,
 					}));
 				} else {
 					throw new Error(response.data.data.msg);

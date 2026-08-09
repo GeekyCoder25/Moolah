@@ -2,11 +2,13 @@ import Logo from '@/assets/icons/logo';
 import {Text} from '@/components/text';
 import {useGlobalStore} from '@/context/store';
 import {AxiosClient} from '@/utils/axios';
-import {MemoryStorage} from '@/utils/storage';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import {useQuery} from '@tanstack/react-query';
 import {router} from 'expo-router';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+	ActivityIndicator,
 	KeyboardAvoidingView,
 	ScrollView,
 	TextInput,
@@ -45,11 +47,30 @@ interface AuthResponse {
 	status: number;
 }
 
+const randomDigits = (n: number) =>
+	Math.floor(Math.random() * Math.pow(10, n))
+		.toString()
+		.padStart(n, '0');
+
+// One-off availability check (outside react-query) used by the suggester loop.
+const checkUsernameAvailable = async (name: string) => {
+	try {
+		const axiosClient = new AxiosClient();
+		const res = await axiosClient.get<{data: {available: boolean}}>(
+			`/check-username/${name}`,
+		);
+		return res.data.data.available;
+	} catch {
+		return false;
+	}
+};
+
 const Signup = () => {
 	const {setLoading, setAccessToken} = useGlobalStore();
 	const [formData, setFormData] = useState({
 		fname: '',
 		lname: '',
+		username: '',
 		sEmail: '',
 		sPhone: '',
 		password: '',
@@ -61,14 +82,99 @@ const Signup = () => {
 	const [error, setError] = useState(formData);
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+	const [suggesting, setSuggesting] = useState(false);
+
+	// Debounce the username so we only hit /check-username after typing settles.
+	const [debouncedUsername, setDebouncedUsername] = useState('');
+	useEffect(() => {
+		const timer = setTimeout(
+			() => setDebouncedUsername(formData.username),
+			400,
+		);
+		return () => clearTimeout(timer);
+	}, [formData.username]);
+
+	const {data: usernameCheck, isFetching: checkingUsername} = useQuery({
+		queryKey: ['check-username', debouncedUsername],
+		queryFn: async () => {
+			const axiosClient = new AxiosClient();
+			const res = await axiosClient.get<{
+				status: number;
+				message: string;
+				data: {available: boolean};
+			}>(`/check-username/${debouncedUsername}`);
+			return res.data;
+		},
+		enabled: debouncedUsername.length >= 3,
+	});
+
+	// True while the user is still typing (ahead of the debounce) or the request
+	// is in flight. `available` is only meaningful for the settled username.
+	const usernameSettled = formData.username === debouncedUsername;
+	const usernameChecking =
+		formData.username.length >= 3 && (!usernameSettled || checkingUsername);
+	const usernameAvailable = usernameSettled
+		? usernameCheck?.data.available
+		: undefined;
 
 	const isFormValid =
 		formData.fname.trim() !== '' &&
 		formData.lname.trim() !== '' &&
+		formData.username.trim() !== '' &&
+		// Block only when the username is confirmed taken; unknown/errored passes
+		// through to the backend as the final gate.
+		usernameAvailable !== false &&
 		formData.sEmail.trim() !== '' &&
 		formData.sPhone.trim() !== '' &&
 		formData.password.trim() !== '' &&
 		formData.password_confirmation.trim() !== '';
+
+	// Generate a username from the user's name when available (else generic),
+	// trying candidates until one is actually available.
+	const suggestUsername = async () => {
+		const clean = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+		const f = clean(formData.fname);
+		const l = clean(formData.lname);
+
+		const bases: string[] = [];
+		if (f && l) {
+			bases.push(`${f}${l}`, `${f}_${l}`, `${f[0]}${l}`, `${l}${f[0]}`);
+		} else if (f || l) {
+			bases.push(f || l);
+		} else {
+			bases.push('user');
+		}
+
+		// Plain bases first, then numbered variants, then a pure-random fallback.
+		const candidates: string[] = [];
+		bases.forEach(b => b.length >= 3 && candidates.push(b));
+		bases.forEach(b => {
+			candidates.push(`${b}${randomDigits(2)}`);
+			candidates.push(`${b}${randomDigits(4)}`);
+		});
+		candidates.push(`user${randomDigits(5)}`);
+
+		setSuggesting(true);
+		try {
+			for (const raw of candidates) {
+				const name = raw.replace(/[^a-z0-9_]/g, '').slice(0, 20);
+				if (name.length < 3) continue;
+				if (await checkUsernameAvailable(name)) {
+					setFormData(prev => ({...prev, username: name}));
+					setError(prev => ({...prev, username: ''}));
+					setDebouncedUsername(name);
+					return;
+				}
+			}
+			Toast.show({
+				type: 'error',
+				text1: 'Could not find an available username',
+				text2: 'Please try again or enter one manually.',
+			});
+		} finally {
+			setSuggesting(false);
+		}
+	};
 
 	const handleSubmit = async () => {
 		try {
@@ -121,7 +227,7 @@ const Signup = () => {
 			];
 
 			const hasValidPrefix = validPrefixes.some(prefix =>
-				localWithZero.startsWith(prefix)
+				localWithZero.startsWith(prefix),
 			);
 
 			if (!hasValidPrefix) {
@@ -132,7 +238,7 @@ const Signup = () => {
 				Toast.show({
 					type: 'error',
 					text1: 'Invalid phone prefix',
-					text2: 'Phone number mot valid',
+					text2: 'Phone number not valid',
 				});
 				return;
 			}
@@ -195,11 +301,11 @@ const Signup = () => {
 			setError(prev => ({...prev, password: '', password_confirmation: ''}));
 
 			const axiosClient = new AxiosClient();
-			const storage = new MemoryStorage();
+			// const storage = new MemoryStorage();
 			setLoading(true);
 			const response = await axiosClient.post<any, AuthResponse>('/register', {
 				...formData,
-				sPhone: localWithZero,
+				sPhone: `234${phoneDigits}`,
 			});
 			if (response.status === 200) {
 				console.log(response.data);
@@ -211,12 +317,15 @@ const Signup = () => {
 			Toast.show({
 				type: 'error',
 				text1: 'Registration Error',
-				text2: err.response?.data || err.message,
+				text2: err.response?.data?.message || err.message,
 			});
 			console.log(
-				err.response?.data.errors || err.response?.data || err.message
+				err.response?.data.errors || err.response?.data || err.message,
 			);
-			setError(err.response.data?.errors);
+
+			if (err.response?.data?.errors) {
+				setError(err.response.data?.errors);
+			}
 		} finally {
 			setLoading(false);
 		}
@@ -272,6 +381,61 @@ const Signup = () => {
 						/>
 						<View className="ml-1">
 							<Text className="text-red-500 text-sm">{error.lname}</Text>
+						</View>
+					</View>
+					<View className="">
+						<Text className="text-xl font-semibold">Username</Text>
+						<View className="relative">
+							<TextInput
+								className="bg-white border-[1px] border-[#C8C8C8] w-full mt-3 mb-2 rounded-lg px-5 pr-14 h-14 text-black"
+								onChangeText={text => {
+									setFormData(prev => ({
+										...prev,
+										username: text.replace(/[^a-zA-Z0-9_]/g, ''),
+									}));
+									setError(prev => ({
+										...prev,
+										username: '',
+									}));
+								}}
+								value={formData.username}
+								autoCapitalize="none"
+								autoCorrect={false}
+							/>
+							<View className="absolute right-4 top-1/2 -translate-y-1/2">
+								<TouchableOpacity
+									onPress={suggestUsername}
+									disabled={suggesting}
+									hitSlop={8}
+								>
+									{suggesting ? (
+										<ActivityIndicator size="small" color="#1A73E8" />
+									) : (
+										<MaterialCommunityIcons
+											name="auto-fix"
+											size={24}
+											color="#1A73E8"
+										/>
+									)}
+								</TouchableOpacity>
+							</View>
+						</View>
+						<View className="ml-1">
+							{usernameChecking ? (
+								<Text className="text-[#888] text-sm">
+									Checking availability…
+								</Text>
+							) : usernameAvailable === true ? (
+								<Text className="text-[#1F9254] text-sm">
+									✓ Username is available
+								</Text>
+							) : usernameAvailable === false ? (
+								<Text className="text-red-500 text-sm">
+									Username is already taken
+								</Text>
+							) : (
+								<Text className="text-red-500 text-sm">{error.username}</Text>
+							)}
 						</View>
 					</View>
 					<View className="">
@@ -394,6 +558,27 @@ const Signup = () => {
 							</Text>
 						</View>
 					</View>
+					<View className="">
+						<Text className="text-xl font-semibold">
+							Referral code{' '}
+							<Text className="text-[#888] text-base font-normal">
+								(optional)
+							</Text>
+						</Text>
+						<TextInput
+							className="bg-white border-[1px] border-[#C8C8C8] w-full mt-3 mb-2 rounded-lg px-5 h-14 text-black"
+							onChangeText={text =>
+								setFormData(prev => ({
+									...prev,
+									referral: text.replace(/[^a-zA-Z0-9]/g, ''),
+								}))
+							}
+							value={formData.referral}
+							autoCapitalize="none"
+							autoCorrect={false}
+							placeholder="Enter referral code"
+						/>
+					</View>
 				</View>
 				<View className="mb-60">
 					<Button
@@ -402,7 +587,7 @@ const Signup = () => {
 						disabled={!isFormValid}
 					/>
 					<View className="flex-row justify-center items-center mt-5">
-						<Text className="text-xl">Don't have an account? </Text>
+						<Text className="text-xl">Don&apos;t have an account? </Text>
 
 						<TouchableOpacity onPress={() => router.navigate('/Signin')}>
 							<Text className="text-primary text-2xl font-bold">Sign in </Text>
