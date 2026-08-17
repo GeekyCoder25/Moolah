@@ -13,6 +13,10 @@ import {MemoryStorage} from '../storage';
 import {StorageInterface} from '../storage/storage.types';
 import {AxiosClientProps} from './axios.types';
 
+// Guards against navigating to VerifyPhone repeatedly when several requests
+// fail with the mobile-not-verified gate at the same time.
+let redirectingMobileVerify = false;
+
 export class AxiosClient {
 	_axiosClient: AxiosInstance;
 	_storageClass: StorageInterface;
@@ -70,6 +74,19 @@ export class AxiosClient {
 						router.replace('/Signin');
 					}
 					this._onAccessTokenExpire?.();
+				}
+
+				// Any endpoint can reject with "mobile not verified" for a user who
+				// hasn't completed phone verification. Send them to VerifyPhone.
+				const data = error?.response?.data as
+					| {message?: string; data?: {mobile_verified?: boolean}}
+					| undefined;
+				if (data?.data?.mobile_verified === false && !redirectingMobileVerify) {
+					redirectingMobileVerify = true;
+					router.replace('/VerifyPhone');
+					setTimeout(() => {
+						redirectingMobileVerify = false;
+					}, 3000);
 				}
 
 				return Promise.reject(error);

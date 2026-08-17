@@ -2,13 +2,13 @@
 	"expo": {
 		"name": "Paxi",
 		"slug": "paxi",
-		"version": "1.0.1",
+		"version": "1.0.2",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
 		"scheme": "paxi",
 		"userInterfaceStyle": "automatic",
 		"ios": {
-			"buildNumber": "3",
+			"buildNumber": "5",
 			"supportsTablet": true,
 			"bundleIdentifier": "com.paxing",
 			"infoPlist": {
@@ -16,7 +16,7 @@
 			}
 		},
 		"android": {
-			"versionCode": 4,
+			"versionCode": 5,
 			"adaptiveIcon": {
 				"foregroundImage": "./assets/images/adaptive-icon.png",
 				"backgroundColor": "#ffffff"
@@ -59,16 +59,7 @@
 			],
 			"expo-font",
 			"expo-web-browser",
-			[
-				"expo-build-properties",
-				{
-					"android": {
-						"compileSdkVersion": 36,
-						"targetSdkVersion": 36,
-						"buildToolsVersion": "36.0.0"
-					}
-				}
-			],
+			"expo-build-properties",
 			"./plugins/withMlKitConflict.js",
 			"./plugins/withSmileIdPackagingFix",
 			"./plugins/withSmileIdSwiftInterfaceFix"

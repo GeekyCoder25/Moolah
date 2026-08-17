@@ -18,35 +18,6 @@ import {
 import Toast from 'react-native-toast-message';
 import Button from './components/button';
 
-interface User {
-	createdAt: string;
-	sApiKey: string;
-	sBankName: string;
-	sBankNo: string;
-	sEmail: string;
-	sFname: string;
-	sId: number;
-	sLname: string;
-	sPass: string;
-	sPhone: string;
-	sPin: number;
-	sReferal: string | null;
-	sRegStatus: number;
-	sState: string | null;
-	sType: number;
-	sVerCode: number;
-	updatedAt: string;
-}
-
-interface AuthResponse {
-	data: {
-		token: string;
-		user: User;
-	};
-	message: string;
-	status: number;
-}
-
 const randomDigits = (n: number) =>
 	Math.floor(Math.random() * Math.pow(10, n))
 		.toString()
@@ -66,7 +37,7 @@ const checkUsernameAvailable = async (name: string) => {
 };
 
 const Signup = () => {
-	const {setLoading, setAccessToken} = useGlobalStore();
+	const {setLoading, registerErrors, setRegisterErrors} = useGlobalStore();
 	const [formData, setFormData] = useState({
 		fname: '',
 		lname: '',
@@ -81,6 +52,15 @@ const Signup = () => {
 	});
 	const [error, setError] = useState(formData);
 	const [showPassword, setShowPassword] = useState(false);
+
+	// Field errors returned by /register (done on the SetPin screen) are handed
+	// back here so they show under the matching inputs.
+	useEffect(() => {
+		if (registerErrors) {
+			setError(prev => ({...prev, ...registerErrors}));
+			setRegisterErrors(null);
+		}
+	}, [registerErrors, setRegisterErrors]);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [suggesting, setSuggesting] = useState(false);
 
@@ -300,19 +280,14 @@ const Signup = () => {
 			// clear password errors when valid
 			setError(prev => ({...prev, password: '', password_confirmation: ''}));
 
-			const axiosClient = new AxiosClient();
-			// const storage = new MemoryStorage();
-			setLoading(true);
-			const response = await axiosClient.post<any, AuthResponse>('/register', {
-				...formData,
-				sPhone: `234${phoneDigits}`,
+			// The PIN is collected on the dedicated SetPin page, which then calls
+			// /register with the real pin. Carry the validated form data across.
+			router.navigate({
+				pathname: '/SetPin',
+				params: {
+					data: JSON.stringify({...formData, sPhone: `234${phoneDigits}`}),
+				},
 			});
-			if (response.status === 200) {
-				console.log(response.data);
-				setAccessToken(response.data.data.token);
-				// storage.setItem(ACCESS_TOKEN_KEY, response.data.data.token);
-				router.navigate(`/VerifyOTP?email=${formData.sEmail}`);
-			}
 		} catch (err: any) {
 			Toast.show({
 				type: 'error',
@@ -342,7 +317,7 @@ const Signup = () => {
 					To get started with more features
 				</Text>
 
-				<View className="my-20 gap-y-3">
+				<View className="mt-10 mb-20 gap-y-3">
 					<View className="">
 						<Text className="text-xl font-semibold">First Name</Text>
 						<TextInput
@@ -359,9 +334,11 @@ const Signup = () => {
 							}}
 							value={formData.fname.replace(/[<>"'&/]/g, '')}
 						/>
-						<View className="ml-1">
-							<Text className="text-red-500 text-sm">{error.fname}</Text>
-						</View>
+						{error.fname ? (
+							<View className="ml-1">
+								<Text className="text-red-500 text-sm">{error.fname}</Text>
+							</View>
+						) : null}
 					</View>
 					<View className="">
 						<Text className="text-xl font-semibold">Last Name</Text>
@@ -379,9 +356,11 @@ const Signup = () => {
 							}}
 							value={formData.lname.replace(/[<>"'&/]/g, '')}
 						/>
-						<View className="ml-1">
-							<Text className="text-red-500 text-sm">{error.lname}</Text>
-						</View>
+						{error.lname ? (
+							<View className="ml-1">
+								<Text className="text-red-500 text-sm">{error.lname}</Text>
+							</View>
+						) : null}
 					</View>
 					<View className="">
 						<Text className="text-xl font-semibold">Username</Text>
@@ -420,23 +399,28 @@ const Signup = () => {
 								</TouchableOpacity>
 							</View>
 						</View>
-						<View className="ml-1">
-							{usernameChecking ? (
-								<Text className="text-[#888] text-sm">
-									Checking availability…
-								</Text>
-							) : usernameAvailable === true ? (
-								<Text className="text-[#1F9254] text-sm">
-									✓ Username is available
-								</Text>
-							) : usernameAvailable === false ? (
-								<Text className="text-red-500 text-sm">
-									Username is already taken
-								</Text>
-							) : (
-								<Text className="text-red-500 text-sm">{error.username}</Text>
-							)}
-						</View>
+						{usernameChecking ||
+						usernameAvailable === true ||
+						usernameAvailable === false ||
+						error.username ? (
+							<View className="ml-1">
+								{usernameChecking ? (
+									<Text className="text-[#888] text-sm">
+										Checking availability…
+									</Text>
+								) : usernameAvailable === true ? (
+									<Text className="text-[#1F9254] text-sm">
+										✓ Username is available
+									</Text>
+								) : usernameAvailable === false ? (
+									<Text className="text-red-500 text-sm">
+										Username is already taken
+									</Text>
+								) : (
+									<Text className="text-red-500 text-sm">{error.username}</Text>
+								)}
+							</View>
+						) : null}
 					</View>
 					<View className="">
 						<Text className="text-xl font-semibold">Email address</Text>
@@ -455,9 +439,11 @@ const Signup = () => {
 							value={formData.sEmail.replace(/[<>"'&/]/g, '')}
 							inputMode="email"
 						/>
-						<View className="ml-1">
-							<Text className="text-red-500 text-sm">{error.sEmail}</Text>
-						</View>
+						{error.sEmail ? (
+							<View className="ml-1">
+								<Text className="text-red-500 text-sm">{error.sEmail}</Text>
+							</View>
+						) : null}
 					</View>
 					<View className="">
 						<Text className="text-xl font-semibold">Phone Number</Text>
@@ -482,9 +468,11 @@ const Signup = () => {
 							inputMode="tel"
 							maxLength={14}
 						/>
-						<View className="ml-1">
-							<Text className="text-red-500 text-sm">{error.sPhone}</Text>
-						</View>
+						{error.sPhone ? (
+							<View className="ml-1">
+								<Text className="text-red-500 text-sm">{error.sPhone}</Text>
+							</View>
+						) : null}
 					</View>
 					<View className="">
 						<Text className="text-xl font-semibold">Password</Text>
@@ -517,9 +505,11 @@ const Signup = () => {
 								</TouchableOpacity>
 							</View>
 						</View>
-						<View className="ml-1">
-							<Text className="text-red-500 text-sm">{error.password}</Text>
-						</View>
+						{error.password ? (
+							<View className="ml-1">
+								<Text className="text-red-500 text-sm">{error.password}</Text>
+							</View>
+						) : null}
 					</View>
 					<View className="">
 						<Text className="text-xl font-semibold">Confirm Password</Text>
@@ -552,11 +542,13 @@ const Signup = () => {
 								</TouchableOpacity>
 							</View>
 						</View>
-						<View className="ml-1">
-							<Text className="text-red-500 text-sm">
-								{error.password_confirmation}
-							</Text>
-						</View>
+						{error.password_confirmation ? (
+							<View className="ml-1">
+								<Text className="text-red-500 text-sm">
+									{error.password_confirmation}
+								</Text>
+							</View>
+						) : null}
 					</View>
 					<View className="">
 						<Text className="text-xl font-semibold">

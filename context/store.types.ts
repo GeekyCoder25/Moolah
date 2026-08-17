@@ -20,4 +20,8 @@ export interface GlobalState {
 	setNin: (nin: string) => void;
 	settings: Settings | null;
 	setSettings: (settings: Settings | null) => void;
+	// Field errors from /register (done on the SetPin screen), handed back to the
+	// Signup screen so it can show them under the matching inputs.
+	registerErrors: Record<string, string> | null;
+	setRegisterErrors: (errors: Record<string, string> | null) => void;
 }

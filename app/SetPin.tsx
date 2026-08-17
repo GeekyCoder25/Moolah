@@ -1,11 +1,11 @@
 import BackIcon from '@/assets/icons/back-icon';
 import Logo from '@/assets/icons/logo';
 import {Text} from '@/components/text';
-import {IS_LOGGED_IN} from '@/constants';
+import {ACCESS_TOKEN_KEY} from '@/constants';
 import {useGlobalStore} from '@/context/store';
 import {AxiosClient} from '@/utils/axios';
 import {MemoryStorage} from '@/utils/storage';
-import {router} from 'expo-router';
+import {router, useLocalSearchParams} from 'expo-router';
 import React, {useRef, useState} from 'react';
 import {
 	Keyboard,
@@ -18,9 +18,24 @@ import {
 import Toast from 'react-native-toast-message';
 import Button from './components/button';
 
+// Register fields owned by the Signup form; errors on these are shown there.
+const SIGNUP_FIELDS = [
+	'fname',
+	'lname',
+	'username',
+	'sEmail',
+	'sPhone',
+	'password',
+	'password_confirmation',
+];
+
 const SetPin = () => {
 	const axiosClient = new AxiosClient();
-	const {setLoading} = useGlobalStore();
+	const {setLoading, setAccessToken, setRegisterErrors} = useGlobalStore();
+	// Validated signup form data carried over from the Signup screen; the real
+	// pin (set below) is added to it before hitting /register.
+	const params = useLocalSearchParams<{data?: string}>();
+	const signupData = params.data ? JSON.parse(params.data) : {};
 	const [focusedBox, setFocusedBox] = useState(0);
 	const [isError1, setIsError1] = useState(false);
 	const [isError2, setIsError2] = useState(false);
@@ -97,21 +112,48 @@ const SetPin = () => {
 				throw new Error("Pin doesn't match");
 			}
 			setLoading(true);
-			const response = await axiosClient.post<{
-				old_pin: string;
-				new_pin: string;
-				new_pin_confirmation: string;
-			}>('/changepin', {
-				old_pin: '0000',
-				new_pin: pin,
-				new_pin_confirmation: pin,
-			});
+			const response = await axiosClient.post<any, {data: {token: string}}>(
+				'/register',
+				{...signupData, pin: Number(pin)},
+			);
 			if (response.status === 200) {
-				console.log(response.data);
-				await storage.setItem(IS_LOGGED_IN, 'true');
-				router.replace('/');
+				setAccessToken(response.data.data.token);
+				await storage.setItem(ACCESS_TOKEN_KEY, response.data.data.token);
+				// Local phone format (0XXXXXXXXXX) for the phone-verification step.
+				const localPhone = signupData.sPhone
+					? `0${String(signupData.sPhone).slice(-10)}`
+					: '';
+				router.navigate({
+					pathname: '/VerifyOTP',
+					params: {email: signupData.sEmail, phone: localPhone},
+				});
 			}
 		} catch (error: any) {
+			// Field errors from /register (e.g. email/username/phone already taken)
+			// belong to the Signup form — hand them back and return there.
+			const fieldErrors = error.response?.data?.errors as
+				| Record<string, string[] | string>
+				| undefined;
+			if (
+				fieldErrors &&
+				Object.keys(fieldErrors).some(k => SIGNUP_FIELDS.includes(k))
+			) {
+				const mapped: Record<string, string> = {};
+				Object.entries(fieldErrors).forEach(([key, value]) => {
+					mapped[key] = Array.isArray(value) ? value[0] : String(value);
+				});
+				setRegisterErrors(mapped);
+				Toast.show({
+					type: 'error',
+					text1: 'Error',
+					text2:
+						error.response?.data?.message ||
+						'Please fix the highlighted fields.',
+				});
+				router.back();
+				return;
+			}
+
 			setIsError1(true);
 			setIsError2(true);
 			setIsError3(true);

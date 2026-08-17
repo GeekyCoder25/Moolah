@@ -20,4 +20,6 @@ export const useGlobalStore = create<GlobalState>(set => ({
 	setNin: nin => set({nin}),
 	settings: null,
 	setSettings: settings => set({settings}),
+	registerErrors: null,
+	setRegisterErrors: registerErrors => set({registerErrors}),
 }));

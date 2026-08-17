@@ -1,7 +1,7 @@
 import BackIcon from '@/assets/icons/back-icon';
 import Logo from '@/assets/icons/logo';
 import {Text} from '@/components/text';
-import {IS_LOGGED_IN, LAST_OTP} from '@/constants';
+import {LAST_OTP} from '@/constants';
 import {useGlobalStore} from '@/context/store';
 import {AxiosClient} from '@/utils/axios';
 import {MemoryStorage} from '@/utils/storage';
@@ -30,7 +30,7 @@ interface EmailVerificationResponse {
 }
 const VerifyOTP = () => {
 	const axiosClient = new AxiosClient();
-	const {email}: {email: string} = useLocalSearchParams();
+	const {email, phone} = useLocalSearchParams<{email: string; phone?: string}>();
 	const {setLoading} = useGlobalStore();
 	const [timeLeft, setTimeLeft] = useState(60);
 	const [focusedBox, setFocusedBox] = useState(0);
@@ -163,7 +163,6 @@ const VerifyOTP = () => {
 
 	const handleSubmit = async (isClipboard: boolean) => {
 		try {
-			const storage = new MemoryStorage();
 			const clipboard = await Clipboard.getStringAsync();
 			let otp;
 			if (isClipboard) {
@@ -214,9 +213,9 @@ const VerifyOTP = () => {
 				code: otp,
 			});
 			if (response.status === 200) {
-				console.log(response.data);
-				await storage.setItem(IS_LOGGED_IN, 'true');
-				router.navigate('/SetPin');
+				// Phone verification is required before reaching the app; it sets
+				// IS_LOGGED_IN on success. Carry the registration phone through.
+				router.replace({pathname: '/VerifyPhone', params: {phone}});
 			}
 		} catch (error: any) {
 			setIsError1(true);
