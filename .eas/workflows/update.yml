@@ -1,0 +1,30 @@
+name: OTA Update
+
+# Over-the-air update (EAS Update) to the production channel — ships JS / asset
+# changes to existing installs WITHOUT a new native build ("push a new T").
+# Run it only when you want to publish an update:
+#   git tag update-1.0.3
+#   git push origin update-1.0.3
+# Or trigger manually from the Expo dashboard / `eas workflow:run update.yml`.
+#
+# `branches: []` is required: if omitted, push defaults to every branch and this
+# would publish an update on every push.
+#
+# NOTE: an OTA update only reaches installs whose runtimeVersion matches the one
+# in app.json. Bump the native build (build-* tag) when you change native code
+# or the runtimeVersion.
+on:
+  push:
+    branches: []
+    tags:
+      - update-*
+  workflow_dispatch: {}
+
+jobs:
+  publish_update:
+    name: Publish EAS Update
+    type: update
+    environment: production
+    params:
+      channel: production
+      message: ${{ github.ref_name }}

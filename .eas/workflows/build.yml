@@ -1,9 +1,18 @@
 name: Build
 
+# Native build (+ TestFlight submit). Does NOT run on normal commits.
+# Run it only when you want a new native build:
+#   git tag build-1.0.3
+#   git push origin build-1.0.3
+# Or trigger manually from the Expo dashboard / `eas workflow:run build.yml`.
+#
+# `branches: []` is required: if omitted, push defaults to every branch and it
+# would build on every push again.
 on:
   push:
-    branches:
-      - master
+    branches: []
+    tags:
+      - build-*
   workflow_dispatch: {}
 
 jobs:
@@ -13,3 +22,17 @@ jobs:
     params:
       platform: android
       profile: production
+
+  build_ios:
+    name: Build iOS App
+    type: build
+    params:
+      platform: ios
+      profile: production
+
+  submit_ios:
+    name: Submit iOS to TestFlight
+    type: submit
+    needs: [build_ios]
+    params:
+      build_id: ${{ needs.build_ios.outputs.build_id }}

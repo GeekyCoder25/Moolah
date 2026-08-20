@@ -13,6 +13,8 @@ import {router} from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import React, {useState} from 'react';
 import {
+	ActivityIndicator,
+	FlatList,
 	Keyboard,
 	Modal,
 	Pressable,
@@ -115,6 +117,9 @@ const Printing = () => {
 	const [ePinCards, setEPinCards] = useState<EPinCard[]>([]);
 	const [showHistory, setShowHistory] = useState(false);
 	const [historyLoading, setHistoryLoading] = useState(false);
+	const [loadingMore, setLoadingMore] = useState(false);
+	const [historyPage, setHistoryPage] = useState(1);
+	const [historyHasMore, setHistoryHasMore] = useState(false);
 	const [history, setHistory] = useState<EPinHistoryRecord[]>([]);
 	const [selectedRecord, setSelectedRecord] =
 		useState<EPinHistoryRecord | null>(null);
@@ -141,21 +146,45 @@ const Printing = () => {
 		exitSelectMode();
 	};
 
-	const fetchHistory = async () => {
+	// Paginated history: page 1 replaces, later pages append. `historyHasMore`
+	// drives the infinite scroll (onEndReached).
+	const HISTORY_PAGE_SIZE = 20;
+	const fetchHistory = async (page = 1) => {
 		try {
-			setHistoryLoading(true);
+			if (page === 1) setHistoryLoading(true);
+			else setLoadingMore(true);
 			const axiosClient = new AxiosClient();
 			const response = await axiosClient.get<EPinHistoryResponse>(
-				'/v1/nellobytes/epin/history',
+				`/v1/nellobytes/epin/history?page=${page}&limit=${HISTORY_PAGE_SIZE}`,
 			);
 			if (response.status === 200) {
-				setHistory(response.data.data.data);
+				const {
+					data: records,
+					current_page,
+					last_page,
+				} = response.data.data;
+				setHistory(prev => {
+					const merged = page === 1 ? records : [...prev, ...records];
+					// Guard against duplicate ids across pages (breaks list keys).
+					const seen = new Set<number>();
+					return merged.filter(r =>
+						seen.has(r.id) ? false : (seen.add(r.id), true),
+					);
+				});
+				setHistoryPage(current_page);
+				setHistoryHasMore(current_page < last_page);
 			}
 		} catch (error) {
 			console.log(error);
 		} finally {
 			setHistoryLoading(false);
+			setLoadingMore(false);
 		}
+	};
+
+	const loadMoreHistory = () => {
+		if (historyLoading || loadingMore || !historyHasMore) return;
+		fetchHistory(historyPage + 1);
 	};
 
 	const handleBuy = async (pin?: string) => {
@@ -808,15 +837,26 @@ body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 24px; 
 								<Text className="text-[#666] text-base">No history found</Text>
 							</View>
 						) : (
-							<ScrollView
+							<FlatList
+								data={history}
+								keyExtractor={item => String(item.id)}
 								className="flex-1 px-[5%] py-4"
 								showsVerticalScrollIndicator={false}
-							>
-								{history.map(record => {
+								onEndReached={loadMoreHistory}
+								onEndReachedThreshold={0.4}
+								ListFooterComponent={
+									loadingMore ? (
+										<View className="py-4 items-center">
+											<ActivityIndicator color="#1A73E8" />
+										</View>
+									) : (
+										<View className="w-full h-6" />
+									)
+								}
+								renderItem={({item: record}) => {
 									const isChecked = selectedIds.includes(record.id);
 									return (
 										<TouchableOpacity
-											key={record.id}
 											className={`bg-white rounded-xl px-3 py-2.5 mb-2 flex-row items-center ${
 												selectMode && isChecked
 													? 'border-2 border-secondary'
@@ -895,9 +935,8 @@ body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 24px; 
 											</View>
 										</TouchableOpacity>
 									);
-								})}
-								<View className="w-full h-6" />
-							</ScrollView>
+								}}
+							/>
 						)}
 
 						{/* Batch action bar */}

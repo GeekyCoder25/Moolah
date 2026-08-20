@@ -544,6 +544,16 @@ const Signin = () => {
 		);
 	}
 
+	// Client-side validation: the identifier must be a valid email or phone,
+	// and the password must be at least 6 characters.
+	const identifier = formData.sPhone.trim();
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	const identifierValid = identifier.includes('@')
+		? emailRegex.test(identifier)
+		: /^\d{10,11}$/.test(identifier.replace(/\D/g, ''));
+	const passwordValid = formData.password.length >= 6;
+	const canLogin = identifierValid && passwordValid;
+
 	return (
 		<ScrollView className="bg-white flex-1 px-[3%] py-5">
 			<Logo />
@@ -567,6 +577,11 @@ const Signin = () => {
 						}
 						value={formData.sPhone.replace(/[<>"'&/]/g, '')}
 					/>
+					{identifier.length > 0 && !identifierValid && (
+						<Text className="text-red-500 text-sm ml-1">
+							Enter a valid email or phone number
+						</Text>
+					)}
 				</View>
 				<View className="">
 					<Text className="text-2xl font-bold">Password</Text>
@@ -592,6 +607,11 @@ const Signin = () => {
 							</TouchableOpacity>
 						</View>
 					</View>
+					{formData.password.length > 0 && !passwordValid && (
+						<Text className="text-red-500 text-sm ml-1">
+							Password must be at least 6 characters
+						</Text>
+					)}
 					<TouchableOpacity onPress={() => router.navigate('/Forget')}>
 						<Text className="text-xl text-primary text-right font-semibold">
 							Forget Password?
@@ -615,7 +635,11 @@ const Signin = () => {
 				</TouchableOpacity>
 			</View>
 			<View>
-				<Button title="Log in" onPress={handleSubmit} />
+				<Button
+					title="Log in"
+					onPress={handleSubmit}
+					disabled={!canLogin}
+				/>
 				<View className="flex-row flex-wrap justify-center items-center mt-5">
 					<Text className="text-xl">Already have an existing account? </Text>
 					<TouchableOpacity onPress={() => router.navigate('/Signup')}>
