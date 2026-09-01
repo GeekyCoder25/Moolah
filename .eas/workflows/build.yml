@@ -1,32 +1,33 @@
 name: Build
 
-# TEMPORARY — SUBMIT ONLY (no build).
-# The iOS build already succeeded; only the TestFlight submit is failing on the
-# submission/credential config. To iterate on that WITHOUT burning build quota,
-# this workflow submits an EXISTING build instead of building a new one.
+# Native build (+ TestFlight submit). Does NOT run on normal commits.
+# Run it only when you want a new native build:
+#   git tag build-1.0.3
+#   git push origin build-1.0.3            (or: npm run eas:build)
+# Or trigger manually from the Expo dashboard / `eas workflow:run build.yml`.
 #
-# How to run it:
-#   Expo dashboard → Workflows → Build → "Run workflow", and paste the id of the
-#   successful iOS build. Find the id at expo.dev → your project → Builds → open
-#   the green iOS 1.0.3 (6) build (it's the last path segment of the URL), or run
-#   `eas build:list --platform ios --limit 1`.
-#
-# Restore the build+submit version (the build_ios job + `build-*` tag trigger)
-# from git history once submission works.
+# `branches: []` is required: if omitted, push defaults to every branch and it
+# would build on every push again.
 on:
-  workflow_dispatch:
-    inputs:
-      build_id:
-        type: string
-        required: true
-        description: EAS build id of the successful iOS build to submit to TestFlight
+  push:
+    branches: []
+    tags:
+      - build-*
+  workflow_dispatch: {}
 
 jobs:
+  build_ios:
+    name: Build iOS App
+    type: build
+    params:
+      platform: ios
+      profile: production
+
   submit_ios:
     name: Submit iOS to TestFlight
     type: submit
+    needs: [build_ios]
     params:
-      build_id: ${{ github.event.inputs.build_id }}
-      profile: production
+      build_id: ${{ needs.build_ios.outputs.build_id }}
     env:
       EXPO_DEBUG: '1'
