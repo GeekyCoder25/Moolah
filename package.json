@@ -8,7 +8,9 @@
 		"android": "expo run:android",
 		"ios": "expo run:ios",
 		"web": "expo start --web",
-		"lint": "expo lint"
+		"lint": "expo lint",
+		"eas:build": "T=build-$(node -p \"require('./app.json').expo.version\")-$(date +%Y%m%d%H%M%S) && git tag \"$T\" && git push origin \"$T\" && echo \"\\nPushed tag $T — EAS Build triggered\"",
+		"eas:update": "T=update-$(node -p \"require('./app.json').expo.version\")-$(date +%Y%m%d%H%M%S) && git tag \"$T\" && git push origin \"$T\" && echo \"\\nPushed tag $T — EAS Update triggered\""
 	},
 	"dependencies": {
 		"@expo/vector-icons": "^15.0.3",
