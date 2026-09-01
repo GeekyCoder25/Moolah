@@ -1,49 +1,32 @@
 name: Build
 
-# Native build (+ store submit) for both platforms. Does NOT run on normal
-# commits. Run it only when you want a new native build:
-#   git tag build-1.0.3
-#   git push origin build-1.0.3            (or: npm run eas:build)
-# Or trigger manually from the Expo dashboard / `eas workflow:run build.yml`.
+# TEMPORARY — SUBMIT ONLY (no build).
+# The Android build already succeeded; only the Google Play submit needs setting
+# up. To iterate on that WITHOUT burning build quota, this workflow submits an
+# EXISTING build instead of building a new one.
 #
-# `branches: []` is required: if omitted, push defaults to every branch and it
-# would build on every push again.
+# How to run it:
+#   Expo dashboard → Workflows → Build → "Run workflow", and paste the id of the
+#   successful Android build. Find the id at expo.dev → your project → Builds →
+#   open the green Android 1.0.3 (6) build (last path segment of the URL), or run
+#   `eas build:list --platform android --limit 1`.
+#
+# Restore the full build + submit workflow (both platforms + `build-*` tag
+# trigger) from git history once the Android submit works.
 on:
-  push:
-    branches: []
-    tags:
-      - build-*
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      build_id:
+        type: string
+        required: true
+        description: EAS build id of the successful Android build to submit to Google Play
 
 jobs:
-  build_ios:
-    name: Build iOS App
-    type: build
-    params:
-      platform: ios
-      profile: production
-
-  submit_ios:
-    name: Submit iOS to TestFlight
-    type: submit
-    needs: [build_ios]
-    params:
-      build_id: ${{ needs.build_ios.outputs.build_id }}
-    env:
-      EXPO_DEBUG: '1'
-
-  build_android:
-    name: Build Android AAB
-    type: build
-    params:
-      platform: android
-      profile: production
-
   submit_android:
     name: Submit Android to Google Play
     type: submit
-    needs: [build_android]
     params:
-      build_id: ${{ needs.build_android.outputs.build_id }}
+      build_id: ${{ github.event.inputs.build_id }}
+      profile: production
     env:
       EXPO_DEBUG: '1'
