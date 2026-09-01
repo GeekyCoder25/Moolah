@@ -29,6 +29,20 @@ const SIGNUP_FIELDS = [
 	'password_confirmation',
 ];
 
+// Some /register errors come back as just a message with no `errors` object,
+// e.g. { message: "Phone number already exist." }. Map those to the owning
+// Signup field so the error can be shown under the right input.
+const inferFieldFromMessage = (message: string): string | null => {
+	const m = message.toLowerCase();
+	if (m.includes('phone')) return 'sPhone';
+	if (m.includes('email')) return 'sEmail';
+	if (m.includes('user name') || m.includes('username')) return 'username';
+	if (m.includes('first name') || m.includes('fname')) return 'fname';
+	if (m.includes('last name') || m.includes('lname')) return 'lname';
+	if (m.includes('password')) return 'password';
+	return null;
+};
+
 const SetPin = () => {
 	const axiosClient = new AxiosClient();
 	const {setLoading, setAccessToken, setRegisterErrors} = useGlobalStore();
@@ -131,24 +145,35 @@ const SetPin = () => {
 		} catch (error: any) {
 			// Field errors from /register (e.g. email/username/phone already taken)
 			// belong to the Signup form — hand them back and return there.
-			const fieldErrors = error.response?.data?.errors as
+			// The backend uses two shapes: a keyed `errors` object, or just a
+			// `message` (e.g. "Phone number already exist.") — handle both.
+			const data = error.response?.data;
+			const fieldErrors = data?.errors as
 				| Record<string, string[] | string>
 				| undefined;
-			if (
-				fieldErrors &&
-				Object.keys(fieldErrors).some(k => SIGNUP_FIELDS.includes(k))
-			) {
-				const mapped: Record<string, string> = {};
+			const message: string | undefined =
+				typeof data?.message === 'string' ? data.message : undefined;
+
+			const mapped: Record<string, string> = {};
+			if (fieldErrors) {
 				Object.entries(fieldErrors).forEach(([key, value]) => {
-					mapped[key] = Array.isArray(value) ? value[0] : String(value);
+					if (SIGNUP_FIELDS.includes(key)) {
+						mapped[key] = Array.isArray(value) ? value[0] : String(value);
+					}
 				});
+			}
+			// No keyed field error — try to infer the field from the message.
+			if (Object.keys(mapped).length === 0 && message) {
+				const field = inferFieldFromMessage(message);
+				if (field) mapped[field] = message;
+			}
+
+			if (Object.keys(mapped).length > 0) {
 				setRegisterErrors(mapped);
 				Toast.show({
 					type: 'error',
 					text1: 'Error',
-					text2:
-						error.response?.data?.message ||
-						'Please fix the highlighted fields.',
+					text2: message || 'Please fix the highlighted fields.',
 				});
 				router.back();
 				return;

@@ -13,8 +13,10 @@ import ProfileCardIcon from '@/assets/icons/profile-card';
 import WalletBgIcon from '@/assets/icons/wallet-bg';
 import WifiIcon from '@/assets/icons/wifi';
 import AdBanner from '@/components/ad-banner';
+import KycPrompt from '@/components/kyc-prompt';
 import {Text} from '@/components/text';
 import TransactionItem from '@/components/transaction-item';
+import {KYC_PROMPT_DISMISSED} from '@/constants';
 import {useGlobalStore} from '@/context/store';
 import {GlobalColors} from '@/styles';
 import {AxiosClient} from '@/utils/axios';
@@ -22,7 +24,7 @@ import {MemoryStorage} from '@/utils/storage';
 import Entypo from '@expo/vector-icons/Entypo';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {router, useFocusEffect} from 'expo-router';
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {
 	Pressable,
 	RefreshControl,
@@ -93,6 +95,8 @@ export default function HomeScreen() {
 	const [refreshing, setRefreshing] = useState(false);
 	const [showBalance, setShowBalance] = useState(true);
 	const [showPin, setShowPin] = useState(false);
+	const [showKycPrompt, setShowKycPrompt] = useState(false);
+	const kycPromptChecked = useRef(false);
 
 	const handleRefresh = () => {
 		setRefreshing(true);
@@ -113,6 +117,17 @@ export default function HomeScreen() {
 		const storage = new MemoryStorage();
 		storage.setItem('showBalance', `${showBalance}`);
 	}, [showBalance]);
+
+	// Show the KYC prompt once per app open when the user hasn't verified and
+	// hasn't chosen "Don't show again".
+	useEffect(() => {
+		if (kycPromptChecked.current || !user) return;
+		if (user.kyc_status === 'approved') return;
+		kycPromptChecked.current = true;
+		new MemoryStorage().getItem(KYC_PROMPT_DISMISSED).then(val => {
+			if (val !== 'true') setShowKycPrompt(true);
+		});
+	}, [user]);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -328,7 +343,7 @@ export default function HomeScreen() {
 				</View>
 			</View>
 
-			{user?.kyc_status !== 'pending' && user?.kyc_status !== 'approved' && (
+			{user?.kyc_status !== 'approved' && (
 				<View className="bg-white px-5 py-5 rounded-xl gap-3 mb-5 flex-row items-center">
 					<View className="flex-row gap-3 flex-1 items-center">
 						<ProfileCardIcon />
@@ -403,13 +418,15 @@ export default function HomeScreen() {
 
 				<View className="mt-2">
 					{transactions.length ? (
-						transactions.slice(0, 5).map(transaction => (
-							<TransactionItem
-								key={transaction.id}
-								transaction={transaction}
-								variant="compact"
-							/>
-						))
+						transactions
+							.slice(0, 5)
+							.map(transaction => (
+								<TransactionItem
+									key={transaction.id}
+									transaction={transaction}
+									variant="compact"
+								/>
+							))
 					) : (
 						<Text className="text-center text-lg my-20">
 							You have no new transactions at the moment
@@ -425,6 +442,19 @@ export default function HomeScreen() {
 					handleContinue={handleUpgrade}
 				/>
 			)}
+
+			<KycPrompt
+				visible={showKycPrompt}
+				onVerify={() => {
+					setShowKycPrompt(false);
+					router.navigate('/kyc/Step1');
+				}}
+				onLater={() => setShowKycPrompt(false)}
+				onDismissForever={async () => {
+					setShowKycPrompt(false);
+					await new MemoryStorage().setItem(KYC_PROMPT_DISMISSED, 'true');
+				}}
+			/>
 		</ScrollView>
 	);
 }

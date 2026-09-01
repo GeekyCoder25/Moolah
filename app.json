@@ -2,13 +2,13 @@
 	"expo": {
 		"name": "Paxi",
 		"slug": "paxi",
-		"version": "1.0.2",
+		"version": "1.0.3",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
 		"scheme": "paxi",
 		"userInterfaceStyle": "automatic",
 		"ios": {
-			"buildNumber": "5",
+			"buildNumber": "6",
 			"supportsTablet": true,
 			"bundleIdentifier": "com.paxing",
 			"infoPlist": {
@@ -16,7 +16,7 @@
 			}
 		},
 		"android": {
-			"versionCode": 5,
+			"versionCode": 6,
 			"adaptiveIcon": {
 				"foregroundImage": "./assets/images/adaptive-icon.png",
 				"backgroundColor": "#ffffff"
@@ -75,7 +75,7 @@
 				"projectId": "cb07485c-b359-43f9-930f-8f1d942c9a40"
 			}
 		},
-		"runtimeVersion": "1.0.2",
+		"runtimeVersion": "1.0.3",
 		"updates": {
 			"url": "https://u.expo.dev/cb07485c-b359-43f9-930f-8f1d942c9a40"
 		}

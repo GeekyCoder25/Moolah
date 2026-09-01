@@ -59,7 +59,7 @@ const Fund = () => {
 		Clipboard.setStringAsync(value);
 	};
 
-	const accNo = user.banks.filter(bank => bank.account_no)[0].account_no;
+	const accNo = user.banks.filter(bank => bank.account_no)[0]?.account_no;
 
 	const startCountdown = (seconds: number) => {
 		setSecondsLeft(seconds);
@@ -276,7 +276,7 @@ const Fund = () => {
 				<View>
 					<View className="my-10 gap-y-5">
 						<Text className="text-[#292D32] font-medium text-xl">
-							Bank name: {user.banks.filter(bank => bank.account_no)[0].name}
+							Bank name: {user.banks.filter(bank => bank.account_no)[0]?.name}
 						</Text>
 						<Text className="font-medium text-xl">
 							Account name: MFY / PAXI GLOBAL TECH Limited -{user.firstname}{' '}
@@ -284,7 +284,7 @@ const Fund = () => {
 						</Text>
 						<Text className="font-medium text-xl">
 							Account number:{' '}
-							{user.banks.filter(bank => bank.account_no)[0].account_no}
+							{user.banks.filter(bank => bank.account_no)[0]?.account_no}
 						</Text>
 					</View>
 

@@ -19,7 +19,7 @@ import {
 	View,
 } from 'react-native';
 
-import {ACCESS_TOKEN_KEY, IS_LOGGED_IN} from '@/constants';
+import {ACCESS_TOKEN_KEY, IS_LOGGED_IN, KYC_PROMPT_DISMISSED} from '@/constants';
 import {MemoryStorage} from '@/utils/storage';
 import {clearTrustToken} from '@/utils/trust-token';
 
@@ -124,6 +124,8 @@ const More = () => {
 		const storage = new MemoryStorage();
 		await storage.removeItem(IS_LOGGED_IN);
 		await storage.removeItem(ACCESS_TOKEN_KEY);
+		// Reset the KYC nudge so it prompts again for the next signed-in user.
+		await storage.removeItem(KYC_PROMPT_DISMISSED);
 		// Drop the trust token so this device requires OTP on next login.
 		await clearTrustToken();
 		setAccessToken('');

@@ -6,3 +6,5 @@ export const APP_THEME = 'appTheme';
 export const TRUST_TOKEN_KEY = 'trustToken';
 // Persistent, non-secret device identifier sent with login.
 export const DEVICE_ID = 'deviceId';
+// Set once the user chooses "Don't show again" on the home KYC prompt.
+export const KYC_PROMPT_DISMISSED = 'kycPromptDismissed';

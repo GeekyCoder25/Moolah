@@ -3,6 +3,7 @@ import {Text} from '@/components/text';
 import {useGlobalStore} from '@/context/store';
 import {AxiosClient} from '@/utils/axios';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {useQuery} from '@tanstack/react-query';
 import {router} from 'expo-router';
@@ -47,7 +48,7 @@ const Signup = () => {
 		password: '',
 		password_confirmation: '',
 		referral: '',
-		pin: '0000',
+		pin: '',
 		state: '',
 	});
 	const [error, setError] = useState(formData);
@@ -97,6 +98,24 @@ const Signup = () => {
 		? usernameCheck?.data.available
 		: undefined;
 
+	// Live password requirements checklist.
+	const pw = formData.password;
+	const passwordRequirements = [
+		{label: 'At least 8 characters', met: pw.length >= 8},
+		{label: 'At most 16 characters', met: pw.length > 0 && pw.length <= 16},
+		{label: 'Contains at least one uppercase letter', met: /[A-Z]/.test(pw)},
+		{label: 'Contains at least one lowercase letter', met: /[a-z]/.test(pw)},
+		{label: 'Contains at least one number', met: /[0-9]/.test(pw)},
+		{
+			label: 'Contains at least one special character (!@#$%^&*)',
+			met: /[!@#$%^&*]/.test(pw),
+		},
+	];
+	const passwordValid = passwordRequirements.every(r => r.met);
+	const passwordsMatch =
+		formData.password_confirmation.length > 0 &&
+		formData.password === formData.password_confirmation;
+
 	const isFormValid =
 		formData.fname.trim() !== '' &&
 		formData.lname.trim() !== '' &&
@@ -106,8 +125,8 @@ const Signup = () => {
 		usernameAvailable !== false &&
 		formData.sEmail.trim() !== '' &&
 		formData.sPhone.trim() !== '' &&
-		formData.password.trim() !== '' &&
-		formData.password_confirmation.trim() !== '';
+		passwordValid &&
+		passwordsMatch;
 
 	// Generate a username from the user's name when available (else generic),
 	// trying candidates until one is actually available.
@@ -510,6 +529,34 @@ const Signup = () => {
 								<Text className="text-red-500 text-sm">{error.password}</Text>
 							</View>
 						) : null}
+
+						{/* Live password requirements */}
+						{formData.password.length > 0 && (
+							<View className="bg-[#EEF4FF] rounded-xl p-4 mt-1 gap-y-2">
+								<Text className="text-[#111] font-semibold text-sm mb-1">
+									Password requirements:
+								</Text>
+								{passwordRequirements.map(req => (
+									<View
+										key={req.label}
+										className="flex-row items-center gap-x-2"
+									>
+										<Ionicons
+											name={req.met ? 'checkmark-circle' : 'ellipse-outline'}
+											size={16}
+											color={req.met ? '#1F9254' : '#9AA5B4'}
+										/>
+										<Text
+											className={`text-sm flex-1 ${
+												req.met ? 'text-[#1F9254]' : 'text-[#64748B]'
+											}`}
+										>
+											{req.label}
+										</Text>
+									</View>
+								))}
+							</View>
+						)}
 					</View>
 					<View className="">
 						<Text className="text-xl font-semibold">Confirm Password</Text>
@@ -546,6 +593,12 @@ const Signup = () => {
 							<View className="ml-1">
 								<Text className="text-red-500 text-sm">
 									{error.password_confirmation}
+								</Text>
+							</View>
+						) : formData.password_confirmation.length > 0 && !passwordsMatch ? (
+							<View className="ml-1">
+								<Text className="text-red-500 text-sm">
+									Passwords do not match
 								</Text>
 							</View>
 						) : null}

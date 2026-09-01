@@ -200,7 +200,7 @@ const VerifyPhone = () => {
 			<Pressable
 				className="pb-5"
 				onPress={() =>
-					router.canGoBack() ? router.back : router.replace('/Signin')
+					router.canGoBack() ? router.back() : router.replace('/Signin')
 				}
 			>
 				<BackIcon />

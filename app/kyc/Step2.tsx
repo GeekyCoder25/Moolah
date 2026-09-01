@@ -19,7 +19,7 @@ const Step2 = () => {
 			});
 		}
 		setNin(input);
-		router.back();
+		router.replace('/kyc/Step3');
 	};
 
 	return (

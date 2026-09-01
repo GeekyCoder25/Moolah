@@ -47,8 +47,7 @@ const Profile = () => {
 	const completionPct = Math.round(
 		(completedCount / completionFields.length) * 100,
 	);
-	const kycIncomplete =
-		user.kyc_status !== 'pending' && user.kyc_status !== 'approved';
+	const kycIncomplete = user.kyc_status !== 'approved';
 
 	const handleUpdate = async () => {
 		try {

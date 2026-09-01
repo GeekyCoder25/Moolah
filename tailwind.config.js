@@ -4,6 +4,7 @@ module.exports = {
 	content: ['./app/**/**/*.{js,jsx,ts,tsx}'],
 	presets: [require('nativewind/preset')],
 	theme: {
+		fontWeight: {},
 		extend: {
 			colors: {
 				primary: '#051242',
@@ -13,6 +14,7 @@ module.exports = {
 			fontFamily: {
 				extralight: ['PlusJakartaSansExtraLight'],
 				light: ['PlusJakartaSansLight'],
+				normal: ['PlusJakartaSansRegular'],
 				regular: ['PlusJakartaSansRegular'],
 				medium: ['PlusJakartaSansMedium'],
 				'plus-semibold': ['PlusJakartaSansSemiBold'],

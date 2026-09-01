@@ -8,7 +8,8 @@ import {useGlobalStore} from '@/context/store';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {router} from 'expo-router';
 import React from 'react';
-import {Pressable, ToastAndroid, TouchableOpacity, View} from 'react-native';
+import {Pressable, TouchableOpacity, View} from 'react-native';
+import Toast from 'react-native-toast-message';
 
 const Step1 = () => {
 	const {nin} = useGlobalStore();
@@ -57,10 +58,15 @@ const Step1 = () => {
 					)}
 				</TouchableOpacity>
 				<TouchableOpacity
-					className="flex-row gap-5 items-center pr-5"
+					className={`flex-row gap-5 items-center pr-5 ${
+						!nin ? 'opacity-50' : ''
+					}`}
 					onPress={() =>
 						!nin
-							? ToastAndroid.show('Please provide your NIN first', 2000)
+							? Toast.show({
+									type: 'error',
+									text1: 'Please provide your NIN first',
+								})
 							: router.push('/kyc/Step3')
 					}
 				>

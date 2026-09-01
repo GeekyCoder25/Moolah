@@ -7,7 +7,7 @@ export interface EmailVerificationResponse {
 
 interface BankDetails {
 	name: string;
-	account_no: string | null;
+	account_no?: string | null;
 	account_name?: string | null;
 }
 
