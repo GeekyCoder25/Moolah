@@ -41,3 +41,5 @@ ios
 
 
 build-*
+# Smile ID config downloads (contain the partner auth token — keep out of git)
+smile_config*.json
